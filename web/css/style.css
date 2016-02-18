@@ -1,5 +1,6 @@
 body {
-    margin-bottom:20px;
+    margin-bottom: 20px;
+    color: #3A2658;
 }
 
 #spinner {
@@ -9,6 +10,6 @@ body {
     height:32px;
     left: 50%;
     top: 50%;
-    margin-top:-16px;
-    margin-left:-16px;
+    margin-top: -16px;
+    margin-left: -16px;
 }

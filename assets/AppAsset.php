@@ -17,12 +17,11 @@ class AppAsset extends AssetBundle
         'js/fullscreen.js',
         'js/icheck.js',
         'js/jquery-dateFormat.min.js',
-        '//vk.com/js/api/xd_connection.js',
-        '//www.google.com/jsapi?autoload={\'modules\':[{\'name\':\'visualization\',\'version\':\'1\',\'packages\':[\'corechart\']}]}',
         '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
+        'yii\authclient\widgets\AuthChoiceAsset',
     ];
     
 }

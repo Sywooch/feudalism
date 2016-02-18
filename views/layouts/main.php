@@ -17,6 +17,8 @@ AppAsset::register($this);
         <?= Html::csrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head() ?>
+        <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+        <link rel="icon" href="/img/logo512.png">
     </head>
     <body>
         <?php $this->beginBody() ?>

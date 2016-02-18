@@ -9,18 +9,17 @@ use Yii,
     app\models\Group,
     app\models\Invite,
     app\models\Unit,
-    app\models\Castle,
-    app\models\Group;
+    app\models\Castle;
 
 /**
  * This is the model class for table "users".
  *
  * @property integer $id
  * @property string $name
+ * @property integer $gender 
+ * @property boolean $invited 
  * @property integer $level
- * @property integer $currentGroupId
- * @property integer $currentCastleId
- * @property integer $capitalCastleId
+ * @property double $balance 
  * @property integer $magic Магия
  * @property integer $authority Авторитет (внушительность)
  * @property integer $education Образованность
@@ -29,6 +28,9 @@ use Yii,
  * @property integer $authorityBase Авторитет (без бонусов)
  * @property integer $educationBase Образованность (без бонусов)
  * @property integer $combatBase Боевые навыки (без бонусов)
+ * @property integer $currentGroupId
+ * @property integer $currentCastleId
+ * @property integer $capitalCastleId
  *
  * @property Auth[] $auths
  * @property Group[] $groups
@@ -56,7 +58,9 @@ class User extends MyModel implements IdentityInterface
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['level', 'currentGroupId', 'currentCastleId', 'capitalCastleId', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase'], 'integer'],
+            [['gender', 'level', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId'], 'integer'],
+            [['invited'], 'boolean'],
+            [['balance'], 'number'],
             [['capitalCastleId'], 'unique']
         ];
     }
@@ -69,10 +73,10 @@ class User extends MyModel implements IdentityInterface
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
+            'gender' => Yii::t('app', 'Gender'), 
+            'invited' => Yii::t('app', 'Invited'), 
             'level' => Yii::t('app', 'Level'),
-            'currentGroupId' => Yii::t('app', 'Current Group ID'),
-            'currentCastleId' => Yii::t('app', 'Current Castle ID'),
-            'capitalCastleId' => Yii::t('app', 'Capital Castle ID'),
+            'balance' => Yii::t('app', 'Balance'),
             'magic' => Yii::t('app', 'Magic'),
             'authority' => Yii::t('app', 'Authority'),
             'education' => Yii::t('app', 'Education'),
@@ -81,6 +85,9 @@ class User extends MyModel implements IdentityInterface
             'authorityBase' => Yii::t('app', 'Authority Base'),
             'educationBase' => Yii::t('app', 'Education Base'),
             'combatBase' => Yii::t('app', 'Combat Base'),
+            'currentGroupId' => Yii::t('app', 'Current Group ID'),
+            'currentCastleId' => Yii::t('app', 'Current Castle ID'),
+            'capitalCastleId' => Yii::t('app', 'Capital Castle ID'),
         ];
     }
 
@@ -167,7 +174,23 @@ class User extends MyModel implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        
+        return null;
+    }
+    
+    const GENDER_UNDEFINED = 0;
+    const GENDER_FEMALE = 1;
+    const GENDER_MALE = 2;
+
+    public static function stringGenderToInt($gender)
+    {
+        switch ($gender) {
+            case 'male':
+                return static::GENDER_MALE;
+            case 'female':
+                return static::GENDER_FEMALE;
+            default:
+                return static::GENDER_UNDEFINED;
+        }
     }
 
 }

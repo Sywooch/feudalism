@@ -125,8 +125,8 @@ class SiteController extends Controller
 
         /** @var Auth $auth */
         $auth = Auth::find()->where([
-            'source' => $client->getId(),
-            'source_id' => $attributes['id'],
+            'source' => Auth::getSourceId($client->getId()),
+            'sourceId' => $attributes['id'],
         ])->one();
         
         if (Yii::$app->user->isGuest) {
@@ -139,14 +139,14 @@ class SiteController extends Controller
                     $this->redirect("invite");
                 }
             } else { // signup
-                Auth::signUp($client->getId(), $attributes);
+                Auth::signUp(Auth::getSourceId($client->getId()), $attributes);
             }
         } else { // user already logged in
             if (!$auth) { // add auth provider
                 $auth = new Auth([
-                    'user_id' => Yii::$app->user->id,
-                    'source' => $client->getId(),
-                    'source_id' => $attributes['id'],
+                    'userId' => Yii::$app->user->id,
+                    'source' => Auth::getSourceId($client->getId()),
+                    'sourceId' => $attributes['id'],
                 ]);
                 $auth->save();
             }

@@ -75,45 +75,20 @@ class Auth extends MyModel
             case static::SOURCE_GOOGLE:
                 $user = new User([
                     'name' => $attributes['displayName'],
-                    'sex' => User::stringGenderToSex($attributes['gender']),
-                    'photo' => $attributes['image']['url'],
-                    'photo_big' => preg_replace("/sz=50/", "/sz=400", $attributes['image']['url']),
-                    'money' => 200000                    
+                    'gender' => User::stringGenderToInt($attributes['gender']),
+                    'balance' => 10                    
                 ]);
                 break;
-            case static::SOURCE_FACEBOOK:
-                $user = new User([
-                    'name' => $attributes['name'],
-                    'sex' => User::stringGenderToSex($attributes['gender']),
-                    'photo' => "http://graph.facebook.com/{$attributes['id']}/picture",
-                    'photo_big' => "http://graph.facebook.com/{$attributes['id']}/picture?width=400&height=800",
-                    'money' => 100000                    
-                ]);
-                break;
-            case static::SOURCE_VK:
-            case static::SOURCE_VKAPP:
-                $user = new User([
-                    'name' => $attributes['first_name'] . ' ' . $attributes['last_name'],
-                    'sex' => intval($attributes['sex']),
-                    'photo' => $attributes['photo_50'],
-                    'photo_big' => (isset($attributes['photo_400_orig'])) ? $attributes['photo_400_orig'] : $attributes['photo_big'],
-                    'money' => 100000                    
-                ]);
-                break;
-
+            default:
+                return null;
         }
-        
-        $user->party_id = 0;
-        $user->state_id = 0;
-        $user->post_id = 0;
-        $user->region_id = 0;
         
         $transaction = $user->getDb()->beginTransaction();
         if ($user->save()) {
             $auth = new Auth([
-                'user_id' => $user->id,
+                'userId' => $user->id,
                 'source' => $source,
-                'source_id' => (string)(isset($attributes['id'])?$attributes['id']:$attributes['uid']),
+                'sourceId' => (string)(isset($attributes['id'])?$attributes['id']:$attributes['uid']),
             ]);
             if ($auth->save()) {
                 $transaction->commit();
@@ -127,4 +102,25 @@ class Auth extends MyModel
             return $user;
         }
     }
+    
+    /**
+     * 
+     * @param string $sourceName
+     */
+    public static function getSourceId($sourceName)
+    {
+        switch ($sourceName) {
+            case 'google':
+                return static::SOURCE_GOOGLE;
+            case 'facebook':
+                return static::SOURCE_FACEBOOK;
+            case 'twitter':
+                return static::SOURCE_TWITTER;
+            case 'vkontakte':
+                return static::SOURCE_VK;
+            case 'vkapp':
+                return static::SOURCE_VKAPP;
+        }
+    }
+    
 }

@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use yii\base\Model,
+use Yii,
+    yii\base\Model,
     yii\web\UploadedFile;
 
 /**
