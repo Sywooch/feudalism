@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 ?>
 <header>
     <div class="container">
-        <h3>Загрузите картинку-инвайт, чтобы получить доступ к игре</h3>
+        <h3><?=Yii::t('app','Load invite-picture')?></h3>
     </div>
 </header>
 <div class="container">
@@ -22,7 +22,7 @@ use yii\widgets\ActiveForm;
 
                 <?= $form->field($model, 'imageFile')->fileInput() ?>
 
-                <button class="btn btn-blue">Загрузить</button>
+                <button class="btn btn-blue"><?=Yii::t('app','Send')?></button>
 
             <?php ActiveForm::end() ?>
         </div>

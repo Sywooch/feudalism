@@ -60,10 +60,10 @@ class MyController extends Controller
             }
         }
         
-        $ar = [
-            'result' => $this->result,
-            'error' => $this->error
-        ];
+        $ar = ['result' => $this->result];
+        if ($this->error) {            
+            $ar['error'] = $this->error;
+        }
         
         foreach ($addFields as $key => $val) {
             $ar[$key] = $val;
@@ -99,19 +99,23 @@ class MyController extends Controller
 
     public function beforeAction($action)
     {
-        if (isset(Yii::$app->request->params['uid']) && isset(Yii::$app->request->params['key'])) {
-            $viewer_id = intval(Yii::$app->request->params['uid']);
-            $auth_key = Yii::$app->request->params['key'];
-            if ($viewer_id > 0 && $auth_key) {
-                $real_key = User::getRealKey($viewer_id);
-                if (hash_equals($auth_key,$real_key)) {
-                    $this->viewer_id = $viewer_id;
-                    return true;
+        if (Yii::$app->user->isGuest) {
+            if (Yii::$app->request->get('uid') && Yii::$app->request->get('key')) {
+                $viewer_id = intval(Yii::$app->request->params['uid']);
+                $auth_key = Yii::$app->request->params['key'];
+                if ($viewer_id > 0 && $auth_key) {
+                    $real_key = User::getRealKey($viewer_id);
+                    if (hash_equals($auth_key,$real_key)) {
+                        $this->viewer_id = $viewer_id;
+                        return true;
+                    }
                 }
+            } 
+            if (isset($action->actionMethod)) {
+                $action->actionMethod = 'actionInvalidAuthkey';
             }
-        } 
-        if (isset($action->actionMethod)) {
-            $action->actionMethod = 'actionInvalidAuthkey';
+        } else {
+            $this->viewer_id = Yii::$app->user->id;
         }
         
         return true;
@@ -135,7 +139,7 @@ class MyController extends Controller
     protected function getUser()
     {
         if (is_null($this->_user)) {
-            $this->_user = User::findByPk($this->viewer_id);
+            $this->_user = User::findOne($this->viewer_id);
         }
         return $this->_user;
     }

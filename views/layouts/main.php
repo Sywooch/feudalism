@@ -1,7 +1,7 @@
 <?php
 
-use yii\helpers\Html;
-use app\assets\AppAsset;
+use yii\helpers\Html,
+    app\assets\AppAsset;
 
 /* @var $this \yii\web\View */
 /* @var $content string */
@@ -23,11 +23,12 @@ AppAsset::register($this);
     <body>
         <?php $this->beginBody() ?>
         <img src="/img/ajax-loader.gif" id="spinner" style="display:none" alt="Загрузка..." >
+        <?=Html::img('/img/ajax-loader.gif', ['id'=>'spinner','style'=>'display:none','alt'=>'Загрузка'])?>
         <div>
             <?= $content ?>
         </div>
         <footer class='footer'>
-            <p>Разработка — <a href="http://lazzyteam.com" target="_blank">LazzyTeam</a></p>
+            <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.com', ['target'=>'_blank'])?></p>
         </footer>
         <?php $this->endBody() ?>
         <script>

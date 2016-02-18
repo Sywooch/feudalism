@@ -5,14 +5,13 @@ namespace app\controllers;
 use Yii,
     yii\filters\AccessControl,
     yii\web\ErrorAction,
-    yii\web\Controller,
     yii\web\UploadedFile,
     yii\authclient\AuthAction,
     app\models\Auth,
     app\models\InviteForm,
-    app\components\vkapi\VkApi;
+    app\controllers\MyController;
 
-class SiteController extends Controller
+class SiteController extends MyController
 {
 
     public function actions()
@@ -49,75 +48,16 @@ class SiteController extends Controller
     
     public function actionIndex()
     {
-        if (Yii::$app->user->isGuest || Yii::$app->user->identity->invited) {
+        if (Yii::$app->user->isGuest) {
             return $this->render('index');
         } else {
-            return $this->redirect(["invite"]);
+            if (Yii::$app->user->identity->invited) {
+                return $this->renderJson($this->user);
+            } else {
+                return $this->redirect(["invite"]);
+            }
         }
     }
-    /*
-    public function actionVkAppAuth($viewer_id, $auth_key, $user_id)
-    {
-        if (!Yii::$app->user->isGuest) {
-            Yii::$app->user->logout();
-        }
-        
-//        $friends = json_decode(Yii::$app->request->get("api_result"))["response"];
-        $real_key = md5(Yii::$app->params['VK_APP_ID']."_".$viewer_id."_".Yii::$app->params['VK_APP_KEY']);
-        
-        if ($real_key !== $auth_key) {
-            exit('Invalid auth key!');
-        }
-        $VK = new VkApi(Yii::$app->params['VK_APP_ID'],Yii::$app->params['VK_APP_KEY']);
-       
-//        $isMember = $VK->api('groups.isMember', ['group_id'=>'politsim','user_id'=>$viewer_id]);
-//        if (!$isMember['response']) exit('Игра доступна только для альфа-тестеров.');
-        
-        $vkinfo = $VK->api('users.get', array('https'=>1,'user_ids'=>$viewer_id,'fields'=>'sex,photo_50,photo_big','version'=>'5.40'));
-        
-        if (!(isset($vkinfo['response'][0]['first_name']))) exit('VK API error');
-        $vkinfo = $vkinfo['response'][0];
-        
-        $auth = Auth::find()->where([
-            'source' => 'vkontakte',
-            'source_id' => $viewer_id,
-        ])->one();
-                
-        if ($auth) { // login
-            /** @var \app\models\User *
-            $user = $auth->user;
-            $user->name = $vkinfo['first_name'].' '.$vkinfo['last_name'];
-            $user->photo = $vkinfo['photo_50'];
-            $user->photo_big = $vkinfo['photo_big'];
-            $user->sex = intval($vkinfo['sex']);
-            $user->save();
-            
-            Yii::$app->user->login($user, 30*24*60*60);
-                
-            if ($user->invited) {
-                $authView = Auth::find()->where([
-                    'source' => 'vkontakte',
-                    'source_id' => $user_id,
-                ])->one();
-                
-                if ($authView && $authView->user && $authView->user->id) {
-                    $user_id = $authView->user->id;
-                } else {
-                    $user_id = $auth->user->id;
-                }
-                
-                $this->redirect("/#!profile&id={$user_id}");
-            } else {
-                $this->redirect("invite");
-            }
-        } else { // signup
-            $auth = Auth::signUp('vkontakte', $vkinfo);
-        }
-        
-        if (!$auth->id) {
-            var_dump($auth->getErrors());
-        }
-    }*/
     
     public function onAuthSuccess($client)
     {
