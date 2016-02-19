@@ -13,7 +13,6 @@ class AppAsset extends AssetBundle
         'css/style.css',
     ];
     public $js = [
-        'js/jquery-1.11.3.min.js',
         'js/fullscreen.js',
         'js/icheck.js',
         'js/jquery-dateFormat.min.js',
@@ -21,7 +20,6 @@ class AppAsset extends AssetBundle
     ];
     public $depends = [
         'yii\web\YiiAsset',
-        'yii\authclient\widgets\AuthChoiceAsset',
     ];
     
 }

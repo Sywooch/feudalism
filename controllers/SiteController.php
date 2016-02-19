@@ -52,7 +52,9 @@ class SiteController extends MyController
             return $this->render('index');
         } else {
             if (Yii::$app->user->identity->invited) {
-                return $this->renderJson($this->user);
+                return $this->render('panel',[
+                    'user' => Yii::$app->user->identity
+                ]);
             } else {
                 return $this->redirect(["invite"]);
             }

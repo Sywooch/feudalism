@@ -38,7 +38,11 @@ use Yii,
  * @property Unit[] $units
  * @property Castle $capitalCastle
  * @property Castle $currentCastle
+ * @property Castle[] $castles
  * @property Group $currentGroup
+ * 
+ * @property string $genderPrefix
+ * @property string $genderedName
  */
 class User extends MyModel implements IdentityInterface
 {
@@ -142,6 +146,14 @@ class User extends MyModel implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCastles()
+    {
+        return $this->hasMany(Castle::className(), ['userId' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCurrentGroup()
     {
         return $this->hasOne(Group::className(), ['id' => 'currentGroupId']);
@@ -191,6 +203,23 @@ class User extends MyModel implements IdentityInterface
             default:
                 return static::GENDER_UNDEFINED;
         }
+    }
+    
+    public function getGenderPrefix()
+    {
+        switch ($this->gender) {
+            case static::GENDER_MALE:
+                return Yii::t('app','Sir');
+            case static::GENDER_FEMALE:
+                return Yii::t('app','Lady');
+            default:
+                return '';
+        }
+    }
+    
+    public function getGenderedName()
+    {
+        return $this->genderPrefix.' '.$this->name;
     }
 
 }

@@ -18,8 +18,8 @@ use Yii,
  * @property double $lng
  *
  * @property Unit[] $units
- * @property User $users
- * @property User[] $users0
+ * @property User $user
+ * @property User[] $users
  */
 class Castle extends MyModel
 {
@@ -70,15 +70,15 @@ class Castle extends MyModel
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers()
+    public function getUser()
     {
-        return $this->hasOne(User::className(), ['capitalCastleId' => 'id']);
+        return $this->hasOne(User::className(), ['id' => 'userId']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers0()
+    public function getUsers()
     {
         return $this->hasMany(User::className(), ['currentCastleId' => 'id']);
     }

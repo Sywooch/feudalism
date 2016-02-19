@@ -28,7 +28,8 @@ AppAsset::register($this);
             <?= $content ?>
         </div>
         <footer class='footer'>
-            <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.com', ['target'=>'_blank'])?></p>
+            <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
+            <p><?=Yii::t('app','Icons by')?> <?=Html::a('RainDropMemory', 'http://raindropmemory.deviantart.com/', ['target'=>'_blank'])?></p>
         </footer>
         <?php $this->endBody() ?>
         <script>

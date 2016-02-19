@@ -96,7 +96,7 @@ class MyController extends Controller
         $this->error = $e;
         return $this->renderJson(null, $addFields);
     }
-
+    
     public function beforeAction($action)
     {
         if (Yii::$app->user->isGuest) {
@@ -107,27 +107,14 @@ class MyController extends Controller
                     $real_key = User::getRealKey($viewer_id);
                     if (hash_equals($auth_key,$real_key)) {
                         $this->viewer_id = $viewer_id;
-                        return true;
                     }
                 }
             } 
-            if (isset($action->actionMethod)) {
-                $action->actionMethod = 'actionInvalidAuthkey';
-            }
         } else {
             $this->viewer_id = Yii::$app->user->id;
         }
         
-        return true;
-    }
-
-    public function actionInvalidAuthkey()
-    {
-        if (Yii::$app->request->getIsAjax()) {
-            return $this->renderJsonError("Invalid auth key");
-        } else {
-            throw new HttpException(403, "Invalid auth key");
-        }
+        return parent::beforeAction($action);
     }
 
     private $_user = null;    
