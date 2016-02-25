@@ -3,6 +3,8 @@
 /* @var $user app\models\User */
 /* @var $this yii\web\View */
 
+use yii\helpers\Html;
+
 $this->title = Yii::t('app','Feudalism — Panel');
 $this->registerJs("$('#buildCastleButton').click(function(){
         var castleName = prompt('Enter new castle name');
@@ -41,4 +43,9 @@ $this->registerJs("$('#buildCastleButton').click(function(){
         <li><strong><?=Yii::t('app','Combat')?>: <?=$user->combat?></strong> (<?=Yii::t('app','{0} basic + {1} additional points',[$user->combatBase,$user->combat-$user->combatBase])?>)</li>
     </ul>
     <button id="buildCastleButton" ><?=Yii::t('app','Build a {0,plural,=0{first} other{}} castle',[$user->getCastles()->count()])?></button>
+    <ul>
+        <?php foreach($user->castles as $castle): ?>
+        <li><strong title="<?=Yii::t('app', '{0} fort.', [$castle->fort])?>" >[<?=$castle->fort?>]</strong> <?=Html::a($castle->name,['castle/view', 'id' => $castle->id])?> (<?=$castle->lat?>,<?=$castle->lng?>)</li>
+        <?php endforeach ?>
+    </ul>
 </div>

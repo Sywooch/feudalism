@@ -18,7 +18,8 @@ AppAsset::register($this);
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head() ?>
         <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
-        <link rel="icon" href="/img/logo512.png">
+        <link rel="icon" sizes="512x512" href="/img/logo512.png">
+        <meta name="theme-color" content="#3A2658">
     </head>
     <body>
         <?php $this->beginBody() ?>
