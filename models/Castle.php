@@ -5,21 +5,24 @@ namespace app\models;
 use Yii,
     app\models\MyModel,
     app\models\Unit,
-    app\models\User;
+    app\models\User,
+    app\models\Tile;
 
 /**
  * This is the model class for table "castles".
  *
  * @property integer $id
  * @property integer $userId
+ * @property integer $tileId 
  * @property string $name
- * @property integer $fort
- * @property double $lat
- * @property double $lng
+ * @property integer $fortification
+ * @property integer $quarters
+ * @property integer $quartersUsed
  *
  * @property Unit[] $units
  * @property User $user
  * @property User[] $users
+ * @property Tile $tile
  */
 class Castle extends MyModel
 {
@@ -37,10 +40,9 @@ class Castle extends MyModel
     public function rules()
     {
         return [
-            [['userId', 'name', 'lat', 'lng'], 'required'],
-            [['userId', 'fort'], 'integer'],
-            [['name'], 'string'],
-            [['lat', 'lng'], 'number']
+            [['userId', 'tileId', 'fortification', 'quarters', 'quartersUsed'], 'integer'],
+            [['tileId', 'name'], 'required'],
+            [['name'], 'string', 'max' => 255]
         ];
     }
 
@@ -53,9 +55,9 @@ class Castle extends MyModel
             'id' => Yii::t('app', 'ID'),
             'userId' => Yii::t('app', 'User ID'),
             'name' => Yii::t('app', 'Name'),
-            'fort' => Yii::t('app', 'Fort'),
-            'lat' => Yii::t('app', 'Lat'),
-            'lng' => Yii::t('app', 'Lng'),
+            'fortification' => Yii::t('app', 'Fortification'),
+            'quarters' => Yii::t('app', 'Quarters'),
+            'quartersUsed' => Yii::t('app', 'Quarters Used'),
         ];
     }
 
@@ -82,4 +84,12 @@ class Castle extends MyModel
     {
         return $this->hasMany(User::className(), ['currentCastleId' => 'id']);
     }
+    
+    /** 
+     * @return \yii\db\ActiveQuery 
+     */ 
+    public function getTile() 
+    { 
+        return $this->hasOne(Tile::className(), ['id' => 'tileId']); 
+    } 
 }

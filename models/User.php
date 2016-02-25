@@ -6,7 +6,7 @@ use Yii,
     yii\web\IdentityInterface,
     app\models\MyModel,
     app\models\Auth,
-    app\models\Group,
+    app\models\UnitGroup,
     app\models\Invite,
     app\models\Unit,
     app\models\Castle;
@@ -33,7 +33,7 @@ use Yii,
  * @property integer $capitalCastleId
  *
  * @property Auth[] $auths
- * @property Group[] $groups
+ * @property UnitGroup[] $groups
  * @property Invite $invite
  * @property Unit[] $units
  * @property Castle $capitalCastle
@@ -108,7 +108,7 @@ class User extends MyModel implements IdentityInterface
      */
     public function getGroups()
     {
-        return $this->hasMany(Group::className(), ['userId' => 'id']);
+        return $this->hasMany(UnitGroup::className(), ['userId' => 'id']);
     }
 
     /**
@@ -156,7 +156,7 @@ class User extends MyModel implements IdentityInterface
      */
     public function getCurrentGroup()
     {
-        return $this->hasOne(Group::className(), ['id' => 'currentGroupId']);
+        return $this->hasOne(UnitGroup::className(), ['id' => 'currentGroupId']);
     }
 
     public function getAuthKey()

@@ -5,29 +5,30 @@ namespace app\models;
 use Yii,
     app\models\MyModel,
     app\models\Unit,
-    app\models\User;
+    app\models\User,
+    app\models\Tile;
 
 /**
- * This is the model class for table "groups".
+ * This is the model class for table "unitGroups".
  *
  * @property integer $id
  * @property integer $userId
+ * @property integer $tileId
  * @property string $name
- * @property double $lat
- * @property double $lng
  *
+ * @property Tile $tile
  * @property User $user
  * @property Unit[] $units
  * @property User[] $users
  */
-class Group extends MyModel
+class UnitGroup extends MyModel
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'groups';
+        return 'unitGroups';
     }
 
     /**
@@ -36,10 +37,9 @@ class Group extends MyModel
     public function rules()
     {
         return [
-            [['userId', 'lat', 'lng'], 'required'],
-            [['userId'], 'integer'],
-            [['name'], 'string'],
-            [['lat', 'lng'], 'number']
+            [['userId', 'tileId'], 'required'],
+            [['userId', 'tileId'], 'integer'],
+            [['name'], 'string', 'max' => 255]
         ];
     }
 
@@ -51,10 +51,17 @@ class Group extends MyModel
         return [
             'id' => Yii::t('app', 'ID'),
             'userId' => Yii::t('app', 'User ID'),
+            'tileId' => Yii::t('app', 'Tile ID'),
             'name' => Yii::t('app', 'Name'),
-            'lat' => Yii::t('app', 'Lat'),
-            'lng' => Yii::t('app', 'Lng'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTile()
+    {
+        return $this->hasOne(Tiles::className(), ['id' => 'tileId']);
     }
 
     /**
@@ -62,9 +69,9 @@ class Group extends MyModel
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'userId']);
+        return $this->hasOne(Users::className(), ['id' => 'userId']);
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */

@@ -5,7 +5,7 @@ namespace app\models;
 use Yii,
     app\models\MyModel,
     app\models\Castle,
-    app\models\Group,
+    app\models\UnitGroup,
     app\models\User;
 
 /**
@@ -17,7 +17,7 @@ use Yii,
  * @property integer $currentCastleId
  *
  * @property Castle $currentCastle
- * @property Group $currentGroup
+ * @property UnitGroup $currentGroup
  * @property User $user
  */
 class Unit extends MyModel
@@ -67,7 +67,7 @@ class Unit extends MyModel
      */
     public function getCurrentGroup()
     {
-        return $this->hasOne(Group::className(), ['id' => 'currentGroupId']);
+        return $this->hasOne(UnitGroup::className(), ['id' => 'currentGroupId']);
     }
 
     /**
