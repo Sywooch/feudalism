@@ -18,10 +18,11 @@ $this->title = $model->name;
             'id',
             'userId',
             'user.name',
+            'tileId',
             'name',
-            'fort',
-            'lat',
-            'lng',
+            'fortification',
+            'quarters',
+            'quartersUsed',
         ],
     ]) ?>
 

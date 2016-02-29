@@ -12,7 +12,7 @@ $this->registerJs("$('#buildCastleButton').click(function(){
             $.ajax({
                 type: 'POST',
                 url: '/castle/build',
-                data: {'Castle':{'name': castleName, 'lat': 0.0, 'lng': 0.0}},
+                data: {'Castle':{'name': castleName, 'tileId': 1}},
                 dataType: 'json',
                 success: function (data) {
                     alert('success');
@@ -45,7 +45,7 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     <button id="buildCastleButton" ><?=Yii::t('app','Build a {0,plural,=0{first} other{}} castle',[$user->getCastles()->count()])?></button>
     <ul>
         <?php foreach($user->castles as $castle): ?>
-        <li><strong title="<?=Yii::t('app', '{0} fort.', [$castle->fort])?>" >[<?=$castle->fort?>]</strong> <?=Html::a($castle->name,['castle/view', 'id' => $castle->id])?> (<?=$castle->lat?>,<?=$castle->lng?>)</li>
+        <li><strong title="<?=Yii::t('app', '{0} fort.', [$castle->fortification])?>" >[<?=$castle->fortification?>]</strong> <?=Html::a($castle->name,['castle/view', 'id' => $castle->id])?> (<?=$castle->tileId?>)</li>
         <?php endforeach ?>
     </ul>
 </div>
