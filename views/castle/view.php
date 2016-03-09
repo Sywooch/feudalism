@@ -25,5 +25,5 @@ $this->title = $model->name;
             'quartersUsed',
         ],
     ]) ?>
-
+        
 </div>

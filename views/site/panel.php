@@ -3,12 +3,16 @@
 /* @var $user app\models\User */
 /* @var $this yii\web\View */
 
-use yii\helpers\Html;
+use yii\helpers\Html,
+    app\components\Pricelist;
 
-$this->title = Yii::t('app','Feudalism — Panel');
+$buildCastlePrice = Pricelist::get('castle', 'build');
+$messageConfirm = Yii::t('app', 'You really wanna build a castle for {0,number,currency}?', [$buildCastlePrice]);
+
+$this->title .= Yii::t('app','Panel');
 $this->registerJs("$('#buildCastleButton').click(function(){
         var castleName = prompt('Enter new castle name');
-        if (castleName && confirm('You really wanna build a castle for $1?')) {
+        if (castleName && confirm('{$messageConfirm}')) {
             $.ajax({
                 type: 'POST',
                 url: '/castle/build',
@@ -28,6 +32,12 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     });");
 
 ?>
+<header>
+    <ul>
+        <li><?=Html::a(Yii::t('app','Panel'), ['/'], ['class' => 'active'])?></li>
+        <li><?=Html::a(Yii::t('app', 'Map'), ['/map'])?></li>
+    </ul>
+</header>
 <h1>
     <img src="/img/logo64.png" alt="">
     <big>Feudalism</big>

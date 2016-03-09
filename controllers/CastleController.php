@@ -6,7 +6,8 @@ use Yii,
     app\models\Castle,
     yii\web\NotFoundHttpException,
     yii\filters\VerbFilter,
-    app\controllers\MyController;
+    app\controllers\MyController,
+    app\components\Pricelist;
 
 /**
  * CastleController implements the CRUD actions for Castle model.
@@ -45,17 +46,30 @@ class CastleController extends MyController
     public function actionBuild()
     {
         if (!Yii::$app->user->isGuest) {
-            $model = new Castle();
-
-            if ($model->load(Yii::$app->request->post())) {
-                $model->userId = $this->viewer_id;
-                if ($model->save()) {
-                    return $this->renderJson($model);
+            
+            if ($this->user->isHaveMoneyForAction('castle', 'build')) {
+            
+                $model = new Castle();
+                $transaction = Yii::$app->db->beginTransaction();
+                if ($model->load(Yii::$app->request->post())) {
+                    $model->userId = $this->viewer_id;
+                    $model->fortification = 1;
+                    $model->quarters = 1;
+                    if ($model->save()) {
+                        if ($this->user->payForAction('castle', 'build', true)) {
+                            $transaction->commit();
+                            return $this->renderJson($model);
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }
+                    } else {
+                        return $this->renderJsonError($model->getErrors());
+                    }
                 } else {
-                    return $this->renderJsonError($model->getErrors());
+                    return $this->renderJsonError('Can not load castle info');
                 }
             } else {
-                return $this->renderJsonError('Can not load castle info');
+                return $this->renderJsonError('You haven`t money');
             }
         }
     }
