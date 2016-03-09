@@ -11,6 +11,7 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/square.css',
         'css/style.css',
+        '//fonts.googleapis.com/css?family=Amatic+SC:400,700',
     ];
     public $js = [
         'js/fullscreen.js',
