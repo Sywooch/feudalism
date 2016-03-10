@@ -9,7 +9,7 @@ use yii\helpers\Html,
 $buildCastlePrice = Pricelist::get('castle', 'build');
 $messageConfirm = Yii::t('app', 'You really wanna build a castle for {0,number,currency}?', [$buildCastlePrice]);
 
-$this->title .= Yii::t('app','Panel');
+$this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
 $this->registerJs("$('#buildCastleButton').click(function(){
         var castleName = prompt('Enter new castle name');
         if (castleName && confirm('{$messageConfirm}')) {
@@ -19,8 +19,19 @@ $this->registerJs("$('#buildCastleButton').click(function(){
                 data: {'Castle':{'name': castleName, 'tileId': 1}},
                 dataType: 'json',
                 success: function (data) {
-                    alert('success');
-                    console.log(data);
+                    if (data.result === 'error') {
+                        if (data.error) {
+                            console.error('POST /castle/build error: ' + data.error);
+                        }
+                        if (data.errors) {
+                            console.error('POST /castle/build errors: ');
+                            console.error(data.errors);
+                        }
+                        alert('error');
+                    } else {
+                        alert('success');
+                        console.log(data.result);
+                    }
                 },
                 error: function (jqXHR, status) {
                     // error handler
