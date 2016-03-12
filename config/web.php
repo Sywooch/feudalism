@@ -1,6 +1,7 @@
 <?php
 
 $params = require(__DIR__ . '/params.php');
+$params['prices'] = require (__DIR__ . '/prices.php');
 $authClients = require(__DIR__ . '/auth-clients.php');
 
 $config = [

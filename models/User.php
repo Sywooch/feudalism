@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii,
     yii\web\IdentityInterface,
+    app\components\Pricelist,
     app\models\MyModel,
     app\models\Auth,
     app\models\UnitGroup,
@@ -220,6 +221,30 @@ class User extends MyModel implements IdentityInterface
     public function getGenderedName()
     {
         return $this->genderPrefix.' '.$this->name;
+    }
+    
+    /**
+     * 
+     * @param integer $category
+     * @param integer $action
+     * @return boolean
+     */
+    public function isHaveMoneyForAction($category, $action = 0)
+    {
+        return $this->balance >= Pricelist::get($category, $action);
+    }
+    
+    /**
+     * 
+     * @param type $category
+     * @param type $action
+     */
+    public function payForAction($category, $action = 0, $saveModel = false)
+    {
+        $this->balance -= Pricelist::get($category, $action);
+        if ($saveModel) {
+            return $this->save();
+        }
     }
 
 }

@@ -3,20 +3,35 @@
 /* @var $user app\models\User */
 /* @var $this yii\web\View */
 
-use yii\helpers\Html;
+use yii\helpers\Html,
+    app\components\Pricelist;
 
-$this->title = Yii::t('app','Feudalism — Panel');
+$buildCastlePrice = Pricelist::get('castle', 'build');
+$messageConfirm = Yii::t('app', 'You really wanna build a castle for {0,number,currency}?', [$buildCastlePrice]);
+
+$this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
 $this->registerJs("$('#buildCastleButton').click(function(){
         var castleName = prompt('Enter new castle name');
-        if (castleName && confirm('You really wanna build a castle for $1?')) {
+        if (castleName && confirm('{$messageConfirm}')) {
             $.ajax({
                 type: 'POST',
                 url: '/castle/build',
-                data: {'Castle':{'name': castleName, 'lat': 0.0, 'lng': 0.0}},
+                data: {'Castle':{'name': castleName, 'tileId': 1}},
                 dataType: 'json',
                 success: function (data) {
-                    alert('success');
-                    console.log(data);
+                    if (data.result === 'error') {
+                        if (data.error) {
+                            console.error('POST /castle/build error: ' + data.error);
+                        }
+                        if (data.errors) {
+                            console.error('POST /castle/build errors: ');
+                            console.error(data.errors);
+                        }
+                        alert('error');
+                    } else {
+                        alert('success');
+                        console.log(data.result);
+                    }
                 },
                 error: function (jqXHR, status) {
                     // error handler
@@ -28,6 +43,12 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     });");
 
 ?>
+<header>
+    <ul>
+        <li><?=Html::a(Yii::t('app','Panel'), ['/'], ['class' => 'active'])?></li>
+        <li><?=Html::a(Yii::t('app', 'Map'), ['/map'])?></li>
+    </ul>
+</header>
 <h1>
     <img src="/img/logo64.png" alt="">
     <big>Feudalism</big>
@@ -45,7 +66,7 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     <button id="buildCastleButton" ><?=Yii::t('app','Build a {0,plural,=0{first} other{}} castle',[$user->getCastles()->count()])?></button>
     <ul>
         <?php foreach($user->castles as $castle): ?>
-        <li><strong title="<?=Yii::t('app', '{0} fort.', [$castle->fort])?>" >[<?=$castle->fort?>]</strong> <?=Html::a($castle->name,['castle/view', 'id' => $castle->id])?> (<?=$castle->lat?>,<?=$castle->lng?>)</li>
+        <li><strong title="<?=Yii::t('app', '{0} fort.', [$castle->fortification])?>" >[<?=$castle->fortification?>]</strong> <?=Html::a($castle->name,['castle/view', 'id' => $castle->id])?> (<?=$castle->tileId?>)</li>
         <?php endforeach ?>
     </ul>
 </div>
