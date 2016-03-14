@@ -1,6 +1,7 @@
 body {
     margin-bottom: 20px;
-    color: #3A2658;
+    background-color: black;
+    color: #f6f0ff;
 }
 
 #spinner {
@@ -20,4 +21,12 @@ h1, h2, h3 {
 
 h1 {
     font-size: 48px;
+}
+
+a {
+    color: #e3d0ff;    
+}
+
+a:visited {    
+    color: #cfb9f1;
 }
