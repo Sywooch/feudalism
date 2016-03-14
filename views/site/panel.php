@@ -50,9 +50,8 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     </ul>
 </header>
 <h1>
-    <img src="/img/logo64.png" alt="">
-    <big>Feudalism</big>
-    <small><em>α</em></small>
+    <big>Ω <?=Yii::t('app', 'Feudalism')?></big>
+    <small>α</small>
 </h1>
 <div>
     <p><?=Yii::t('app','You are')?> <strong title="<?=Yii::t('app', '{0} lvl.', [$user->level])?>" >[<?=$user->level?>]</strong> <?=Yii::t('app','{0,select,2{Sir} 1{Lady} other{}}',[$user->gender])?> <?=$user->name?></p>

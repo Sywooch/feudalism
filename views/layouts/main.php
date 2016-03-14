@@ -30,7 +30,6 @@ AppAsset::register($this);
         </div>
         <footer class='footer'>
             <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
-            <p><?=Yii::t('app','Icons by')?> <?=Html::a('RainDropMemory', 'http://raindropmemory.deviantart.com/', ['target'=>'_blank'])?></p>
             <?php if (!Yii::$app->user->isGuest):?>
             <p>
                 <?=Html::beginForm(['/site/logout'], 'post')
