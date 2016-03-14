@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\UnitGroup,
     app\models\Castle,
     yii\base\Exception;
@@ -23,7 +23,7 @@ use Yii,
  * @property Castle[] $castles
  * @property UnitGroup[] $unitGroups
  */
-class Tile extends MyModel
+class Tile extends ActiveRecord
 {
     
     /**

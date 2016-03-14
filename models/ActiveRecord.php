@@ -2,12 +2,12 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use yii\db\ActiveRecord as YiiActiveRecord;
 
 /**
  * Надстройка над ActiveRecord
  */
-abstract class MyModel extends ActiveRecord
+abstract class ActiveRecord extends YiiActiveRecord
 {
     
     /**

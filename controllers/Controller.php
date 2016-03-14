@@ -3,8 +3,7 @@
 namespace app\controllers;
 
 use Yii,
-    yii\web\Controller,
-    yii\web\HttpException,
+    yii\web\Controller as YiiController,
     app\models\User;
 
 /**
@@ -13,7 +12,7 @@ use Yii,
  * @property User $user залогиненый юзер
  */
 
-class MyController extends Controller
+class Controller extends YiiController
 {
     /**
      * Массив или объект, возвращаемый в поле result
@@ -56,7 +55,7 @@ class MyController extends Controller
         if ($this->error) {
             $this->result = 'error';
             if (is_array($this->error)) {
-                $this->error = print_r($this->error,true);
+                $this->error = implode(", ",$this->error);
             }
         }
         

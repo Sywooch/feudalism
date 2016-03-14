@@ -10,9 +10,9 @@ use Yii,
     yii\authclient\AuthAction,
     app\models\Auth,
     app\models\InviteForm,
-    app\controllers\MyController;
+    app\controllers\Controller;
 
-class SiteController extends MyController
+class SiteController extends Controller
 {
 
     public function actions()

@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -21,7 +21,7 @@ use Yii,
  * @property Unit[] $units
  * @property User[] $users
  */
-class UnitGroup extends MyModel
+class UnitGroup extends ActiveRecord
 {
     /**
      * @inheritdoc

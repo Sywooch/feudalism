@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\User;
 
 /**
@@ -15,7 +15,7 @@ use Yii,
  * 
  * @property User $user
  */
-class Auth extends MyModel
+class Auth extends ActiveRecord
 {
     
     const SOURCE_GOOGLE = 1;

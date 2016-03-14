@@ -2,14 +2,14 @@
 
 namespace app\controllers;
 
-use app\controllers\MyController;
+use app\controllers\Controller;
 
 /**
  * Description of MapController
  *
  * @author i.gorohov
  */
-class MapController extends MyController {
+class MapController extends Controller {
     
     public function actionIndex()
     {

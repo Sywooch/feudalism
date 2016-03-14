@@ -4,15 +4,14 @@ namespace app\controllers;
 
 use Yii,
     app\models\Castle,
+    app\controllers\Controller,
     yii\web\NotFoundHttpException,
-    yii\filters\VerbFilter,
-    app\controllers\MyController,
-    app\components\Pricelist;
+    yii\filters\VerbFilter;
 
 /**
  * CastleController implements the CRUD actions for Castle model.
  */
-class CastleController extends MyController
+class CastleController extends Controller
 {
     public function behaviors()
     {

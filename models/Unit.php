@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\Castle,
     app\models\UnitGroup,
     app\models\User;
@@ -20,7 +20,7 @@ use Yii,
  * @property UnitGroup $currentGroup
  * @property User $user
  */
-class Unit extends MyModel
+class Unit extends ActiveRecord
 {
     /**
      * @inheritdoc

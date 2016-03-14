@@ -5,7 +5,7 @@ namespace app\models;
 use Yii,
     yii\web\IdentityInterface,
     app\components\Pricelist,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\Auth,
     app\models\UnitGroup,
     app\models\Invite,
@@ -45,7 +45,7 @@ use Yii,
  * @property string $genderPrefix
  * @property string $genderedName
  */
-class User extends MyModel implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
     /**
      * @inheritdoc

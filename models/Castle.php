@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -24,7 +24,7 @@ use Yii,
  * @property User[] $users
  * @property Tile $tile
  */
-class Castle extends MyModel
+class Castle extends ActiveRecord
 {
     /**
      * @inheritdoc
