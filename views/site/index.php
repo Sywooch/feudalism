@@ -11,4 +11,7 @@ $this->title = Yii::t('app', 'Feudalism');
     <big><?=Yii::t('app', 'Feudalism')?></big>
     <small><em>α</em></small>
 </h1>
-<?=AuthChoice::widget(['baseAuthUrl' => ['site/auth']])?>
+<?=AuthChoice::widget([
+    'baseAuthUrl' => ['site/auth'],
+    'popupMode' => false
+])?>
