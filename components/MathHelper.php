@@ -64,23 +64,25 @@ class MathHelper {
     
     /**
      * 
+     * @param integer $d
      * @return integer
      */
-    public static function fudgeDice()
+    public static function fudgeDice($d = 1)
     {
-        return mt_rand(-1, 1);
+        return mt_rand(-1*$d, $d);
     }
     
     /**
      * 
+     * @param integer $d
      * @param integer $count
      * @return integer
      */
-    public static function multipleFudgeDice($count = 4)
+    public static function multipleFudgeDice($d = 1, $count = 4)
     {
         $sum = 0;
         for ($i = 0; $i < $count; $i++) {
-            $sum += self::fudgeDice();
+            $sum += self::fudgeDice($d);
         }
         
         return $sum;

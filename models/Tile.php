@@ -46,6 +46,15 @@ class Tile extends MyModel
      */
     const BIOME_TROPICAL_OCEAN = 3;
     
+    const ELEVATION_MIN = 0;
+    const ELEVATION_MAX = 128;
+    const TEMPERATURE_MIN = 0;
+    const TEMPERATURE_MAX = 99;
+    const RAINFALL_MIN = 0;
+    const RAINFALL_MAX = 100;
+    const DRAINAGE_MIN = 0;
+    const DRAINAGE_MAX = 100;
+    
     /**
      * @inheritdoc
      */
@@ -122,4 +131,10 @@ class Tile extends MyModel
         }
         return $model;
     }
+    
+    public function equals($record)
+    {
+        return $this->x === $record->x && $this->y === $record->y;
+    }
+    
 }
