@@ -5,7 +5,8 @@ namespace app\models;
 use Yii,
     app\models\MyModel,
     app\models\UnitGroup,
-    app\models\Castle;
+    app\models\Castle,
+    yii\base\Exception;
 
 /**
  * This is the model class for table "tiles".
@@ -20,6 +21,13 @@ use Yii,
  */
 class Tile extends MyModel
 {
+    
+    const TYPE_UNDEFINED = 0;
+    const TYPE_ARCTIC_OCEAN = 1;
+    const TYPE_TEMPERATE_OCEAN = 2;
+    const TYPE_TROPICAL_OCEAN = 3;
+    
+    
     /**
      * @inheritdoc
      */
@@ -67,5 +75,27 @@ class Tile extends MyModel
     public function getUnitGroups()
     {
         return $this->hasMany(UnitGroup::className(), ['tileId' => 'id']);
+    }
+    
+    /**
+     * Находит или создаёт новый обьект тайла по переданным координатам
+     * @param integer $x
+     * @param integer $y
+     * @return \self
+     * @throws Exception
+     */
+    public static function getByCoords($x, $y, $type = self::TYPE_UNDEFINED, $save = true) {
+        $model = self::find()->where(['x' => $x, 'y' => $y])->one();
+        if (is_null($model)) {
+            $model = new self([
+                'x' => $x,
+                'y' => $y,
+                'type' => $type
+            ]);
+            if ($save && !$model->save()) {
+                throw new Exception("Can not save new tile [{$x}, {$y}] model!");
+            }
+        }
+        return $model;
     }
 }
