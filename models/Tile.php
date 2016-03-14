@@ -14,7 +14,11 @@ use Yii,
  * @property integer $id
  * @property integer $x
  * @property integer $y
- * @property integer $type
+ * @property integer $biome
+ * @property integer $elevation
+ * @property integer $temperature
+ * @property integer $rainfall
+ * @property integer $drainage
  *
  * @property Castle[] $castles
  * @property UnitGroup[] $unitGroups
@@ -22,11 +26,25 @@ use Yii,
 class Tile extends MyModel
 {
     
-    const TYPE_UNDEFINED = 0;
-    const TYPE_ARCTIC_OCEAN = 1;
-    const TYPE_TEMPERATE_OCEAN = 2;
-    const TYPE_TROPICAL_OCEAN = 3;
+    /**
+     * Неопределённый тип биома
+     */
+    const BIOME_UNDEFINED = 0;
     
+    /**
+     * Холодный океан
+     */
+    const BIOME_ARCTIC_OCEAN = 1;
+    
+    /**
+     * Умеренный океан
+     */
+    const BIOME_TEMPERATE_OCEAN = 2;
+    
+    /**
+     * Тропический океан
+     */
+    const BIOME_TROPICAL_OCEAN = 3;
     
     /**
      * @inheritdoc
@@ -42,8 +60,8 @@ class Tile extends MyModel
     public function rules()
     {
         return [
-            [['x', 'y', 'type'], 'required'],
-            [['x', 'y', 'type'], 'integer'],
+            [['x', 'y', 'biome'], 'required'],
+            [['x', 'y', 'biome', 'elevation', 'temperature', 'rainfall', 'drainage'], 'integer'],
             [['x', 'y'], 'unique', 'targetAttribute' => ['x', 'y'], 'message' => Yii::t('app','The combination of X and Y has already been taken.')]
         ];
     }
@@ -57,7 +75,11 @@ class Tile extends MyModel
             'id' => Yii::t('app', 'ID'),
             'x' => Yii::t('app', 'X'),
             'y' => Yii::t('app', 'Y'),
-            'type' => Yii::t('app', 'Type'),
+            'biome' => Yii::t('app', 'Biome'),
+            'elevation' => Yii::t('app', 'Biome'),
+            'temperature' => Yii::t('app', 'Biome'),
+            'rainfall' => Yii::t('app', 'Biome'),
+            'drainage' => Yii::t('app', 'Biome')
         ];
     }
 
@@ -81,16 +103,18 @@ class Tile extends MyModel
      * Находит или создаёт новый обьект тайла по переданным координатам
      * @param integer $x
      * @param integer $y
+     * @param integer $biome Const. biome type
+     * @param boolean $save autosave after create
      * @return \self
      * @throws Exception
      */
-    public static function getByCoords($x, $y, $type = self::TYPE_UNDEFINED, $save = true) {
+    public static function getByCoords($x, $y, $biome = self::BIOME_UNDEFINED, $save = true) {
         $model = self::find()->where(['x' => $x, 'y' => $y])->one();
         if (is_null($model)) {
             $model = new self([
                 'x' => $x,
                 'y' => $y,
-                'type' => $type
+                'biome' => $biome
             ]);
             if ($save && !$model->save()) {
                 throw new Exception("Can not save new tile [{$x}, {$y}] model!");
