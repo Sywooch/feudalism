@@ -45,6 +45,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+*.bat
 
 config/db.php
 config/params.php
@@ -57,8 +58,6 @@ vendor
 database
 
 requirements.php
-yii
-yii.bat
 
 nbproject
 sftp-config.json
@@ -68,4 +67,4 @@ tests/README.md
 tests/codeception.yml
 tests/codeception/
 
-/composer.*
+composer.lock
