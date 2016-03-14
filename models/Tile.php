@@ -13,7 +13,6 @@ use Yii,
  * @property integer $id
  * @property integer $x
  * @property integer $y
- * @property integer $z
  * @property integer $type
  *
  * @property Castle[] $castles
@@ -35,9 +34,9 @@ class Tile extends MyModel
     public function rules()
     {
         return [
-            [['x', 'y', 'z', 'type'], 'required'],
-            [['x', 'y', 'z', 'type'], 'integer'],
-            [['x', 'y', 'z'], 'unique', 'targetAttribute' => ['x', 'y', 'z'], 'message' => 'The combination of X, Y and Z has already been taken.']
+            [['x', 'y', 'type'], 'required'],
+            [['x', 'y', 'type'], 'integer'],
+            [['x', 'y'], 'unique', 'targetAttribute' => ['x', 'y'], 'message' => Yii::t('app','The combination of X and Y has already been taken.')]
         ];
     }
 
@@ -50,7 +49,6 @@ class Tile extends MyModel
             'id' => Yii::t('app', 'ID'),
             'x' => Yii::t('app', 'X'),
             'y' => Yii::t('app', 'Y'),
-            'z' => Yii::t('app', 'Z'),
             'type' => Yii::t('app', 'Type'),
         ];
     }
