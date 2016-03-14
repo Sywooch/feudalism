@@ -36,4 +36,54 @@ class MathHelper {
         return static::HE_K*pow(static::E, $x) + static::HE_C;
     }
     
+    /**
+     * Бросает виртуальный дайс
+     * @param integer $d
+     * @return integer
+     */
+    public static function dice($d = 6)
+    {
+        return mt_rand(1, $d);
+    }
+    
+    /**
+     * 
+     * @param integer $d
+     * @param integer $count
+     * @return integer
+     */
+    public static function multipleDice($d = 6, $count = 2)
+    {
+        $sum = 0;
+        for ($i = 0; $i < $count; $i++) {
+            $sum += self::dice($d);
+        }
+        
+        return $sum;
+    }
+    
+    /**
+     * 
+     * @return integer
+     */
+    public static function fudgeDice()
+    {
+        return mt_rand(-1, 1);
+    }
+    
+    /**
+     * 
+     * @param integer $count
+     * @return integer
+     */
+    public static function multipleFudgeDice($count = 4)
+    {
+        $sum = 0;
+        for ($i = 0; $i < $count; $i++) {
+            $sum += self::fudgeDice();
+        }
+        
+        return $sum;
+    }
+    
 }
