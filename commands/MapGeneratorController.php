@@ -78,7 +78,9 @@ class MapGeneratorController extends Controller
         
         for ($i = $this->fromX; $i <= $this->endX; $i++) {
             for ($j = $this->fromY; $j <= $this->endY; $j++) {
-                $this->tiles[$i][$j]->$param = self::UNSETTED_BIOME_FACTOR;
+                if ($this->tiles[$i][$j]->isNewRecord) {
+                    $this->tiles[$i][$j]->$param = self::UNSETTED_BIOME_FACTOR;
+                }
             }
         }
         
