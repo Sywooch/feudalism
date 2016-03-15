@@ -6,6 +6,7 @@ use Yii,
     app\models\Castle,
     app\controllers\Controller,
     yii\web\NotFoundHttpException,
+    yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
 /**
@@ -15,14 +16,27 @@ class CastleController extends Controller
 {
     public function behaviors()
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'build' => ['post'],
+        $behaviors = parent::behaviors();
+        
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['build'],
+            'rules' => [
+                [
+                    'actions' => ['build'],
+                    'allow' => true,
+                    'roles' => ['@'],
                 ],
             ],
         ];
+        $behaviors['verbs'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'build' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
     }
 
     /**
@@ -70,6 +84,8 @@ class CastleController extends Controller
             } else {
                 return $this->renderJsonError('You haven`t money');
             }
+        } else {
+            return $this->renderJsonError("Unauthorized");
         }
     }
 

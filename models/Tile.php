@@ -6,6 +6,7 @@ use Yii,
     app\models\ActiveRecord,
     app\models\UnitGroup,
     app\models\Castle,
+    yii\db\ActiveQuery,
     yii\base\Exception;
 
 /**
@@ -253,6 +254,13 @@ class Tile extends ActiveRecord
      * Максимальный дренаж
      */
     const DRAINAGE_MAX = 100;
+    
+    // Чанки
+    
+    /**
+     * Размер чанка (квадрата из тайлов)
+     */    
+    const CHUNK_SIZE = 32;
     
     /**
      * @inheritdoc
@@ -617,6 +625,21 @@ class Tile extends ActiveRecord
                 }
             }
         }
+    }
+    
+    /**
+     * 
+     * @param integer $x
+     * @param integer $y
+     * @return ActiveQuery
+     */
+    public static function findByChunk($x, $y)
+    {
+        return self::find()
+                ->where(['>=', 'x', $x*self::CHUNK_SIZE])
+                ->andWhere(['<', 'x', ($x+1)*self::CHUNK_SIZE])
+                ->andWhere(['>=', 'y', $y*self::CHUNK_SIZE])
+                ->andWhere(['<', 'y', ($y+1)*self::CHUNK_SIZE]);
     }
     
 }

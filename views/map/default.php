@@ -18,18 +18,30 @@ $this->registerJS('
         });
     }
 
-    $(function() {
+    display = new ROT.Display({forceSquareRatio:false,fontSize:18});
+    resizeDisplay();
 
-        display = new ROT.Display({forceSquareRatio:false,fontSize:18});
-        resizeDisplay();
-
-        for (i in tiles) {
-            display.draw(tiles[i].x,tiles[i].y,tiles[i].char,tiles[i].color,"#000");
+    //for (i in tiles) {
+    //    display.draw(tiles[i].x,tiles[i].y,tiles[i].char,tiles[i].color,"#000");
+    //}
+    
+for (var x = -1; x < 5; x++) {
+for (var y = -1; y < 2; y++) {
+    $.get("/map/chunk?x="+x+"&y="+y,
+        {dataType: "json"},
+        function(data) {
+            for (i in data.result) {
+                var tile = data.result[i];
+                display.draw(tile.x+20,tile.y+10,tile.biomeCharacter,tile.biomeColor,"#000");
+                if (tile.castle) {
+                    display.draw(tile.x+20,tile.y+10,"Ω","#fff");
+                }
+            }
         }
+    );
+}}
 
-
-        $("#map").html(display.getContainer());
-    });
+    $("#map").html(display.getContainer());
 ');
 
 ?>
@@ -38,18 +50,5 @@ $this->registerJS('
     
 </div>
 <script>
-    var map, display, resizeDisplay;
-
-    var tiles = [];
-    <?php foreach (app\models\Tile::find()->all() as $tile): ?>
-    
-        tiles.push({
-            'x': <?=$tile->x+20?>,
-            'y': <?=$tile->y+10?>,
-            'char': '<?=$tile->biomeCharacter?>',
-            'color': '<?=$tile->biomeColor?>'
-        });
-    
-    <?php endforeach ?>
-        
+    var display, resizeDisplay;        
 </script>

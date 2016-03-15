@@ -16,7 +16,7 @@ $this->registerJs("$('#buildCastleButton').click(function(){
             $.ajax({
                 type: 'POST',
                 url: '/castle/build',
-                data: {'Castle':{'name': castleName, 'tileId': 1}},
+                data: {'Castle':{'name': castleName, 'tileId': 1}, '_csrf': yii.getCsrfToken()},
                 dataType: 'json',
                 success: function (data) {
                     if (data.result === 'error') {
