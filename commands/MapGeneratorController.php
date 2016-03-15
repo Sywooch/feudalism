@@ -16,52 +16,100 @@ class MapGeneratorController extends Controller
      * @var Tile[][] 
      */
     private $tiles = [];
+    private $tilesCount = 0;
     
+    private $fromX;
+    private $fromY;
+    private $endX;
+    private $endY;
+        
     public function actionIndex($fromX, $fromY, $width, $height)
     {
-        $endX = $fromX+$width;
-        $endY = $fromY+$height;
+        $this->fromX = $fromX;
+        $this->fromY = $fromY;
+        $this->endX = $fromX+$width;
+        $this->endY = $fromY+$height;
         
-        echo "Starting generate map from [{$fromX}, {$fromY}] to [{$endX}, {$endY}]".PHP_EOL;
+        echo "Starting generate map from [{$this->fromX}, {$this->fromY}] to [{$this->endX}, {$this->endY}]".PHP_EOL;
         
-        $tilesCount = 0;
-        for ($i = $fromX; $i <= $endX; $i++) {
-            for ($j = $fromY; $j <= $endY; $j++) {
+        $this->tilesCount = ($width+1)*($height+1);
+        
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
                 $this->tiles[$i][$j] = Tile::getByCoords($i, $j);
-                $tilesCount++;
             }
         }
         
-        echo "Starting generate elevation".PHP_EOL;
+        $this->generateAndPrint('elevation');
+        $this->generateAndPrint('temperature');
+        $this->generateAndPrint('rainfall');
+        $this->generateAndPrint('drainage');
         
-        for ($i = $fromX; $i <= $endX; $i++) {
-            for ($j = $fromY; $j <= $endY; $j++) {
-                $this->tiles[$i][$j]->elevation = self::UNSETTED_BIOME_FACTOR;
-            }
-        }
+        $this->calcBiomes();
         
-        $this->diamondStep($this->tiles[$fromX][$fromY], $this->tiles[$endX][$endY], 'elevation');
-        
-        echo "{$tilesCount} tiles elevation generated.".PHP_EOL;
-        echo "Elevation map:".PHP_EOL;
-        for ($i = $fromX; $i <= $endX; $i++) {
-            for ($j = $fromY; $j <= $endY; $j++) {
-                echo sprintf("%'.02d ", $this->tiles[$i][$j]->elevation);
-            }
-            echo PHP_EOL;
-        }
-        
-        for ($i = $fromX; $i <= $endX; $i++) {
-            for ($j = $fromY; $j <= $endY; $j++) {
-                if (!$this->tiles[$i][$j]->save()) {
+        $savedCount = 0;
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
+                if ($this->tiles[$i][$j]->save()) {
+                    $savedCount++;
+                } else {
                     print_r($this->tiles[$i][$j]->getErrors());
                     return;
                 }
+                
+                if ($savedCount%10 === 0) {
+                    echo "{$savedCount}/{$this->tilesCount} tiles saved".PHP_EOL;
+                }
             }
         }
-        echo "{$tilesCount} tiles saved.".PHP_EOL;
+        echo "{$this->tilesCount} tiles saved.".PHP_EOL;
         
         
+    }
+    
+    /**
+     * 
+     * @param string $param
+     */
+    private function generateAndPrint($param = 'elevation')
+    {
+        
+        echo "Starting generate {$param}".PHP_EOL;
+        
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
+                $this->tiles[$i][$j]->$param = self::UNSETTED_BIOME_FACTOR;
+            }
+        }
+        
+        $this->generateMapFactor($this->tiles[$this->fromX][$this->fromY], $this->tiles[$this->endX][$this->endY], $param);
+        
+        echo "{$this->tilesCount} tiles {$param} generated.".PHP_EOL;
+        echo "{$param} map:".PHP_EOL;
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
+                echo sprintf("%'.02d ", $this->tiles[$i][$j]->$param);
+            }
+            echo PHP_EOL;
+        }
+    }
+    
+    private function calcBiomes()
+    {
+        echo "Starting calculate biomes".PHP_EOL;
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
+                $this->tiles[$i][$j]->calcBiome();
+            }
+        }
+        echo "{$this->tilesCount} tiles biomes setted.".PHP_EOL;
+        echo "Biomes map:".PHP_EOL;
+        for ($i = $this->fromX; $i <= $this->endX; $i++) {
+            for ($j = $this->fromY; $j <= $this->endY; $j++) {
+                echo sprintf("%'.02d ", $this->tiles[$i][$j]->biome);
+            }
+            echo PHP_EOL;
+        }
     }
     
     /**
@@ -70,7 +118,7 @@ class MapGeneratorController extends Controller
      * @param Tile $rightBottom
      * @param string $param
      */
-    private function diamondStep(Tile &$leftTop, Tile &$rightBottom, $param = 'elevation')
+    private function generateMapFactor(Tile &$leftTop, Tile &$rightBottom, $param = 'elevation')
     {
         /* @var $leftBottom Tile */
         $leftBottom = &$this->tiles[$leftTop->x][$rightBottom->y];
@@ -122,10 +170,10 @@ class MapGeneratorController extends Controller
         }
                 
         if (abs($rightBottom->x - $leftBottom->x) > 1 && abs($rightBottom->y - $leftTop->y) > 1) {
-            $this->diamondStep($leftTop, $middlePoint, $param);
-            $this->diamondStep($topPoint, $rightPoint, $param);
-            $this->diamondStep($leftPoint, $bottomPoint, $param);
-            $this->diamondStep($middlePoint, $rightBottom, $param);
+            $this->generateMapFactor($leftTop, $middlePoint, $param);
+            $this->generateMapFactor($topPoint, $rightPoint, $param);
+            $this->generateMapFactor($leftPoint, $bottomPoint, $param);
+            $this->generateMapFactor($middlePoint, $rightBottom, $param);
         }
     }
     
