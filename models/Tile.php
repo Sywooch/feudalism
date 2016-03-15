@@ -22,6 +22,7 @@ use Yii,
  * 
  * @property string $biomeLabel
  * @property string $biomeCharacter
+ * @property string $biomeColor
  *
  * @property Castle[] $castles
  * @property UnitGroup[] $unitGroups
@@ -367,9 +368,9 @@ class Tile extends ActiveRecord
             self::BIOME_TEMPERATE_SHRUBLAND => 'τ',   
             self::BIOME_TROPICAL_SHRUBLAND => 'τ',   
             self::BIOME_HILLS => 'n',   
-            self::BIOME_SWAMP => '⌠',   
-            self::BIOME_TEMPERATE_FRESHWATER_SWAMP => '⌠',   
-            self::BIOME_TROPICAL_FRESHWATER_SWAMP => '⌠',   
+            self::BIOME_SWAMP => '"',   
+            self::BIOME_TEMPERATE_FRESHWATER_SWAMP => '"',   
+            self::BIOME_TROPICAL_FRESHWATER_SWAMP => '"',   
             self::BIOME_FOREST => '♣',   
             self::BIOME_TEMPERATE_BROADLEAF_FOREST => '♣',   
             self::BIOME_TEMPERATE_CONIFER_FOREST => '↨',   
@@ -385,6 +386,53 @@ class Tile extends ActiveRecord
     public function getBiomeCharacter()
     {
         return $this->biomeCharacters()[$this->biome];
+    }
+    
+    public function biomeColors()
+    {
+        return [
+            self::BIOME_UNDEFINED => '#ffffff',   
+            self::BIOME_WATER => '#000080',   
+            self::BIOME_ARCTIC_OCEAN => '#000080',   
+            self::BIOME_TEMPERATE_OCEAN => '#000080',   
+            self::BIOME_TROPICAL_OCEAN => '#000080',   
+            self::BIOME_SAND_DESERT => '#FFFF00',   
+            self::BIOME_ROCKY_WASTELAND => '#808000',   
+            self::BIOME_BADLANDS => '#808000',   
+            self::BIOME_GLACIER => '#00FFFF',   
+            self::BIOME_TUNDRA => '#008080',   
+            self::BIOME_TAIGA => '#00FF00',   
+            self::BIOME_GRASSLAND => '#00FF00',   
+            self::BIOME_TEMPERATE_GRASSLAND => '#00FF00',   
+            self::BIOME_TROPICAL_GRASSLAND => '#00FF00',   
+            self::BIOME_SAVANNA => '#00FF00',   
+            self::BIOME_TEMPERATE_SAVANNA => '#00FF00',   
+            self::BIOME_TROPICAL_SAVANNA => '#00FF00',   
+            self::BIOME_MARSH => '#00FF00',   
+            self::BIOME_TEMPERATE_FRESHWATER_MARSH => '#00FF00',   
+            self::BIOME_TROPICAL_FRESHWATER_MARSH => '#00FF00',   
+            self::BIOME_SHRUBLAND => '#00FF00',   
+            self::BIOME_TEMPERATE_SHRUBLAND => '#00FF00',   
+            self::BIOME_TROPICAL_SHRUBLAND => '#00FF00',   
+            self::BIOME_HILLS => '#00FF00',   
+            self::BIOME_SWAMP => '#008000',   
+            self::BIOME_TEMPERATE_FRESHWATER_SWAMP => '#008000',   
+            self::BIOME_TROPICAL_FRESHWATER_SWAMP => '#008000',   
+            self::BIOME_FOREST => '#00FF00',   
+            self::BIOME_TEMPERATE_BROADLEAF_FOREST => '#00FF00',   
+            self::BIOME_TEMPERATE_CONIFER_FOREST => '#00FF00',   
+            self::BIOME_TROPICAL_DRY_BROADLEAF_FOREST => '#00FF00',   
+            self::BIOME_TROPICAL_WET_BROADLEAF_FOREST => '#00FF00',   
+            self::BIOME_TROPICAL_CONIFER_FOREST => '#00FF00',   
+            self::BIOME_LOW_MOUNTAIN => '#808080',   
+            self::BIOME_MOUNTAIN => '#808080',   
+            self::BIOME_HIGH_MOUNTAIN => '#C0C0C0'  
+        ];
+    }
+    
+    public function getBiomeColor()
+    {
+        return $this->biomeColors()[$this->biome];
     }
 
     /**
