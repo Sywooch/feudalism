@@ -162,7 +162,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getAuthKey()
     {
-        return md5($this->id.Yii::$app->params['AUTH_KEY_SECRET']);
+        return md5($this->id."wtf");
     }
 
     public function getId()
