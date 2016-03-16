@@ -715,8 +715,13 @@ if (typeof window != "undefined") {
  * @param {image} [options.tileColorize=false]
  */
 ROT.Display = function(options) {
-	var canvas = document.createElement("canvas");
-	this._context = canvas.getContext("2d");
+    
+        if (options.context) {
+            this._context = options.context;
+        } else {
+            var canvas = document.createElement("canvas");
+            this._context = canvas.getContext("2d");
+        }
 	this._data = {};
 	this._dirty = false; /* false = nothing, true = all, object = dirty cells */
 	this._options = {};

@@ -6,50 +6,39 @@ use yii\helpers\Html;
 
 $this->title .= Yii::t('app','Map');
 
-$this->registerJsFile('/js/rot.min.js');
-$this->registerJS('
+$this->registerJsFile('/js/rot.js');
+$this->registerJsFile('/js/leaflet.js');
+$this->registerCssFile('/css/leaflet.css');
+$this->registerJsFile('/js/map.js');
+$this->registerJs('
+    var map = L.map("map",{
+        maxZoom: 10,
+        minZoom: 10,
+        zoomControl: false
+    }).setView([100,-180], 10);
     
 
-    resizeDisplay = function() {
-        var params = display.computeSize($("#map").width(), $("#map").height());
-        display.setOptions({
-            width: params[0],
-            height: params[1]
-        });
-    }
+    var canvasTiles = L.tileLayer.canvas({
+        continuousWorld: true,
+        tileSize: 270
+    });
 
-    display = new ROT.Display({forceSquareRatio:false,fontSize:18});
-    resizeDisplay();
+    canvasTiles.drawTile = function(canvas, tilePoint, zoom) {
+        var ctx = canvas.getContext("2d");
+        canvas.setAttribute("data-x",tilePoint.x);
+        canvas.setAttribute("data-y",tilePoint.y);
+        loadChunk(ctx, tilePoint.x, tilePoint.y);
+    };
 
-    //for (i in tiles) {
-    //    display.draw(tiles[i].x,tiles[i].y,tiles[i].char,tiles[i].color,"#000");
-    //}
+    canvasTiles.addTo(map);
     
-for (var x = -1; x < 5; x++) {
-for (var y = -1; y < 2; y++) {
-    $.get("/map/chunk?x="+x+"&y="+y,
-        {dataType: "json"},
-        function(data) {
-            for (i in data.result) {
-                var tile = data.result[i];
-                display.draw(tile.x+20,tile.y+10,tile.biomeCharacter,tile.biomeColor,"#000");
-                if (tile.castle) {
-                    display.draw(tile.x+20,tile.y+10,"Ω","#fff");
-                }
-                
-                tilesCache[tile.x+"x"+tile.y] = tile;
-            }
-        }
-    );
-}}
-
-    $("#map").html(display.getContainer());
-    $("#map").click(function(e){
+    $("canvas.leaflet-tile").click(function(e){
+        var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
         var displayCoords = display.eventToPosition(e);
-        var tileX = displayCoords[0] - 20;
-        var tileY = displayCoords[1] - 10;
-        var tile = tilesCache[tileX+"x"+tileY];
-        display.drawText(display.getOptions().width-10,1,"["+tile.x+","+tile.y+"] "+tile.biomeLabel,10);
+        var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
+
+        var tile = tilesCache[realCoords.x+"x"+realCoords.y];
+        console.log("["+tile.x+","+tile.y+"] "+tile.biomeLabel);
     });
 ');
 
@@ -58,6 +47,3 @@ for (var y = -1; y < 2; y++) {
 <div id="map" style="width: 100%; height: 500px">
     
 </div>
-<script>
-    var display, resizeDisplay, tilesCache = {};        
-</script>

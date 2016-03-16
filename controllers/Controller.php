@@ -48,7 +48,7 @@ class Controller extends YiiController
     {
         Yii::$app->response->format = 'json';
         
-        if ($result) {
+        if (!is_null($result)) {
             $this->result = $result;
             $this->error = false;
         }

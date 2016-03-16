@@ -258,9 +258,16 @@ class Tile extends ActiveRecord
     // Чанки
     
     /**
-     * Размер чанка (квадрата из тайлов)
+     * Ширина чанка
      */    
-    const CHUNK_SIZE = 32;
+    const CHUNK_WIDTH = 27;
+    
+    /**
+     * Высота чанка
+     */
+    const CHUNK_HEIGHT = 15;
+    
+    const CHUNK_SIZE = 1;
     
     /**
      * @inheritdoc
@@ -636,10 +643,10 @@ class Tile extends ActiveRecord
     public static function findByChunk($x, $y)
     {
         return self::find()
-                ->where(['>=', 'x', $x*self::CHUNK_SIZE])
-                ->andWhere(['<', 'x', ($x+1)*self::CHUNK_SIZE])
-                ->andWhere(['>=', 'y', $y*self::CHUNK_SIZE])
-                ->andWhere(['<', 'y', ($y+1)*self::CHUNK_SIZE]);
+                ->where(['>=', 'x', $x*self::CHUNK_WIDTH])
+                ->andWhere(['<', 'x', ($x+1)*self::CHUNK_WIDTH])
+                ->andWhere(['>=', 'y', $y*self::CHUNK_HEIGHT])
+                ->andWhere(['<', 'y', ($y+1)*self::CHUNK_HEIGHT]);
     }
     
 }
