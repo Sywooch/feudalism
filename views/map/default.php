@@ -36,12 +36,21 @@ for (var y = -1; y < 2; y++) {
                 if (tile.castle) {
                     display.draw(tile.x+20,tile.y+10,"Ω","#fff");
                 }
+                
+                tilesCache[tile.x+"x"+tile.y] = tile;
             }
         }
     );
 }}
 
     $("#map").html(display.getContainer());
+    $("#map").click(function(e){
+        var displayCoords = display.eventToPosition(e);
+        var tileX = displayCoords[0] - 20;
+        var tileY = displayCoords[1] - 10;
+        var tile = tilesCache[tileX+"x"+tileY];
+        display.drawText(display.getOptions().width-10,1,"["+tile.x+","+tile.y+"] "+tile.biomeLabel,10);
+    });
 ');
 
 ?>
@@ -50,5 +59,5 @@ for (var y = -1; y < 2; y++) {
     
 </div>
 <script>
-    var display, resizeDisplay;        
+    var display, resizeDisplay, tilesCache = {};        
 </script>
