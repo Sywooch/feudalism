@@ -32,7 +32,7 @@ $this->registerJs('
 
     canvasTiles.addTo(map);
     
-    $("canvas.leaflet-tile").click(function(e){
+    $("#map").on("click", "canvas.leaflet-tile", function(e){
         var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
         var displayCoords = display.eventToPosition(e);
         var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
