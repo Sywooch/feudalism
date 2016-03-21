@@ -54,6 +54,15 @@ class Unit extends ActiveRecord
         ];
     }
 
+    public static function displayedAttributes($owner = false)
+    {
+        return [
+            'id',
+            'userId',
+            'protoId'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -77,4 +86,5 @@ class Unit extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
+
 }

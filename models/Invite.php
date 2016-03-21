@@ -51,6 +51,11 @@ class Invite extends ActiveRecord
             'time' => Yii::t('app', 'Time'),
         ];
     }
+
+    public static function displayedAttributes($owner = false)
+    {
+        return [];
+    }
     
     /**
      * Использован ли инвайт
@@ -96,4 +101,5 @@ class Invite extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
+
 }

@@ -36,4 +36,29 @@ abstract class ActiveRecord extends YiiActiveRecord
         return $m;
     }
     
+    /**
+     * Возвращает массив имён аттрибутов, доступных для отображения клиенту
+     * @param boolean $owner если true то расширенный список, доступный владельцу
+     * @return array
+     */
+    abstract public static function displayedAttributes($owner = false);
+    
+    /**
+     * Возвращает массив доступных для отображения клиенту аттрибутов
+     * @param boolean $owner
+     * @return array
+     */
+    public function getDisplayedAttributes($owner = false, $displayedAttributes = [])
+    {
+        $values = [];
+        $attrs = static::displayedAttributes($owner);
+        if (count($displayedAttributes)) {
+            $attrs = array_merge($attrs, $displayedAttributes);
+        }
+        foreach ($attrs as $attr) {
+            $values[$attr] = $this->$attr;
+        }
+        return $values;
+    }
+    
 }

@@ -96,6 +96,33 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public static function displayedAttributes($owner = false)
+    {
+        $attributes = [
+            'id',
+            'name',
+            'genderedName',
+            'gender',
+            'level',
+            'magic',
+            'authority',
+            'education',
+            'combat'
+        ];
+        
+        if ($owner) {
+            $attributes = array_merge($attributes, [
+                'balance',
+                'magicBase',
+                'authorityBase',
+                'educationBase',
+                'combatBase'
+            ]);
+        }
+        
+        return $attributes;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

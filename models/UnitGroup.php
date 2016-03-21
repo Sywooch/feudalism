@@ -56,6 +56,16 @@ class UnitGroup extends ActiveRecord
         ];
     }
 
+    public static function displayedAttributes($owner = false)
+    {
+        return [
+            'id',
+            'userId',
+            'tileId',
+            'name'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -87,4 +97,5 @@ class UnitGroup extends ActiveRecord
     {
         return $this->hasMany(User::className(), ['currentGroupId' => 'id']);
     }
+
 }

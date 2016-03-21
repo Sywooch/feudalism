@@ -23,6 +23,9 @@ use Yii,
  * @property User $user
  * @property User[] $users
  * @property Tile $tile
+ * 
+ * @property string $userName
+ * @property integer $userLevel
  */
 class Castle extends ActiveRecord
 {
@@ -61,6 +64,21 @@ class Castle extends ActiveRecord
         ];
     }
 
+    public static function displayedAttributes($owner = false)
+    {
+        $attributes = [
+            'id',
+            'userId',
+            'name',
+            'fortification',
+            'quarters'
+        ];
+        if ($owner) {
+            $attributes[] = 'quartersUsed';
+        }
+        return $attributes;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -91,5 +109,16 @@ class Castle extends ActiveRecord
     public function getTile() 
     { 
         return $this->hasOne(Tile::className(), ['id' => 'tileId']); 
-    } 
+    }
+    
+    public function getUserName()
+    {
+        return $this->user->genderedName;
+    }
+    
+    public function getUserLevel()
+    {
+        return $this->user->level;
+    }
+
 }
