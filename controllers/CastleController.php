@@ -52,7 +52,10 @@ class CastleController extends Controller
         if (is_null($model)) {
             return $this->renderJsonError(Yii::t('app','Castle not found'));
         } else {
-            return $this->renderJson($model->getDisplayedAttributes($isOwner));
+            return $this->renderJson($model->getDisplayedAttributes($isOwner, [
+                'userName',
+                'userLevel'
+            ]));
         }
     }
 
