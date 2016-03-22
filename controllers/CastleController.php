@@ -134,4 +134,46 @@ class CastleController extends Controller
         }
     }
     
+    /**
+     * Build a new quarters for Castle model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionQuartersIncrease($id)
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
+            
+            // Расширение казарм доступно для замка
+            if ($model->canQuartersIncreases) {
+                $current = $model->quarters;
+                
+                // У юзера достаточно денег для расширения
+                if ($this->user->isHaveMoneyForAction('castle', 'quarters-increase', ['current' => $current])) {
+                    $model->quarters++;
+                    $transaction = Yii::$app->db->beginTransaction();
+                    if ($model->save()) {
+                        if ($this->user->payForAction('castle', 'quarters-increase', ['current' => $current], true)) {
+                            $transaction->commit();
+                            return $this->renderJsonOk();
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }
+                    } else {
+                        return $this->renderJsonError($model->getErrors());
+                    }
+                } else {
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
+                }
+            } else {
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            }
+        } else {
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+        }
+    }
+    
 }

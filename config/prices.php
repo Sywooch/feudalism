@@ -8,6 +8,9 @@ return [
         'fortification-increase' => function(array $params) {
             return $params['current']*1.0;
         },
+        'quarters-increase' => function(array $params) {
+            return $params['current']*2.0;
+        },
     ],
     
 ];
