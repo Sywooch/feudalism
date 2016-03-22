@@ -20,10 +20,10 @@ class CastleController extends Controller
         
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['build', 'fortification-increase', 'quarters-increase'],
+            'only' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
             'rules' => [
                 [
-                    'actions' => ['build', 'fortification-increase', 'quarters-increase'],
+                    'actions' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
