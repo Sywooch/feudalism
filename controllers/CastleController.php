@@ -46,9 +46,14 @@ class CastleController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        $isOwner = $model->userId === $this->viewer_id;
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Castle not found'));
+        } else {
+            return $this->renderJson($model->getDisplayedAttributes($isOwner));
+        }
     }
 
     /**
@@ -58,51 +63,63 @@ class CastleController extends Controller
      */
     public function actionBuild()
     {
-        if (!Yii::$app->user->isGuest) {
-            
-            if ($this->user->isHaveMoneyForAction('castle', 'build')) {
-            
-                $model = new Castle();
-                $transaction = Yii::$app->db->beginTransaction();
-                if ($model->load(Yii::$app->request->post())) {
-                    $model->userId = $this->viewer_id;
-                    $model->fortification = 1;
-                    $model->quarters = 1;
-                    if ($model->save()) {
-                        if ($this->user->payForAction('castle', 'build', true)) {
-                            $transaction->commit();
-                            return $this->renderJson($model);
-                        } else {
-                            return $this->renderJsonError($this->user->getErrors());
-                        }
+        if ($this->user->isHaveMoneyForAction('castle', 'build')) {
+
+            $model = new Castle();
+            $transaction = Yii::$app->db->beginTransaction();
+            if ($model->load(Yii::$app->request->post())) {
+                $model->userId = $this->viewer_id;
+                $model->fortification = 1;
+                $model->quarters = 1;
+                if ($model->save()) {
+                    if ($this->user->payForAction('castle', 'build', [], true)) {
+                        $transaction->commit();
+                        return $this->renderJson($model);
                     } else {
-                        return $this->renderJsonError($model->getErrors());
+                        return $this->renderJsonError($this->user->getErrors());
                     }
                 } else {
-                    return $this->renderJsonError('Can not load castle info');
+                    return $this->renderJsonError($model->getErrors());
                 }
             } else {
-                return $this->renderJsonError('You haven`t money');
+                return $this->renderJsonError(Yii::t('app','Can not load castle info'));
             }
         } else {
-            return $this->renderJsonError("Unauthorized");
+            return $this->renderJsonError(Yii::t('app','You haven`t money'));
         }
     }
-
-
+    
     /**
-     * Finds the Castle model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Build a new fortification for Castle model.
      * @param integer $id
-     * @return Castle the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return mixed
      */
-    protected function findModel($id)
+    public function actionFortificationIncrease($id)
     {
-        if (($model = Castle::findOne($id)) !== null) {
-            return $model;
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        $isOwner = $model->userId === $this->viewer_id;
+        if ($isOwner) {
+            $current = $model->fortification;
+            if ($this->user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
+                $model->fortification++;
+                $transaction = Yii::$app->db->beginTransaction();
+                if ($model->save()) {
+                    if ($this->user->payForAction('castle', 'fortification-increase', ['current' => $current], true)) {
+                        $transaction->commit();
+                        return $this->renderJsonOk();
+                    } else {
+                        return $this->renderJsonError($this->user->getErrors());
+                    }
+                } else {
+                    return $this->renderJsonError($model->getErrors());
+                }
+            } else {
+                return $this->renderJsonError(Yii::t('app','You haven`t money'));
+            }
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
         }
     }
+    
 }

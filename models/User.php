@@ -254,21 +254,24 @@ class User extends ActiveRecord implements IdentityInterface
      * 
      * @param integer $category
      * @param integer $action
+     * @param array $params
      * @return boolean
      */
-    public function isHaveMoneyForAction($category, $action = 0)
+    public function isHaveMoneyForAction($category, $action = 0, $params = [])
     {
-        return $this->balance >= Pricelist::get($category, $action);
+        return $this->balance >= Pricelist::get($category, $action, $params);
     }
     
     /**
      * 
-     * @param type $category
-     * @param type $action
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     * @param boolean $saveModel
      */
-    public function payForAction($category, $action = 0, $saveModel = false)
+    public function payForAction($category, $action = 0, $params = [], $saveModel = false)
     {
-        $this->balance -= Pricelist::get($category, $action);
+        $this->balance -= Pricelist::get($category, $action, $params);
         if ($saveModel) {
             return $this->save();
         }

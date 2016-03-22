@@ -79,8 +79,7 @@ class Controller extends YiiController
     protected function renderJsonOk()
     {
         $this->error = false;
-        $this->result = "ok";
-        return $this->_r();
+        return $this->renderJson("ok");
     }
     
     /**
