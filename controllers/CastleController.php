@@ -101,24 +101,33 @@ class CastleController extends Controller
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
-        $isOwner = $model->userId === $this->viewer_id;
-        if ($isOwner) {
-            $current = $model->fortification;
-            if ($this->user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
-                $model->fortification++;
-                $transaction = Yii::$app->db->beginTransaction();
-                if ($model->save()) {
-                    if ($this->user->payForAction('castle', 'fortification-increase', ['current' => $current], true)) {
-                        $transaction->commit();
-                        return $this->renderJsonOk();
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
+            
+            // Расширение фортификаций доступно для замка
+            if ($model->canFortificationIncreases) {
+                $current = $model->fortification;
+                
+                // У юзера достаточно денег для расширения
+                if ($this->user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
+                    $model->fortification++;
+                    $transaction = Yii::$app->db->beginTransaction();
+                    if ($model->save()) {
+                        if ($this->user->payForAction('castle', 'fortification-increase', ['current' => $current], true)) {
+                            $transaction->commit();
+                            return $this->renderJsonOk();
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }
                     } else {
-                        return $this->renderJsonError($this->user->getErrors());
+                        return $this->renderJsonError($model->getErrors());
                     }
                 } else {
-                    return $this->renderJsonError($model->getErrors());
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
                 }
             } else {
-                return $this->renderJsonError(Yii::t('app','You haven`t money'));
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
             }
         } else {
             return $this->renderJsonError(Yii::t('app','Action not allowed'));

@@ -26,6 +26,10 @@ use Yii,
  * 
  * @property string $userName
  * @property integer $userLevel
+ * 
+ * @property boolean $canFortificationIncreases 
+ * @property boolean $canQuartersIncreases
+ * @property boolean $canSpawnUnit
  */
 class Castle extends ActiveRecord
 {
@@ -119,6 +123,21 @@ class Castle extends ActiveRecord
     public function getUserLevel()
     {
         return $this->user->level;
+    }
+    
+    public function getCanFortificationIncreases()
+    {
+        return $this->userLevel < $this->fortification;
+    }
+    
+    public function getCanQuartersIncreases()
+    {
+        return $this->userLevel < $this->quarters;
+    }
+    
+    public function getCanSpawnUnit()
+    {
+        return $this->quartersUsed < $this->quarters;
     }
 
 }
