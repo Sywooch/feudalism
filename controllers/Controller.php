@@ -111,6 +111,7 @@ class Controller extends YiiController
             } 
         } else {
             $this->viewer_id = Yii::$app->user->id;
+            Yii::$app->language = 'ru';
         }
         
         return parent::beforeAction($action);
