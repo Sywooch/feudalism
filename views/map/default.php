@@ -32,13 +32,24 @@ $this->registerJs('
 
     canvasTiles.addTo(map);
     
+    map.on("dragstart", function(e) {
+        $("#map").addClass("dragging");
+    });
+    map.on("dragend", function (e) {
+        setTimeout(function() {
+            $("#map").removeClass("dragging");
+        }, 300);
+    });
+    
     $("#map").on("click", "canvas.leaflet-tile", function(e){
-        var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
-        var displayCoords = display.eventToPosition(e);
-        var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
+        if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
+            var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
+            var displayCoords = display.eventToPosition(e);
+            var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
 
-        var tile = tilesCache[realCoords.x+"x"+realCoords.y];
-        console.log("["+tile.x+","+tile.y+"] "+tile.biomeLabel);
+            var tile = tilesCache[realCoords.x+"x"+realCoords.y];
+            console.log("["+tile.x+","+tile.y+"] "+tile.biomeLabel);
+        }
     });
 ');
 
