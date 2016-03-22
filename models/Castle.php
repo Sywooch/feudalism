@@ -127,12 +127,12 @@ class Castle extends ActiveRecord
     
     public function getCanFortificationIncreases()
     {
-        return $this->userLevel < $this->fortification;
+        return $this->userLevel > $this->fortification;
     }
     
     public function getCanQuartersIncreases()
     {
-        return $this->userLevel < $this->quarters;
+        return $this->userLevel > $this->quarters;
     }
     
     public function getCanSpawnUnit()

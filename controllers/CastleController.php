@@ -4,8 +4,8 @@ namespace app\controllers;
 
 use Yii,
     app\models\Castle,
+    app\models\Unit,
     app\controllers\Controller,
-    yii\web\NotFoundHttpException,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
@@ -20,10 +20,10 @@ class CastleController extends Controller
         
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['build'],
+            'only' => ['build', 'fortification-increase', 'quarters-increase'],
             'rules' => [
                 [
-                    'actions' => ['build'],
+                    'actions' => ['build', 'fortification-increase', 'quarters-increase'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -174,6 +174,59 @@ class CastleController extends Controller
         } else {
             return $this->renderJsonError(Yii::t('app','Action not allowed'));
         }
+    }
+    
+    /**
+     * Spawn new unit in castle
+     * @param integer $id
+     * @param integer $protoId
+     */
+    public function actionSpawnUnit($id, $protoId)
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
+            
+            // Есть неиспользованные казармы
+            if ($model->canSpawnUnit) {
+                
+                // У юзера достаточно денег для создания
+                if ($this->user->isHaveMoneyForAction('unit', 'spawn', ['protoId' => $protoId])) {
+                    
+                    $transaction = Yii::$app->db->beginTransaction();
+                    
+                    $unit = new Unit([
+                        'userId' => $this->viewer_id,
+                        'protoId' => $protoId,
+                        'currentCastleId' => $model->id
+                    ]);
+                    if ($unit->save()) {
+                        if ($this->user->payForAction('unit', 'spawn', ['protoId' => $protoId], true)) {
+                            $model->quartersUsed++;
+                            if ($model->save()) {
+                                $transaction->commit();
+                                return $this->renderJsonOk();
+                            } else {
+                                return $this->renderJsonError($model->getErrors());
+                            }
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }  
+                    } else {
+                        return $this->renderJsonError($unit->getErrors());
+                    }                    
+                } else {
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
+                }               
+            } else {
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            }
+        } else {
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+        }
+        
     }
     
 }
