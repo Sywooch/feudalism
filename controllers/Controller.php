@@ -125,7 +125,7 @@ class Controller extends YiiController
     protected function getUser()
     {
         if (is_null($this->_user)) {
-            $this->_user = User::findOne($this->viewer_id);
+            $this->_user = Yii::$app->user->identity;
         }
         return $this->_user;
     }
