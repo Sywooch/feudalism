@@ -28,12 +28,12 @@ AppAsset::register($this);
             <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                        <span class="sr-only">Toggle navigation</span>
+                        <span class="sr-only"><?=Yii::t('app', 'Toggle navigation')?></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="index.html">Ω <?=Yii::t('app', 'Feudalism')?></a>
+                    <a class="navbar-brand" href="/">Ω <?=Yii::t('app', 'Feudalism')?></a>
                 </div>
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <?php if (!Yii::$app->user->isGuest):?>
@@ -42,10 +42,10 @@ AppAsset::register($this);
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <?=Yii::$app->user->identity->genderedName?> <span class="badge">2</span> <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="/user/view?id=<?=Yii::$app->user->id?>"><i class="fa fa-user"></i> Profile</a></li>
-                                <li><a href="#"><i class="fa fa-gear"></i> Settings</a></li>
+                                <li><a href="#"><i class="fa fa-gear"></i> <?=Yii::t('app', 'Settings')?></a></li>
                                 <li class="divider"></li>
-                                <li class="dropdown-header">Messages</li>
-                                <li><a href="#">Go to Inbox <span class="badge">2</span></a></li>
+                                <li class="dropdown-header"><?=Yii::t('app', 'Messages')?></li>
+                                <li><a href="#"><?=Yii::t('app', 'Go to Inbox')?> <span class="badge">2</span></a></li>
                                 <li class="divider"></li>
                                 <li>
                                     <?=Html::beginForm(['/site/logout'], 'post')

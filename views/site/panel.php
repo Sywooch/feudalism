@@ -4,7 +4,8 @@
 /* @var $this yii\web\View */
 
 use yii\helpers\Html,
-    app\components\Pricelist;
+    app\components\Pricelist,
+    app\components\ExperienceCalculator;
 
 $buildCastlePrice = Pricelist::get('castle', 'build');
 $messageConfirm = Yii::t('app', 'You really wanna build a castle for {0,number,currency}?', [$buildCastlePrice]);
@@ -54,7 +55,7 @@ $this->registerJs("$('#buildCastleButton').click(function(){
     <small>α</small>
 </h1>
 <div>
-    <p><?=Yii::t('app','You are')?> <strong title="<?=Yii::t('app', '{0} lvl.', [$user->level])?>" >[<?=$user->level?>]</strong> <?=Yii::t('app','{0,select,2{Sir} 1{Lady} other{}}',[$user->gender])?> <?=$user->name?></p>
+    <p><?=Yii::t('app','You are')?> <strong title="<?=Yii::t('app', 'Level {0} [{1} XP / {2} XP for level {3}]', [$user->level, $user->experience, ExperienceCalculator::getExperienceByLevel($user->level+1), $user->level+1])?>" >[<?=$user->level?>]</strong> <?=Yii::t('app','{0,select,2{Sir} 1{Lady} other{}}',[$user->gender])?> <?=$user->name?></p>
     <p><?=Yii::t('app','You have a {0,number,currency}',[$user->balance])?></p>
     <ul>
         <li><strong><?=Yii::t('app','Magic')?>: <?=$user->magic?></strong> (<?=Yii::t('app','{0} basic + {1} additional points',[$user->magicBase,$user->magic-$user->magicBase])?>)</li>

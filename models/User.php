@@ -281,6 +281,11 @@ class User extends ActiveRecord implements IdentityInterface
         }
     }
     
+    /**
+     * Считает текущий уровень по опыту
+     * @param boolean $save
+     * @return boolean
+     */
     public function calcLevel($save = false)
     {
         $this->level = ExperienceCalculator::getLevelByExperience($this->experience);
@@ -294,6 +299,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $category
      * @param string $action
      * @param array $params
+     * @param boolean $save
+     * @return boolean
      */
     public function addExperienceForAction($category, $action = 0, $params = [], $save = false)
     {

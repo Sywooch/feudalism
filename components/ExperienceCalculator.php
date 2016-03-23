@@ -13,32 +13,34 @@ use Yii,
 abstract class ExperienceCalculator {
     
     /**
-     * Массив [уровень => опыт] для захардкоженных уровней 0-8
+     * Массив [уровень => опыт] для захардкоженных уровней 0-10
      * @return array
      */
     public static function getHardcodedLevels()
     {
         return [
             0 => 0,
-            1 => 10000,
-            2 => 30000,
-            3 => 70000,
-            4 => 150000,
-            5 => 300000,
-            6 => 600000,
-            7 => 1200000,
-            8 => 2400000    
+            1 => 700,
+            2 => 1500
         ];
     }
-    
+        
     /**
-     * Необходимое число опыта для уровней 9+
+     * Необходимое число опыта для высоких (незахардкоженных) уровней
      * @param integer $level
      * @return integer
      */
     public static function getExperienceForBigLevel($level)
     {
-        return MathHelper::aroundNumber(pow(2,$level)*9375,true);
+        $p = pow(10,floor($level/3)+2);        
+        switch ($level%3) {
+            case 0:
+                return 3*$p;
+            case 1:
+                return 7*$p;
+            case 2:
+                return 15*$p;
+        }
     }
     
     /**
@@ -48,7 +50,7 @@ abstract class ExperienceCalculator {
      */
     public static function getExperienceByLevel($level)
     {
-        if ($level < 9) {
+        if ($level < count(static::getHardcodedLevels())) {
             return static::getHardcodedLevels()[$level];
         } else {
             return static::getExperienceForBigLevel($level);
@@ -63,11 +65,11 @@ abstract class ExperienceCalculator {
     public static function getLevelByExperience($exp)
     {
         $level = 0;
-        while ($exp > static::getExperienceByLevel($level)) {
+        while ($exp >= static::getExperienceByLevel($level)) {
             $level++;
         }
         
-        return $level;
+        return $level-1;
     }
     
     /**

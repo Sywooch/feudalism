@@ -21,3 +21,7 @@
     z-index: 1200;
     padding-top: 5px;
 }
+
+.leaflet-layer {
+    cursor: pointer;
+}

@@ -75,7 +75,8 @@ class CastleController extends Controller
                 $model->fortification = 1;
                 $model->quarters = 1;
                 if ($model->save()) {
-                    if ($this->user->payForAction('castle', 'build', [], true)) {
+                    $this->user->payForAction('castle', 'build');
+                    if ($this->user->addExperienceForAction('castle', 'build', [], true)) {
                         $transaction->commit();
                         return $this->renderJson($model);
                     } else {
@@ -114,7 +115,8 @@ class CastleController extends Controller
                     $model->fortification++;
                     $transaction = Yii::$app->db->beginTransaction();
                     if ($model->save()) {
-                        if ($this->user->payForAction('castle', 'fortification-increase', ['current' => $current], true)) {
+                        $this->user->payForAction('castle', 'fortification-increase', ['current' => $current]);
+                        if ($this->user->addExperienceForAction('castle', 'fortification-increase', ['current' => $current], true)) {
                             $transaction->commit();
                             return $this->renderJsonOk();
                         } else {
@@ -156,7 +158,8 @@ class CastleController extends Controller
                     $model->quarters++;
                     $transaction = Yii::$app->db->beginTransaction();
                     if ($model->save()) {
-                        if ($this->user->payForAction('castle', 'quarters-increase', ['current' => $current], true)) {
+                        $this->user->payForAction('castle', 'quarters-increase', ['current' => $current]);
+                        if ($this->user->addExperienceForAction('castle', 'quarters-increase', ['current' => $current], true)) {
                             $transaction->commit();
                             return $this->renderJsonOk();
                         } else {
@@ -203,7 +206,8 @@ class CastleController extends Controller
                         'currentCastleId' => $model->id
                     ]);
                     if ($unit->save()) {
-                        if ($this->user->payForAction('unit', 'spawn', ['protoId' => $protoId], true)) {
+                        $this->user->payForAction('unit', 'spawn', ['protoId' => $protoId]);
+                        if ($this->user->addExperienceForAction('unit', 'spawn', ['protoId' => $protoId], true)) {
                             $model->quartersUsed++;
                             if ($model->save()) {
                                 $transaction->commit();
