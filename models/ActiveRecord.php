@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord as YiiActiveRecord;
+use yii\db\ActiveRecord as YiiActiveRecord,
+    yii\base\Exception;
 
 /**
  * Надстройка над ActiveRecord
@@ -41,7 +42,10 @@ abstract class ActiveRecord extends YiiActiveRecord
      * @param boolean $owner если true то расширенный список, доступный владельцу
      * @return array
      */
-    abstract public function displayedAttributes($owner = false);
+    public static function displayedAttributes($owner = false)
+    {
+        throw new Exception('ActiveRecord::displayedAttributes not overwrited in '.static::className());
+    }
     
     /**
      * Возвращает массив доступных для отображения клиенту аттрибутов
