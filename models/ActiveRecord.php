@@ -41,7 +41,7 @@ abstract class ActiveRecord extends YiiActiveRecord
      * @param boolean $owner если true то расширенный список, доступный владельцу
      * @return array
      */
-    abstract public static function displayedAttributes($owner = false);
+    abstract public function displayedAttributes($owner = false);
     
     /**
      * Возвращает массив доступных для отображения клиенту аттрибутов
