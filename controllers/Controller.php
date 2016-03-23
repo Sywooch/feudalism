@@ -79,8 +79,7 @@ class Controller extends YiiController
     protected function renderJsonOk()
     {
         $this->error = false;
-        $this->result = "ok";
-        return $this->_r();
+        return $this->renderJson("ok");
     }
     
     /**
@@ -111,6 +110,7 @@ class Controller extends YiiController
             } 
         } else {
             $this->viewer_id = Yii::$app->user->id;
+            Yii::$app->language = 'ru';
         }
         
         return parent::beforeAction($action);
@@ -125,7 +125,7 @@ class Controller extends YiiController
     protected function getUser()
     {
         if (is_null($this->_user)) {
-            $this->_user = User::findOne($this->viewer_id);
+            $this->_user = Yii::$app->user->identity;
         }
         return $this->_user;
     }

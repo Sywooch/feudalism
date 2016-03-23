@@ -56,6 +56,11 @@ class Auth extends ActiveRecord
             'sourceId' => Yii::t('app', 'Source ID'),
         ];
     }
+
+    public static function displayedAttributes($owner = false)
+    {
+        return [];
+    }
     
     public function getUser()
     {
@@ -122,5 +127,5 @@ class Auth extends ActiveRecord
                 return static::SOURCE_VKAPP;
         }
     }
-    
+
 }

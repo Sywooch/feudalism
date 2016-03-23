@@ -23,23 +23,55 @@ AppAsset::register($this);
     </head>
     <body>
         <?php $this->beginBody() ?>
-        <img src="/img/ajax-loader.gif" id="spinner" style="display:none" alt="Загрузка..." >
         <?=Html::img('/img/ajax-loader.gif', ['id'=>'spinner','style'=>'display:none','alt'=>'Загрузка'])?>
-        <div>
-            <?= $content ?>
+        <div id="wrapper">
+            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="index.html">Ω <?=Yii::t('app', 'Feudalism')?></a>
+                </div>
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <?php if (!Yii::$app->user->isGuest):?>
+                    <ul class="nav navbar-nav navbar-right navbar-user">
+                        <li class="dropdown user-dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <?=Yii::$app->user->identity->genderedName?> <span class="badge">2</span> <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/user/view?id=<?=Yii::$app->user->id?>"><i class="fa fa-user"></i> Profile</a></li>
+                                <li><a href="#"><i class="fa fa-gear"></i> Settings</a></li>
+                                <li class="divider"></li>
+                                <li class="dropdown-header">Messages</li>
+                                <li><a href="#">Go to Inbox <span class="badge">2</span></a></li>
+                                <li class="divider"></li>
+                                <li>
+                                    <?=Html::beginForm(['/site/logout'], 'post')
+                                        . Html::submitButton(
+                                            Yii::t('app','Logout ({0})', [Yii::$app->user->identity->name]),
+                                            ['class' => 'btn btn-link']
+                                        )
+                                        . Html::endForm()?>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                    <?php endif ?>
+                </div>
+          </nav>
+            <div id="page-wrapper">
+                <?= $content ?>
+            </div>
         </div>
-        <footer class='footer'>
-            <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
-            <?php if (!Yii::$app->user->isGuest):?>
-            <p>
-                <?=Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    Yii::t('app','Logout ({0})', [Yii::$app->user->identity->name]),
-                    ['class' => 'btn btn-link']
-                )
-                . Html::endForm()?>
-            </p>
-            <?php endif ?>
+        <footer id="footer" class="footer">
+            <div class="container">
+                <div class="col-md-3 col-xs-4 col-sm-4 text-left">
+                    <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
+                </div>
+            </div>
         </footer>
         <?php $this->endBody() ?>
         <script>

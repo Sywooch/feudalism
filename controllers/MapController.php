@@ -28,25 +28,14 @@ class MapController extends Controller {
         $result = [];
         /* @var $tile Tile */
         foreach ($tiles as $tile) {
-            $tileinfo = [
-                'id' => $tile->id,
-                'x' => $tile->x,
-                'y' => $tile->y,
-                'biome' => $tile->biome,
-                'biomeLabel' => $tile->biomeLabel,
-                'biomeCharacter' => $tile->biomeCharacter,
-                'biomeColor' => $tile->biomeColor,
-            ];
+            $tileinfo = $tile->getDisplayedAttributes();
             
             if (isset($tile->castles[0])) {
                 $castle = $tile->castles[0];
-                $tileinfo['castle'] = [
-                    'id' => $castle->id,
-                    'name' => $castle->name,
-                    'userId' => $castle->userId,
-                    'userName' => $castle->user->name,
-                    'userLevel' => $castle->user->level
-                ];
+                $tileinfo['castle'] = $castle->getDisplayedAttributes(true, [
+                    'userName',
+                    'userLevel'
+                ]);
             }
                         
             $result[] = $tileinfo;

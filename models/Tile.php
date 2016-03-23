@@ -305,6 +305,23 @@ class Tile extends ActiveRecord
             'drainage' => Yii::t('app', 'Drainage')
         ];
     }
+
+    public static function displayedAttributes($owner = false)
+    {
+        return [
+            'id',
+            'x',
+            'y',
+            'biome',
+            'biomeLabel',
+            'biomeCharacter',
+            'biomeColor',
+            'elevation',
+            'temperature',
+            'rainfall',
+            'drainage'
+        ];
+    }
     
     /**
      * 
@@ -648,5 +665,5 @@ class Tile extends ActiveRecord
                 ->andWhere(['>=', 'y', $y*self::CHUNK_HEIGHT])
                 ->andWhere(['<', 'y', ($y+1)*self::CHUNK_HEIGHT]);
     }
-    
+
 }

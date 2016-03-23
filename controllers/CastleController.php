@@ -4,8 +4,8 @@ namespace app\controllers;
 
 use Yii,
     app\models\Castle,
+    app\models\Unit,
     app\controllers\Controller,
-    yii\web\NotFoundHttpException,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
@@ -20,10 +20,10 @@ class CastleController extends Controller
         
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['build'],
+            'only' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
             'rules' => [
                 [
-                    'actions' => ['build'],
+                    'actions' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -46,9 +46,17 @@ class CastleController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        $isOwner = $model->userId === $this->viewer_id;
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Castle not found'));
+        } else {
+            return $this->renderJson($model->getDisplayedAttributes($isOwner, [
+                'userName',
+                'userLevel'
+            ]));
+        }
     }
 
     /**
@@ -58,20 +66,57 @@ class CastleController extends Controller
      */
     public function actionBuild()
     {
-        if (!Yii::$app->user->isGuest) {
+        if ($this->user->isHaveMoneyForAction('castle', 'build')) {
+
+            $model = new Castle();
+            $transaction = Yii::$app->db->beginTransaction();
+            if ($model->load(Yii::$app->request->post())) {
+                $model->userId = $this->viewer_id;
+                $model->fortification = 1;
+                $model->quarters = 1;
+                if ($model->save()) {
+                    if ($this->user->payForAction('castle', 'build', [], true)) {
+                        $transaction->commit();
+                        return $this->renderJson($model);
+                    } else {
+                        return $this->renderJsonError($this->user->getErrors());
+                    }
+                } else {
+                    return $this->renderJsonError($model->getErrors());
+                }
+            } else {
+                return $this->renderJsonError(Yii::t('app','Can not load castle info'));
+            }
+        } else {
+            return $this->renderJsonError(Yii::t('app','You haven`t money'));
+        }
+    }
+    
+    /**
+     * Build a new fortification for Castle model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionFortificationIncrease($id)
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
             
-            if ($this->user->isHaveMoneyForAction('castle', 'build')) {
-            
-                $model = new Castle();
-                $transaction = Yii::$app->db->beginTransaction();
-                if ($model->load(Yii::$app->request->post())) {
-                    $model->userId = $this->viewer_id;
-                    $model->fortification = 1;
-                    $model->quarters = 1;
+            // Расширение фортификаций доступно для замка
+            if ($model->canFortificationIncreases) {
+                $current = $model->fortification;
+                
+                // У юзера достаточно денег для расширения
+                if ($this->user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
+                    $model->fortification++;
+                    $transaction = Yii::$app->db->beginTransaction();
                     if ($model->save()) {
-                        if ($this->user->payForAction('castle', 'build', true)) {
+                        if ($this->user->payForAction('castle', 'fortification-increase', ['current' => $current], true)) {
                             $transaction->commit();
-                            return $this->renderJson($model);
+                            return $this->renderJsonOk();
                         } else {
                             return $this->renderJsonError($this->user->getErrors());
                         }
@@ -79,30 +124,109 @@ class CastleController extends Controller
                         return $this->renderJsonError($model->getErrors());
                     }
                 } else {
-                    return $this->renderJsonError('Can not load castle info');
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
                 }
             } else {
-                return $this->renderJsonError('You haven`t money');
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
             }
         } else {
-            return $this->renderJsonError("Unauthorized");
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
         }
     }
-
-
+    
     /**
-     * Finds the Castle model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Build a new quarters for Castle model.
      * @param integer $id
-     * @return Castle the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return mixed
      */
-    protected function findModel($id)
+    public function actionQuartersIncrease($id)
     {
-        if (($model = Castle::findOne($id)) !== null) {
-            return $model;
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
+            
+            // Расширение казарм доступно для замка
+            if ($model->canQuartersIncreases) {
+                $current = $model->quarters;
+                
+                // У юзера достаточно денег для расширения
+                if ($this->user->isHaveMoneyForAction('castle', 'quarters-increase', ['current' => $current])) {
+                    $model->quarters++;
+                    $transaction = Yii::$app->db->beginTransaction();
+                    if ($model->save()) {
+                        if ($this->user->payForAction('castle', 'quarters-increase', ['current' => $current], true)) {
+                            $transaction->commit();
+                            return $this->renderJsonOk();
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }
+                    } else {
+                        return $this->renderJsonError($model->getErrors());
+                    }
+                } else {
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
+                }
+            } else {
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            }
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
         }
     }
+    
+    /**
+     * Spawn new unit in castle
+     * @param integer $id
+     * @param integer $protoId
+     */
+    public function actionSpawnUnit($id, $protoId)
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        
+        // Юзер — владелец замка
+        if ($model->userId === $this->viewer_id) {
+            
+            // Есть неиспользованные казармы
+            if ($model->canSpawnUnit) {
+                
+                // У юзера достаточно денег для создания
+                if ($this->user->isHaveMoneyForAction('unit', 'spawn', ['protoId' => $protoId])) {
+                    
+                    $transaction = Yii::$app->db->beginTransaction();
+                    
+                    $unit = new Unit([
+                        'userId' => $this->viewer_id,
+                        'protoId' => $protoId,
+                        'currentCastleId' => $model->id
+                    ]);
+                    if ($unit->save()) {
+                        if ($this->user->payForAction('unit', 'spawn', ['protoId' => $protoId], true)) {
+                            $model->quartersUsed++;
+                            if ($model->save()) {
+                                $transaction->commit();
+                                return $this->renderJsonOk();
+                            } else {
+                                return $this->renderJsonError($model->getErrors());
+                            }
+                        } else {
+                            return $this->renderJsonError($this->user->getErrors());
+                        }  
+                    } else {
+                        return $this->renderJsonError($unit->getErrors());
+                    }                    
+                } else {
+                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
+                }               
+            } else {
+                return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            }
+        } else {
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+        }
+        
+    }
+    
 }
