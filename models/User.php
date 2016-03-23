@@ -5,6 +5,7 @@ namespace app\models;
 use Yii,
     yii\web\IdentityInterface,
     app\components\Pricelist,
+    app\components\ExperienceCalculator,
     app\models\ActiveRecord,
     app\models\Auth,
     app\models\UnitGroup,
@@ -20,6 +21,7 @@ use Yii,
  * @property integer $gender 
  * @property boolean $invited 
  * @property integer $level
+ * @property integer $experience
  * @property double $balance 
  * @property integer $magic Магия
  * @property integer $authority Авторитет (внушительность)
@@ -63,7 +65,7 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['gender', 'level', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId'], 'integer'],
+            [['gender', 'level', 'experience', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId'], 'integer'],
             [['invited'], 'boolean'],
             [['balance'], 'number'],
             [['capitalCastleId'], 'unique']
@@ -81,6 +83,7 @@ class User extends ActiveRecord implements IdentityInterface
             'gender' => Yii::t('app', 'Gender'), 
             'invited' => Yii::t('app', 'Invited'), 
             'level' => Yii::t('app', 'Level'),
+            'experience' => Yii::t('app', 'XP'),
             'balance' => Yii::t('app', 'Balance'),
             'magic' => Yii::t('app', 'Magic'),
             'authority' => Yii::t('app', 'Authority'),
@@ -112,6 +115,7 @@ class User extends ActiveRecord implements IdentityInterface
         
         if ($owner) {
             $attributes = array_merge($attributes, [
+                'experience',
                 'balance',
                 'magicBase',
                 'authorityBase',
@@ -275,6 +279,26 @@ class User extends ActiveRecord implements IdentityInterface
         if ($saveModel) {
             return $this->save();
         }
+    }
+    
+    public function calcLevel($save = false)
+    {
+        $this->level = ExperienceCalculator::getLevelByExperience($this->experience);
+        if ($save) {
+            return $this->save();
+        }
+    }
+    
+    /**
+     * Начисляет опыт за действие
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     */
+    public function addExperienceForAction($category, $action = 0, $params = [], $save = false)
+    {
+        $this->experience += ExperienceCalculator::get($category, $action, $params);
+        return $this->calcLevel($save);
     }
 
 }

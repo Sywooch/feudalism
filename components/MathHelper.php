@@ -3,11 +3,11 @@
 namespace app\components;
 
 /**
- * Description of MyMathHelper
+ * Полезные математические штуки
  *
  * @author ilya
  */
-class MathHelper {
+abstract class MathHelper {
     
     /**
      * Число е
@@ -86,6 +86,19 @@ class MathHelper {
         }
         
         return $sum;
+    }
+    
+    /**
+     * Округляет число до последнего знака перед запятой
+     * 1234 -> 1000, 54321 -> 60000
+     * @param integer $number
+     * @param boolean $ceil если true то округляет в большую сторону
+     * @return integer
+     */
+    public static function aroundNumber($number, $ceil = false)
+    {
+        $p = pow(10,strlen($number)-1);
+        return ($ceil ? ceil($number/$p) : round($number/$p))*$p;        
     }
     
 }
