@@ -14,15 +14,19 @@ use Yii,
  * @property integer $id
  * @property integer $userId
  * @property integer $tileId 
+ * @property integer $titleId
  * @property string $name
  * @property integer $fortification
  * @property integer $quarters
  * @property integer $quartersUsed
+ * @property integer $builded 
+ * @property integer $captured 
  *
  * @property Unit[] $units
  * @property User $user
  * @property User[] $users
  * @property Tile $tile
+ * @property Title $title
  * 
  * @property string $userName
  * @property integer $userLevel
@@ -47,7 +51,7 @@ class Castle extends ActiveRecord
     public function rules()
     {
         return [
-            [['userId', 'tileId', 'fortification', 'quarters', 'quartersUsed'], 'integer'],
+            [['userId', 'tileId', 'titleId', 'fortification', 'quarters', 'quartersUsed', 'builded', 'captured'], 'integer'],
             [['tileId', 'name'], 'required'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -61,10 +65,14 @@ class Castle extends ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'userId' => Yii::t('app', 'User ID'),
+            'tileId' => Yii::t('app', 'Tile ID'), 
+            'titleId' => Yii::t('app', 'Title ID'), 
             'name' => Yii::t('app', 'Name'),
             'fortification' => Yii::t('app', 'Fortification'),
             'quarters' => Yii::t('app', 'Quarters'),
             'quartersUsed' => Yii::t('app', 'Quarters Used'),
+            'builded' => Yii::t('app', 'Builded'), 
+            'captured' => Yii::t('app', 'Captured'), 
         ];
     }
 
@@ -113,6 +121,14 @@ class Castle extends ActiveRecord
     public function getTile() 
     { 
         return $this->hasOne(Tile::className(), ['id' => 'tileId']); 
+    }
+    
+    /** 
+     * @return \yii\db\ActiveQuery 
+     */ 
+    public function getTitle() 
+    {         
+        return $this->hasOne(Title::className(), ['id' => 'titleId']);
     }
     
     public function getUserName()

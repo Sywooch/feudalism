@@ -15,6 +15,8 @@ use Yii,
  * @property integer $protoId
  * @property integer $currentGroupId
  * @property integer $currentCastleId
+ * @property integer $spawned 
+ * @property integer $lastSalary 
  *
  * @property Castle $currentCastle
  * @property UnitGroup $currentGroup
@@ -37,7 +39,7 @@ class Unit extends ActiveRecord
     {
         return [
             [['userId', 'protoId'], 'required'],
-            [['userId', 'protoId', 'currentGroupId', 'currentCastleId'], 'integer']
+            [['userId', 'protoId', 'currentGroupId', 'currentCastleId', 'spawned', 'lastSalary'], 'integer']
         ];
     }
 
@@ -51,16 +53,27 @@ class Unit extends ActiveRecord
             'protoId' => Yii::t('app', 'Proto ID'),
             'currentGroupId' => Yii::t('app', 'Current Group ID'),
             'currentCastleId' => Yii::t('app', 'Current Castle ID'),
+            'spawned' => Yii::t('app', 'Spawned'),
+            'lastSalary' => Yii::t('app', 'Last Salary'),
         ];
     }
 
     public static function displayedAttributes($owner = false)
     {
-        return [
+        $attributes = [
             'id',
             'userId',
-            'protoId'
+            'protoId',
+            'spawned'
         ];
+        
+        if ($owner) {
+            $attributes = array_merge($attributes, [
+                'currentGroupId',
+                'currentCastleId',
+                'lastSalary'
+            ]);
+        }
     }
 
     /**

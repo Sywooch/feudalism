@@ -22,6 +22,7 @@ use Yii,
  * @property boolean $invited 
  * @property integer $level
  * @property integer $experience
+ * @property integer $primaryTitleId Основной титул
  * @property double $balance 
  * @property integer $magic Магия
  * @property integer $authority Авторитет (внушительность)
@@ -34,6 +35,8 @@ use Yii,
  * @property integer $currentGroupId
  * @property integer $currentCastleId
  * @property integer $capitalCastleId
+ * @property integer $registration 
+ * @property integer $lastActive 
  *
  * @property Auth[] $auths
  * @property UnitGroup[] $groups
@@ -43,6 +46,8 @@ use Yii,
  * @property Castle $currentCastle
  * @property Castle[] $castles
  * @property Group $currentGroup
+ * @property Title $primaryTitle
+ * @property Title[] $titles
  * 
  * @property string $genderPrefix
  * @property string $genderedName
@@ -65,7 +70,7 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['gender', 'level', 'experience', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId'], 'integer'],
+            [['gender', 'level', 'experience', 'primaryTitleId', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId', 'registration', 'lastActive'], 'integer'],
             [['invited'], 'boolean'],
             [['balance'], 'number'],
             [['capitalCastleId'], 'unique']
@@ -84,6 +89,7 @@ class User extends ActiveRecord implements IdentityInterface
             'invited' => Yii::t('app', 'Invited'), 
             'level' => Yii::t('app', 'Level'),
             'experience' => Yii::t('app', 'XP'),
+            'primaryTitleId' => Yii::t('app', 'Primary Title ID'),
             'balance' => Yii::t('app', 'Balance'),
             'magic' => Yii::t('app', 'Magic'),
             'authority' => Yii::t('app', 'Authority'),
@@ -96,6 +102,8 @@ class User extends ActiveRecord implements IdentityInterface
             'currentGroupId' => Yii::t('app', 'Current Group ID'),
             'currentCastleId' => Yii::t('app', 'Current Castle ID'),
             'capitalCastleId' => Yii::t('app', 'Capital Castle ID'),
+            'registration' => Yii::t('app', 'Registration'), 
+            'lastActive' => Yii::t('app', 'Last Active'), 
         ];
     }
 
@@ -107,6 +115,7 @@ class User extends ActiveRecord implements IdentityInterface
             'genderedName',
             'gender',
             'level',
+            'primaryTitleId',
             'magic',
             'authority',
             'education',
@@ -120,7 +129,9 @@ class User extends ActiveRecord implements IdentityInterface
                 'magicBase',
                 'authorityBase',
                 'educationBase',
-                'combatBase'
+                'combatBase',
+                'registration',
+                'lastActive'
             ]);
         }
         
@@ -189,6 +200,30 @@ class User extends ActiveRecord implements IdentityInterface
     public function getCurrentGroup()
     {
         return $this->hasOne(UnitGroup::className(), ['id' => 'currentGroupId']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTitles()
+    {
+        return $this->hasMany(Title::className(), ['userId' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUnitGroups()
+    {
+        return $this->hasMany(UnitGroup::className(), ['userId' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPrimaryTitle()
+    {
+        return $this->hasOne(Title::className(), ['id' => 'primaryTitleId']);
     }
 
     public function getAuthKey()

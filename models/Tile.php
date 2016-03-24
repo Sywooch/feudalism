@@ -16,6 +16,7 @@ use Yii,
  * @property integer $id
  * @property integer $x
  * @property integer $y
+ * @property integer $titleId 
  * @property integer $biomeId
  * @property integer $elevation
  * @property integer $temperature
@@ -28,6 +29,7 @@ use Yii,
  *
  * @property Biome $biome
  * @property Castle[] $castles
+ * @property Title $title
  * @property UnitGroup[] $unitGroups
  */
 class Tile extends ActiveRecord
@@ -60,7 +62,7 @@ class Tile extends ActiveRecord
     {
         return [
             [['x', 'y', 'biomeId'], 'required'],
-            [['x', 'y', 'biomeId', 'elevation', 'temperature', 'rainfall', 'drainage'], 'integer'],
+            [['x', 'y', 'biomeId', 'titleId', 'elevation', 'temperature', 'rainfall', 'drainage'], 'integer'],
             [['x', 'y'], 'unique', 'targetAttribute' => ['x', 'y'], 'message' => Yii::t('app','The combination of X and Y has already been taken.')]
         ];
     }
@@ -75,6 +77,7 @@ class Tile extends ActiveRecord
             'x' => Yii::t('app', 'X'),
             'y' => Yii::t('app', 'Y'),
             'biomeId' => Yii::t('app', 'Biome ID'),
+            'titleId' => Yii::t('app', 'Title ID'), 
             'elevation' => Yii::t('app', 'Elevation'),
             'temperature' => Yii::t('app', 'Temperature'),
             'rainfall' => Yii::t('app', 'Rainfall'),
@@ -91,6 +94,7 @@ class Tile extends ActiveRecord
             'id',
             'x',
             'y',
+            'titleId',
             'biomeId',
             'biomeLabel',
             'biomeCharacter',
