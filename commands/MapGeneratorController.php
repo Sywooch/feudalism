@@ -4,6 +4,7 @@ namespace app\commands;
 
 use yii\console\Controller,
     app\models\Tile,
+    app\models\Biome,
     app\components\MathHelper;
 
 class MapGeneratorController extends Controller
@@ -79,7 +80,7 @@ class MapGeneratorController extends Controller
         for ($i = $this->fromX; $i <= $this->endX; $i++) {
             for ($j = $this->fromY; $j <= $this->endY; $j++) {
                 if ($this->tiles[$i][$j]->isNewRecord) {
-                    $this->tiles[$i][$j]->$param = self::UNSETTED_BIOME_FACTOR;
+                    $this->tiles[$i][$j]->biome->$param = self::UNSETTED_BIOME_FACTOR;
                 }
             }
         }
@@ -90,7 +91,7 @@ class MapGeneratorController extends Controller
         echo "{$param} map:".PHP_EOL;
         for ($i = $this->fromX; $i <= $this->endX; $i++) {
             for ($j = $this->fromY; $j <= $this->endY; $j++) {
-                echo sprintf("%'.02d ", $this->tiles[$i][$j]->$param);
+                echo sprintf("%'.02d ", $this->tiles[$i][$j]->biome->$param);
             }
             echo PHP_EOL;
         }
@@ -101,14 +102,14 @@ class MapGeneratorController extends Controller
         echo "Starting calculate biomes".PHP_EOL;
         for ($i = $this->fromX; $i <= $this->endX; $i++) {
             for ($j = $this->fromY; $j <= $this->endY; $j++) {
-                $this->tiles[$i][$j]->calcBiome();
+                $this->tiles[$i][$j]->biome->calc();
             }
         }
         echo "{$this->tilesCount} tiles biomes setted.".PHP_EOL;
         echo "Biomes map:".PHP_EOL;
         for ($i = $this->fromX; $i <= $this->endX; $i++) {
             for ($j = $this->fromY; $j <= $this->endY; $j++) {
-                echo sprintf("%'.02d ", $this->tiles[$i][$j]->biome);
+                echo sprintf("%'.02d ", $this->tiles[$i][$j]->biome->id);
             }
             echo PHP_EOL;
         }
@@ -128,47 +129,52 @@ class MapGeneratorController extends Controller
         /* @var $rightTop Tile */
         $rightTop = &$this->tiles[$rightBottom->x][$leftTop->y];
         
-        if ($leftBottom->$param === self::UNSETTED_BIOME_FACTOR) {
-            $leftBottom->$param = $this->randomValue($param);
+        if ($leftBottom->biome->$param === self::UNSETTED_BIOME_FACTOR) {
+            $leftBottom->biome->$param = $this->randomValue($param);
         }        
-        if ($rightTop->$param === self::UNSETTED_BIOME_FACTOR) {
-            $rightTop->$param = $this->randomValue($param);
+        if ($rightTop->biome->$param === self::UNSETTED_BIOME_FACTOR) {
+            $rightTop->biome->$param = $this->randomValue($param);
         }        
-        if ($leftTop->$param === self::UNSETTED_BIOME_FACTOR) {
-            $leftTop->$param = $this->randomValue($param);
+        if ($leftTop->biome->$param === self::UNSETTED_BIOME_FACTOR) {
+            $leftTop->biome->$param = $this->randomValue($param);
         }        
-        if ($rightBottom->$param === self::UNSETTED_BIOME_FACTOR) {
-            $rightBottom->$param = $this->randomValue($param);
+        if ($rightBottom->biome->$param === self::UNSETTED_BIOME_FACTOR) {
+            $rightBottom->biome->$param = $this->randomValue($param);
         }
         
+        /* @var $middlePoint Tile */
         $middlePoint = $this->getMiddle($leftBottom, $rightTop);
         if (!$middlePoint->equals($leftBottom) && !$middlePoint->equals($leftTop) && !$middlePoint->equals($rightBottom) && !$middlePoint->equals($rightTop)) {
-            $middleValue = round(($leftBottom->$param + $rightTop->$param + $leftTop->$param + $rightBottom->$param)/4);        
-            $middlePoint->$param = $this->randomValue($param, $middleValue);
+            $middleValue = round(($leftBottom->biome->$param + $rightTop->biome->$param + $leftTop->biome->$param + $rightBottom->biome->$param)/4);        
+            $middlePoint->biome->$param = $this->randomValue($param, $middleValue);
         }
         
+        /* @var $leftPoint Tile */
         $leftPoint = $this->getMiddle($leftBottom, $leftTop);
         if (!$leftPoint->equals($leftBottom) && !$leftPoint->equals($leftTop) && !$leftPoint->equals($rightBottom) && !$leftPoint->equals($rightTop)) {
-            $leftValue = round(($leftBottom->$param + $leftTop->$param)/2);        
-            $leftPoint->$param = $this->randomValue($param, $leftValue);
+            $leftValue = round(($leftBottom->biome->$param + $leftTop->biome->$param)/2);        
+            $leftPoint->biome->$param = $this->randomValue($param, $leftValue);
         }
         
+        /* @var $topPoint Tile */
         $topPoint = $this->getMiddle($rightTop, $leftTop);
         if (!$topPoint->equals($leftBottom) && !$topPoint->equals($leftTop) && !$topPoint->equals($rightBottom) && !$topPoint->equals($rightTop)) {
-            $topValue = round(($rightTop->$param + $leftTop->$param)/2);        
-            $topPoint->$param = $this->randomValue($param, $topValue);
+            $topValue = round(($rightTop->biome->$param + $leftTop->biome->$param)/2);        
+            $topPoint->biome->$param = $this->randomValue($param, $topValue);
         }
         
+        /* @var $rightPoint Tile */
         $rightPoint = $this->getMiddle($rightBottom, $rightTop);
         if (!$rightPoint->equals($leftBottom) && !$rightPoint->equals($leftTop) && !$rightPoint->equals($rightBottom) && !$rightPoint->equals($rightTop)) {
-            $rightValue = round(($rightBottom->$param + $rightTop->$param)/2);        
-            $rightPoint->$param = $this->randomValue($param, $rightValue);
+            $rightValue = round(($rightBottom->biome->$param + $rightTop->biome->$param)/2);        
+            $rightPoint->biome->$param = $this->randomValue($param, $rightValue);
         }
         
+        /* @var $bottomPoint Tile */
         $bottomPoint = $this->getMiddle($leftBottom, $rightBottom);
         if (!$bottomPoint->equals($leftBottom) && !$bottomPoint->equals($leftTop) && !$bottomPoint->equals($rightBottom) && !$bottomPoint->equals($rightTop)) {
-            $bottomValue = round(($leftBottom->$param + $rightBottom->$param)/2);        
-            $bottomPoint->$param = $this->randomValue($param, $bottomValue);
+            $bottomValue = round(($leftBottom->biome->$param + $rightBottom->biome->$param)/2);        
+            $bottomPoint->biome->$param = $this->randomValue($param, $bottomValue);
         }
                 
         if (abs($rightBottom->x - $leftBottom->x) > 1 && abs($rightBottom->y - $leftTop->y) > 1) {
@@ -227,13 +233,13 @@ class MapGeneratorController extends Controller
     {
         switch ($param) {
             case 'elevation':
-                return Tile::ELEVATION_MIN;
+                return Biome::ELEVATION_MIN;
             case 'temperature':
-                return Tile::TEMPERATURE_MIN;
+                return Biome::TEMPERATURE_MIN;
             case 'rainfall':
-                return Tile::RAINFALL_MIN;
+                return Biome::RAINFALL_MIN;
             case 'drainage':
-                return Tile::DRAINAGE_MIN;
+                return Biome::DRAINAGE_MIN;
         }        
     }
     
@@ -246,13 +252,13 @@ class MapGeneratorController extends Controller
     {
         switch ($param) {
             case 'elevation':
-                return Tile::ELEVATION_MAX;
+                return Biome::ELEVATION_MAX;
             case 'temperature':
-                return Tile::TEMPERATURE_MAX;
+                return Biome::TEMPERATURE_MAX;
             case 'rainfall':
-                return Tile::RAINFALL_MAX;
+                return Biome::RAINFALL_MAX;
             case 'drainage':
-                return Tile::DRAINAGE_MAX;
+                return Biome::DRAINAGE_MAX;
         }        
     }
 }
