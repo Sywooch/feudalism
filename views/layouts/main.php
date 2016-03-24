@@ -19,7 +19,7 @@ AppAsset::register($this);
         <?php $this->head() ?>
         <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
         <link rel="icon" sizes="512x512" href="/img/logo512.png">
-        <meta name="theme-color" content="#3A2658">
+        <meta name="theme-color" content="#222222">
     </head>
     <body>
         <?php $this->beginBody() ?>
@@ -68,7 +68,7 @@ AppAsset::register($this);
         </div>
         <footer id="footer" class="footer">
             <div class="container">
-                <div class="col-md-3 col-xs-4 col-sm-4 text-left">
+                <div class="col-md-3 col-xs-12 col-sm-12 text-left">
                     <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
                 </div>
             </div>

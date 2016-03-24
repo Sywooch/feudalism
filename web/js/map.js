@@ -4,32 +4,22 @@ function coordsTileToChunk(tileCoords)
     if (tileCoords.x >= 0) {
         chunkCoords.x = tileCoords.x%27;
     } else {
-        chunkCoords.x = 27-Math.abs(tileCoords.x)%27;
+        chunkCoords.x = (Math.abs(tileCoords.x)%27) ? 27-Math.abs(tileCoords.x)%27 : 0;
     }
     if (tileCoords.y >= 0) {
         chunkCoords.y = tileCoords.y%15;
     } else {
-        chunkCoords.y = 15-Math.abs(tileCoords.y)%15;
+        chunkCoords.y = (Math.abs(tileCoords.y)%15) ? 15-Math.abs(tileCoords.y)%15 : 0;
     }
-    
     return chunkCoords;
 }
 
 function coordsChunkToTile(chunkCoords, chunkX, chunkY)
 {
-    var tileCoords = {};
-    if (chunkCoords.x >= 0) {
-        tileCoords.x = chunkCoords.x+chunkX*27;
-    } else {
-        tileCoords.x = 27-Math.abs(chunkCoords.x) - 27*chunkX;
-    }
-    if (chunkCoords.y >= 0) {
-        tileCoords.y = chunkCoords.y+chunkY*15;
-    } else {
-        tileCoords.y = 15-Math.abs(chunkCoords.y) - 15*chunkY;
-    }
-    
-    return tileCoords;
+    return {
+        'x': chunkCoords.x+chunkX*27,
+        'y': chunkCoords.y+chunkY*15
+    };
 }
 
 function loadChunk(ctx, x, y) {
@@ -44,7 +34,7 @@ function loadChunk(ctx, x, y) {
     
     $.get("/map/chunk?x="+x+"&y="+y,
         function(data) {
-            for (var i in data.result) {
+            for (var i = 0; i < data.result.length; i++) {
                 var tile = data.result[i];
                 var coords = coordsTileToChunk(tile);
                 display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,"#000");
