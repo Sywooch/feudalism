@@ -25,3 +25,13 @@
 .leaflet-layer {
     cursor: pointer;
 }
+
+.dragging .leaflet-layer {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+}
+
+.copyright {
+    white-space: nowrap;
+}

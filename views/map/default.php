@@ -2,9 +2,7 @@
 
 /* @var $this yii\web\View */
 
-use yii\helpers\Html;
-
-$this->title .= Yii::t('app','Map');
+$this->title = Yii::t('app','Feudalism') . ' — ' . Yii::t('app','Map');
 
 $this->registerJsFile('/js/rot.js');
 $this->registerJsFile('/js/leaflet.js');
@@ -38,7 +36,7 @@ $this->registerJs('
     map.on("dragend", function (e) {
         setTimeout(function() {
             $("#map").removeClass("dragging");
-        }, 300);
+        }, 100);
     });
     
     $("#map").on("click", "canvas.leaflet-tile", function(e){
@@ -49,6 +47,9 @@ $this->registerJs('
 
             var tile = tilesCache[realCoords.x+"x"+realCoords.y];
             console.log("["+tile.x+","+tile.y+"] "+tile.biomeLabel);
+            if (tile.castle) {
+                console.log(tile.castle);
+            }
         }
     });
 ');

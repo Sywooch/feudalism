@@ -68,8 +68,8 @@ AppAsset::register($this);
         </div>
         <footer id="footer" class="footer">
             <div class="container">
-                <div class="col-md-3 col-xs-12 col-sm-12 text-left">
-                    <p><?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?></p>
+                <div class="col-md-3 col-xs-12 col-sm-12 text-left copyright">
+                    <?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?>
                 </div>
             </div>
         </footer>
