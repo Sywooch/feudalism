@@ -308,7 +308,7 @@ class Biome extends Model {
             self::BIOME_TEMPERATE_CONIFER_FOREST => Yii::t('app','Temperate conifer forest'),   
             self::BIOME_TROPICAL_DRY_BROADLEAF_FOREST => Yii::t('app','Tropical dry broadleaf forest'),   
             self::BIOME_TROPICAL_WET_BROADLEAF_FOREST => Yii::t('app','Tropical wet broadleaf forest'),   
-            self::BIOME_TROPICAL_CONIFER_FOREST => Yii::t('app','Tropcal conifer forest'),   
+            self::BIOME_TROPICAL_CONIFER_FOREST => Yii::t('app','Tropical conifer forest'),   
             self::BIOME_LOW_MOUNTAIN => Yii::t('app','Low mountain'),
             self::BIOME_MOUNTAIN => Yii::t('app','Mountain'),
             self::BIOME_HIGH_MOUNTAIN => Yii::t('app','High mountain'),  
