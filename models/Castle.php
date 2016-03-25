@@ -204,7 +204,7 @@ class Castle extends ActiveRecord
             
         // Расширение фортификаций доступно для замка
         if (!$this->canFortificationIncreases) {            
-            $this->addError('userId', Yii::t('app','Action not allowed'));
+            $this->addError('fortification', Yii::t('app','Action not allowed'));
             return false;
         }
         
@@ -242,7 +242,7 @@ class Castle extends ActiveRecord
             
         // Расширение фортификаций доступно для замка
         if (!$this->canQuartersIncreases) {            
-            $this->addError('userId', Yii::t('app','Action not allowed'));
+            $this->addError('quarters', Yii::t('app','Action not allowed'));
             return false;
         }
         
@@ -264,7 +264,51 @@ class Castle extends ActiveRecord
         }        
         return false;
     }
+    
+    /**
+     * 
+     * @param integer $protoId
+     * @param User $user
+     * @return Unit
+     */
+    public function spawnUnit($protoId, User &$user)
+    {
 
+        $unit = new Unit([
+            'userId' => $user->id,
+            'protoId' => $protoId,
+            'currentCastleId' => $this->id
+        ]);
+        
+        // Юзер — владелец замка
+        if ($this->userId !== $user->id) {
+            $this->addError('userId', Yii::t('app','Action not allowed'));
+        }
+            
+        // Есть неиспользованные казармы
+        if (!$this->canSpawnUnit) {
+            $this->addError('quartersUsed', Yii::t('app','Action not allowed'));
+        }
+                
+        // У юзера достаточно денег для создания
+        if (!$this->user->isHaveMoneyForAction('unit', 'spawn', ['protoId' => $protoId])) {
+            $this->addError('userId', Yii::t('app','You haven`t money'));
+        }
+        
+        if (!count($this->getErrors())) {
+                    
+            $transaction = Yii::$app->db->beginTransaction();
+
+            if ($unit->save() && $this->user->makeAction('unit', 'spawn', ['protoId' => $protoId], true)) {
+                $this->quartersUsed++;
+                if ($this->save()) {
+                    $transaction->commit();
+                } 
+            }
+        }
+
+        return $unit;
+    }
 
     public function beforeSave($insert)
     {

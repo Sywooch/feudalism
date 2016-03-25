@@ -152,47 +152,24 @@ class CastleController extends Controller
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
         
-        // Юзер — владелец замка
-        if ($model->userId === $this->viewer_id) {
-            
-            // Есть неиспользованные казармы
-            if ($model->canSpawnUnit) {
-                
-                // У юзера достаточно денег для создания
-                if ($this->user->isHaveMoneyForAction('unit', 'spawn', ['protoId' => $protoId])) {
-                    
-                    $transaction = Yii::$app->db->beginTransaction();
-                    
-                    $unit = new Unit([
-                        'userId' => $this->viewer_id,
-                        'protoId' => $protoId,
-                        'currentCastleId' => $model->id
-                    ]);
-                    if ($unit->save()) {
-                        $this->user->payForAction('unit', 'spawn', ['protoId' => $protoId]);
-                        if ($this->user->addExperienceForAction('unit', 'spawn', ['protoId' => $protoId], true)) {
-                            $model->quartersUsed++;
-                            if ($model->save()) {
-                                $transaction->commit();
-                                return $this->renderJsonOk();
-                            } else {
-                                return $this->renderJsonError($model->getErrors());
-                            }
-                        } else {
-                            return $this->renderJsonError($this->user->getErrors());
-                        }  
-                    } else {
-                        return $this->renderJsonError($unit->getErrors());
-                    }                    
-                } else {
-                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
-                }               
-            } else {
-                return $this->renderJsonError(Yii::t('app','Action not allowed'));
-            }
+        $unit = $model->spawnUnit($protoId, $this->user);
+        
+        if (!$unit->isNewRecord) {
+            return $this->renderJson($unit);
         } else {
-            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            if (count($unit->getErrors())) {
+                return $this->renderJsonError($unit->getErrors());
+            } elseif (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
         }
         
     }
