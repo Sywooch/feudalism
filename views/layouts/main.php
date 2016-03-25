@@ -19,6 +19,7 @@ AppAsset::register($this);
         <?php $this->head() ?>
         <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
         <link rel="icon" sizes="512x512" href="/img/logo512.png">
+        <link rel="icon" sizes="32x32" href="/img/logo32.png">
         <meta name="theme-color" content="#222222">
     </head>
     <body>
