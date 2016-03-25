@@ -80,12 +80,13 @@ class Controller extends YiiController
     /**
      * Рендерит JSON-ok
      * 
+     * @param array $addFields
      * @return array
      */
-    protected function renderJsonOk()
+    protected function renderJsonOk($addFields = [])
     {
         $this->error = false;
-        return $this->renderJson("ok");
+        return $this->renderJson("ok", $addFields);
     }
     
     /**

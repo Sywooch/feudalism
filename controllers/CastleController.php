@@ -88,7 +88,7 @@ class CastleController extends Controller
     }
     
     /**
-     * Build a new fortification for Castle model.
+     * Increase a fortification for Castle model.
      * @param integer $id
      * @return mixed
      */
@@ -96,80 +96,50 @@ class CastleController extends Controller
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
         
-        // Юзер — владелец замка
-        if ($model->userId === $this->viewer_id) {
-            
-            // Расширение фортификаций доступно для замка
-            if ($model->canFortificationIncreases) {
-                $current = $model->fortification;
-                
-                // У юзера достаточно денег для расширения
-                if ($this->user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
-                    $model->fortification++;
-                    $transaction = Yii::$app->db->beginTransaction();
-                    if ($model->save()) {
-                        $this->user->payForAction('castle', 'fortification-increase', ['current' => $current]);
-                        if ($this->user->addExperienceForAction('castle', 'fortification-increase', ['current' => $current], true)) {
-                            $transaction->commit();
-                            return $this->renderJsonOk();
-                        } else {
-                            return $this->renderJsonError($this->user->getErrors());
-                        }
-                    } else {
-                        return $this->renderJsonError($model->getErrors());
-                    }
-                } else {
-                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
-                }
-            } else {
-                return $this->renderJsonError(Yii::t('app','Action not allowed'));
-            }
+        if ($model->fortificationIncrease($this->user)) {
+            return $this->renderJsonOk([
+                'newValue' => $model->fortification
+            ]);
         } else {
-            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
         }
     }
     
     /**
-     * Build a new quarters for Castle model.
+     * Increase a quarters for Castle model.
      * @param integer $id
      * @return mixed
      */
     public function actionQuartersIncrease($id)
-    {
+    {        
         /* @var $model Castle */
         $model = Castle::findOne($id);
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
         
-        // Юзер — владелец замка
-        if ($model->userId === $this->viewer_id) {
-            
-            // Расширение казарм доступно для замка
-            if ($model->canQuartersIncreases) {
-                $current = $model->quarters;
-                
-                // У юзера достаточно денег для расширения
-                if ($this->user->isHaveMoneyForAction('castle', 'quarters-increase', ['current' => $current])) {
-                    $model->quarters++;
-                    $transaction = Yii::$app->db->beginTransaction();
-                    if ($model->save()) {
-                        $this->user->payForAction('castle', 'quarters-increase', ['current' => $current]);
-                        if ($this->user->addExperienceForAction('castle', 'quarters-increase', ['current' => $current], true)) {
-                            $transaction->commit();
-                            return $this->renderJsonOk();
-                        } else {
-                            return $this->renderJsonError($this->user->getErrors());
-                        }
-                    } else {
-                        return $this->renderJsonError($model->getErrors());
-                    }
-                } else {
-                    return $this->renderJsonError(Yii::t('app','You haven`t money'));
-                }
-            } else {
-                return $this->renderJsonError(Yii::t('app','Action not allowed'));
-            }
+        if ($model->quartersIncrease($this->user)) {
+            return $this->renderJsonOk([
+                'newValue' => $model->quarters
+            ]);
         } else {
-            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
         }
     }
     

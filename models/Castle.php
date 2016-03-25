@@ -81,9 +81,13 @@ class Castle extends ActiveRecord
         $attributes = [
             'id',
             'userId',
+            'tileId',
+            'titleId',
             'name',
             'fortification',
-            'quarters'
+            'quarters',
+            'builded',
+            'captured'
         ];
         if ($owner) {
             $attributes[] = 'quartersUsed';
@@ -185,6 +189,83 @@ class Castle extends ActiveRecord
         return $model;
     }
     
+    /**
+     * 
+     * @param User $user
+     * @return boolean
+     */
+    public function fortificationIncrease(User &$user)
+    {        
+        // Юзер — владелец замка
+        if ($this->userId !== $user->id) {
+            $this->addError('userId', Yii::t('app','Action not allowed'));
+            return false;
+        }
+            
+        // Расширение фортификаций доступно для замка
+        if (!$this->canFortificationIncreases) {            
+            $this->addError('userId', Yii::t('app','Action not allowed'));
+            return false;
+        }
+        
+        $current = $this->fortification;
+                
+        // У юзера достаточно денег для расширения
+        if (!$user->isHaveMoneyForAction('castle', 'fortification-increase', ['current' => $current])) {
+            $this->addError('userId', Yii::t('app','You haven`t money'));
+            return false;
+        }
+        
+        $this->fortification++;
+        $transaction = Yii::$app->db->beginTransaction();
+        if ($this->save()) {
+            if ($user->makeAction('castle', 'fortification-increase', ['current' => $current], true)) {
+                $transaction->commit();
+                return true;
+            }
+        }        
+        return false;
+    }
+    
+    /**
+     * 
+     * @param User $user
+     * @return boolean
+     */
+    public function quartersIncrease(User &$user)
+    {        
+        // Юзер — владелец замка
+        if ($this->userId !== $user->id) {
+            $this->addError('userId', Yii::t('app','Action not allowed'));
+            return false;
+        }
+            
+        // Расширение фортификаций доступно для замка
+        if (!$this->canQuartersIncreases) {            
+            $this->addError('userId', Yii::t('app','Action not allowed'));
+            return false;
+        }
+        
+        $current = $this->quarters;
+                
+        // У юзера достаточно денег для расширения
+        if (!$user->isHaveMoneyForAction('castle', 'quarters-increase', ['current' => $current])) {
+            $this->addError('userId', Yii::t('app','You haven`t money'));
+            return false;
+        }
+        
+        $this->quarters++;
+        $transaction = Yii::$app->db->beginTransaction();
+        if ($this->save()) {
+            if ($user->makeAction('castle', 'quarters-increase', ['current' => $current], true)) {
+                $transaction->commit();
+                return true;
+            }
+        }        
+        return false;
+    }
+
+
     public function beforeSave($insert)
     {
         if ($insert) {
