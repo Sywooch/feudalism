@@ -55,7 +55,13 @@ class Controller extends YiiController
         if ($this->error) {
             $this->result = 'error';
             if (is_array($this->error)) {
-                $this->error = implode(", ",$this->error);
+                
+                $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->error));
+                $this->error = [];
+                foreach ($iterator as $key => $value) {                
+                    $this->error[] = $value;
+                }
+                $this->error = implode(',', $this->error);
             }
         }
         

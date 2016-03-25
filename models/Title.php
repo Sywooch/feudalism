@@ -126,5 +126,18 @@ class Title extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
+    
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->created = time();
+        }
+                
+        if ($this->userId !== $this->oldAttributes['userId']) {
+            $this->captured = $this->userId ? time() : null;
+        }
+        
+        return parent::beforeSave($insert);
+    }
 
 }

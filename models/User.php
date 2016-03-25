@@ -342,5 +342,29 @@ class User extends ActiveRecord implements IdentityInterface
         $this->experience += ExperienceCalculator::get($category, $action, $params);
         return $this->calcLevel($save);
     }
+    
+    /**
+     * Меняет параметры юзера за совершённое действие (снимает деньги, начисляет опыт)
+     * @TODO: добавить уведомления
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     * @param boolean $save
+     * @return boolean
+     */
+    public function makeAction($category, $action = 0, $params = [], $save = false)
+    {
+        $this->payForAction($category, $action, $params, false);
+        return $this->addExperienceForAction($category, $action, $params, $save);
+    }
+    
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->registration = time();
+        }
+        
+        return parent::beforeSave($insert);
+    }
 
 }

@@ -99,5 +99,15 @@ class Unit extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
+    
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->spawned = time();
+            $this->lastSalary = time();
+        }
+        
+        return parent::beforeSave($insert);
+    }
 
 }

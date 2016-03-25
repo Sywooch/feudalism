@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii,
     app\models\Castle,
+    app\models\Tile,
     app\models\Unit,
     app\controllers\Controller,
     yii\filters\AccessControl,
@@ -61,35 +62,28 @@ class CastleController extends Controller
 
     /**
      * Creates a new Castle model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param integer $Castle
      * @return mixed
      */
     public function actionBuild()
     {
-        if ($this->user->isHaveMoneyForAction('castle', 'build')) {
-
-            $model = new Castle();
-            $transaction = Yii::$app->db->beginTransaction();
-            if ($model->load(Yii::$app->request->post())) {
-                $model->userId = $this->viewer_id;
-                $model->fortification = 1;
-                $model->quarters = 1;
-                if ($model->save()) {
-                    $this->user->payForAction('castle', 'build');
-                    if ($this->user->addExperienceForAction('castle', 'build', [], true)) {
-                        $transaction->commit();
-                        return $this->renderJson($model);
-                    } else {
-                        return $this->renderJsonError($this->user->getErrors());
-                    }
-                } else {
-                    return $this->renderJsonError($model->getErrors());
-                }
-            } else {
-                return $this->renderJsonError(Yii::t('app','Can not load castle info'));
-            }
+        $Castle = Yii::$app->request->post('Castle');
+        $tile = Tile::findOne($Castle['tileId']);
+        if (is_null($tile)) {
+            return $this->renderJsonError(Yii::t('app','Invalid tile ID'));
+        }
+        
+        $model = Castle::build($Castle['name'], $this->user, $tile);
+        if ($model->id) {
+            return $this->renderJson($model);
         } else {
-            return $this->renderJsonError(Yii::t('app','You haven`t money'));
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
         }
     }
     

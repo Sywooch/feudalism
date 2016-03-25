@@ -155,5 +155,47 @@ class Castle extends ActiveRecord
     {
         return $this->quartersUsed < $this->quarters;
     }
+    
+    /**
+     * Строит новый замок со всеми необходимыми проверками
+     * @param string $name
+     * @param User $user
+     * @param Tile $tile
+     * @return self
+     */
+    public static function build($name, User &$user, Tile &$tile)
+    {
+        $model = new self();
+        if (!$user->isHaveMoneyForAction('castle', 'build')) {
+            $model->addError('userId', Yii::t('app','You haven`t money'));
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        if ($model->load([
+            'name' => $name,
+            'userId' => $user->id,
+            'tileId' => $tile->id,
+            'fortification' => 1,
+            'quarters' => 1
+        ],'') && $model->save()) {
+            if ($user->makeAction('castle', 'build', [], true)) {
+                $transaction->commit();
+            } 
+        }
+        return $model;
+    }
+    
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->builded = time();
+        }
+        
+        if ($this->userId !== $this->oldAttributes['userId']) {
+            $this->captured = $this->userId ? time() : null;
+        }
+        
+        return parent::beforeSave($insert);
+    }
 
 }
