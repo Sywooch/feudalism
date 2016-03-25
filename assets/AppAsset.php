@@ -14,6 +14,7 @@ class AppAsset extends AssetBundle
         'css/theme.css'
     ];
     public $js = [
+        'js/request.js',
         'js/fullscreen.js',
         'js/icheck.js',
         'js/jquery-dateFormat.min.js',

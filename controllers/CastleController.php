@@ -34,6 +34,9 @@ class CastleController extends Controller
             'class' => VerbFilter::className(),
             'actions' => [
                 'build' => ['post'],
+                'fortification-increase' => ['post'],
+                'quarters-increase' => ['post'],
+                'spawn-unit' => ['post'],
             ],
         ];
 
@@ -92,10 +95,10 @@ class CastleController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionFortificationIncrease($id)
+    public function actionFortificationIncrease()
     {
         /* @var $model Castle */
-        $model = Castle::findOne($id);
+        $model = Castle::findOne(Yii::$app->request->post('id'));
         if (is_null($model)) {
             return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
         }
@@ -120,10 +123,10 @@ class CastleController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionQuartersIncrease($id)
+    public function actionQuartersIncrease()
     {        
         /* @var $model Castle */
-        $model = Castle::findOne($id);
+        $model = Castle::findOne(Yii::$app->request->post('id'));
         if (is_null($model)) {
             return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
         }
@@ -148,17 +151,16 @@ class CastleController extends Controller
      * @param integer $id
      * @param integer $protoId
      */
-    public function actionSpawnUnit($id, $protoId)
+    public function actionSpawnUnit()
     {
         /* @var $model Castle */
-        $model = Castle::findOne($id);
+        $model = Castle::findOne(Yii::$app->request->post('id'));
         if (is_null($model)) {
             return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
         }
         
-        $unit = $model->spawnUnit($protoId, $this->user);
-        
-        if (!$unit->isNewRecord) {
+        $unit = $model->spawnUnit(Yii::$app->request->post('protoId'), $this->user);
+        if (!$unit->isNewRecord && !count($model->getErrors())) {
             return $this->renderJson($unit);
         } else {
             if (count($unit->getErrors())) {

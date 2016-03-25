@@ -119,7 +119,8 @@ class User extends ActiveRecord implements IdentityInterface
             'magic',
             'authority',
             'education',
-            'combat'
+            'combat',
+            'capitalCastleId'
         ];
         
         if ($owner) {
@@ -130,6 +131,8 @@ class User extends ActiveRecord implements IdentityInterface
                 'authorityBase',
                 'educationBase',
                 'combatBase',
+                'currentGroupId',
+                'currentCastleId',
                 'registration',
                 'lastActive'
             ]);
