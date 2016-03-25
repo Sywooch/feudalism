@@ -274,7 +274,7 @@ class Castle extends ActiveRecord
     public function spawnUnit($protoId, User &$user)
     {
 
-        $unit = new Unit([
+        $unit = Unit::findOrCreate([
             'userId' => $user->id,
             'protoId' => $protoId,
             'currentCastleId' => $this->id
@@ -298,7 +298,7 @@ class Castle extends ActiveRecord
         if (!count($this->getErrors())) {
                     
             $transaction = Yii::$app->db->beginTransaction();
-
+            $unit->count++;
             if ($unit->save() && $this->user->makeAction('unit', 'spawn', ['protoId' => $protoId], true)) {
                 $this->quartersUsed++;
                 if ($this->save()) {

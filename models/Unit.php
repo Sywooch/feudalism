@@ -13,10 +13,11 @@ use Yii,
  *
  * @property integer $userId
  * @property integer $protoId
+ * @property integer $count 
  * @property integer $currentGroupId
  * @property integer $currentCastleId
- * @property integer $spawned 
- * @property integer $lastSalary 
+ * @property integer $spawned
+ * @property integer $lastSalary
  *
  * @property Castle $currentCastle
  * @property UnitGroup $currentGroup
@@ -39,7 +40,8 @@ class Unit extends ActiveRecord
     {
         return [
             [['userId', 'protoId'], 'required'],
-            [['userId', 'protoId', 'currentGroupId', 'currentCastleId', 'spawned', 'lastSalary'], 'integer']
+            [['userId', 'protoId', 'count', 'currentGroupId', 'currentCastleId', 'spawned', 'lastSalary'], 'integer'],
+            [['userId', 'protoId', 'currentGroupId', 'currentCastleId'], 'unique', 'targetAttribute' => ['userId', 'protoId', 'currentGroupId', 'currentCastleId'], 'message' => Yii::t('app','The combination of User ID, Proto ID, Current Group ID and Current Castle ID has already been taken.')]
         ];
     }
 
@@ -51,6 +53,7 @@ class Unit extends ActiveRecord
         return [
             'userId' => Yii::t('app', 'User ID'),
             'protoId' => Yii::t('app', 'Proto ID'),
+            'count' => Yii::t('app', 'Count'), 
             'currentGroupId' => Yii::t('app', 'Current Group ID'),
             'currentCastleId' => Yii::t('app', 'Current Castle ID'),
             'spawned' => Yii::t('app', 'Spawned'),
@@ -64,6 +67,7 @@ class Unit extends ActiveRecord
             'id',
             'userId',
             'protoId',
+            'count',
             'spawned'
         ];
         
@@ -108,6 +112,11 @@ class Unit extends ActiveRecord
         }
         
         return parent::beforeSave($insert);
+    }
+    
+    public static function primaryKey()
+    {
+        return ['userId', 'protoId', 'currentGroupId', 'currentCastleId'];
     }
 
 }
