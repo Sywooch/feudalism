@@ -173,6 +173,10 @@ class Castle extends ActiveRecord
         if (!$user->isHaveMoneyForAction('castle', 'build')) {
             $model->addError('userId', Yii::t('app','You haven`t money'));
         }
+        
+        if ($tile->getCastles->count()) {
+            $model->addError('tileId', Yii::t('app', 'Tile allready occupied'));
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
         if ($model->load([
