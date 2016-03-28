@@ -52,6 +52,7 @@ use Yii,
  * 
  * @property string $genderPrefix
  * @property string $genderedName
+ * @property string $fullName
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -285,6 +286,15 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->genderPrefix.' '.$this->name;
     }
     
+    public function getFullName()
+    {
+        if ($this->primaryTitle) {
+            return $this->primaryTitle->userName;
+        } else {
+            return $this->genderedName;
+        }
+    }
+   
     /**
      * 
      * @param integer $category

@@ -27,6 +27,10 @@ use Yii,
  * @property Title $suzerain
  * @property Title[] $vassals
  * @property User $user
+ * 
+ * @property integer $userLevel
+ * @property string $userName
+ * @property string $fullName
  */
 class Title extends ActiveRecord
 {
@@ -38,19 +42,19 @@ class Title extends ActiveRecord
     
     const LEVEL = null;
     
-    public static function getLeveledName()
+    public function getFullName()
     {
         throw new Exception(static::className()."::getLeveledName() not overrided!");
     }
     
-    public static function getUserName()
+    public function getUserName()
     {
         throw new Exception(static::className()."::getUserName() not overrided!");
     }
 
     public function init()
     {
-        $this->level = static::PROTOTYPE;
+        $this->level = static::LEVEL;
         parent::init();
     }
 
@@ -61,7 +65,7 @@ class Title extends ActiveRecord
 
     public function beforeSave($insert)
     {
-        $this->level = static::PROTOTYPE;
+        $this->level = static::LEVEL;
         
         if ($insert) {
             $this->created = time();
@@ -72,6 +76,19 @@ class Title extends ActiveRecord
         }
                 
         return parent::beforeSave($insert);
+    }
+    
+    public static function instantiate($row)
+    {
+            $className = "app\\models\\titles\\";
+            switch (intval($row["level"])) {
+                case self::LEVEL_BARONY:
+                    $className .= "Barony";
+                    break;
+                default:
+                    throw new Exception("Invalid title level ({$row['level']}) in model ID{$row['id']}!");
+            }
+        return new $className($row);
     }
     
     /**
@@ -88,7 +105,7 @@ class Title extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'level', 'created'], 'required'],
+            [['name', 'level'], 'required'],
             [['level', 'userId', 'suzerainId', 'created', 'createdByUserId', 'captured'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -116,6 +133,7 @@ class Title extends ActiveRecord
         $attributes = [
             'id',
             'name',
+            'fullName',
             'level',
             'userId',
             'suzerainId',
@@ -182,5 +200,10 @@ class Title extends ActiveRecord
     public function isOwner(User &$user)
     {
         return ($this->userId === $user->id);
+    }
+    
+    public function getUserLevel()
+    {
+        return $this->user->level;
     }
 }

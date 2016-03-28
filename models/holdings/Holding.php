@@ -190,7 +190,7 @@ class Holding extends ActiveRecord implements Position
     
     public function getUserName()
     {
-        return $this->title->user->genderedName;
+        return $this->title->userName;
     }
     
     public function getUserLevel()

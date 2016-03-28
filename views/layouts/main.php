@@ -40,7 +40,7 @@ AppAsset::register($this);
                     <?php if (!Yii::$app->user->isGuest):?>
                     <ul class="nav navbar-nav navbar-right navbar-user">
                         <li class="dropdown user-dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <?=Yii::$app->user->identity->genderedName?> <span class="badge">2</span> <b class="caret"></b></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <?=Yii::$app->user->identity->fullName?> <span class="badge">2</span> <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="/user/view?id=<?=Yii::$app->user->id?>"><i class="fa fa-user"></i> Profile</a></li>
                                 <li><a href="#"><i class="fa fa-gear"></i> <?=Yii::t('app', 'Settings')?></a></li>

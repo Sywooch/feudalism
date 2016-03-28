@@ -13,3 +13,14 @@ $messageConfirm = Yii::t('app', 'You really wanna build a castle for {0,number,c
 $this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
 
 ?>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+            <?=$this->renderFile('@app/views/map/default.php')?>
+        </div>
+        <div class="col-lg-3">
+            <h5><span class="text-info">You are:</span> [<?=$user->level?>] <?=$user->fullName?></h5>
+        </div>
+    </div>
+</div>

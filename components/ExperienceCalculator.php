@@ -3,7 +3,7 @@
 namespace app\components;
 
 use Yii,
-    app\components\MathHelper;
+    yii\base\Exception;
 
 /**
  * Методы для подсчёта XP
