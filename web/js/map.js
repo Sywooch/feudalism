@@ -38,7 +38,7 @@ function loadChunk(ctx, x, y) {
                 var tile = data.result[i];
                 var coords = coordsTileToChunk(tile);
                 display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,"#000");
-                if (tile.castle) {
+                if (tile.holding) {
                     display.draw(coords.x,coords.y,"Ω","#fff");
                 }
                 

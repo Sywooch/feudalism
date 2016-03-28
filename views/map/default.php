@@ -47,8 +47,8 @@ $this->registerJs('
 
             var tile = tilesCache[realCoords.x+"x"+realCoords.y];
             console.log("["+tile.x+","+tile.y+"] "+tile.biomeLabel);
-            if (tile.castle) {
-                console.log(tile.castle);
+            if (tile.holding) {
+                console.log(tile.holding);
             }
         }
     });

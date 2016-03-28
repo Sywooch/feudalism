@@ -21,8 +21,8 @@ class MapController extends Controller {
     public function actionChunk($x, $y)
     {
         $tiles = Tile::findByChunk($x, $y)
-                ->with('castles')
-                ->with('castles.user')
+                ->with('holding')
+                ->with('holding.title.user')
                 ->all();
         
         $result = [];
@@ -30,9 +30,8 @@ class MapController extends Controller {
         foreach ($tiles as $tile) {
             $tileinfo = $tile->getDisplayedAttributes();
             
-            if (isset($tile->castles[0])) {
-                $castle = $tile->castles[0];
-                $tileinfo['castle'] = $castle->getDisplayedAttributes(true, [
+            if ($tile->holding) {
+                $tileinfo['holding'] = $tile->holding->getDisplayedAttributes(true, [
                     'userName',
                     'userLevel'
                 ]);

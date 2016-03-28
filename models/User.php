@@ -11,7 +11,7 @@ use Yii,
     app\models\UnitGroup,
     app\models\Invite,
     app\models\Unit,
-    app\models\Castle;
+    app\models\holdings\Holding;
 
 /**
  * This is the model class for table "users".
@@ -33,8 +33,8 @@ use Yii,
  * @property integer $educationBase Образованность (без бонусов)
  * @property integer $combatBase Боевые навыки (без бонусов)
  * @property integer $currentGroupId
- * @property integer $currentCastleId
- * @property integer $capitalCastleId
+ * @property integer $currentHoldingId
+ * @property integer $capitalHoldingId
  * @property integer $registration 
  * @property integer $lastActive 
  *
@@ -42,9 +42,8 @@ use Yii,
  * @property UnitGroup[] $groups
  * @property Invite $invite
  * @property Unit[] $units
- * @property Castle $capitalCastle
- * @property Castle $currentCastle
- * @property Castle[] $castles
+ * @property Holding $capitalHolding
+ * @property Holding $currentHolding
  * @property Group $currentGroup
  * @property Title $primaryTitle
  * @property Title[] $titles
@@ -70,10 +69,10 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['gender', 'level', 'experience', 'primaryTitleId', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId', 'registration', 'lastActive'], 'integer'],
+            [['gender', 'level', 'experience', 'primaryTitleId', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentHoldingId', 'capitalHoldingId', 'registration', 'lastActive'], 'integer'],
             [['invited'], 'boolean'],
             [['balance'], 'number'],
-            [['capitalCastleId'], 'unique']
+            [['capitalHoldingId'], 'unique']
         ];
     }
 
@@ -100,8 +99,8 @@ class User extends ActiveRecord implements IdentityInterface
             'educationBase' => Yii::t('app', 'Education Base'),
             'combatBase' => Yii::t('app', 'Combat Base'),
             'currentGroupId' => Yii::t('app', 'Current Group ID'),
-            'currentCastleId' => Yii::t('app', 'Current Castle ID'),
-            'capitalCastleId' => Yii::t('app', 'Capital Castle ID'),
+            'currentHoldingId' => Yii::t('app', 'Current Holding ID'),
+            'capitalHoldingId' => Yii::t('app', 'Capital Holding ID'),
             'registration' => Yii::t('app', 'Registration'), 
             'lastActive' => Yii::t('app', 'Last Active'), 
         ];
@@ -120,7 +119,7 @@ class User extends ActiveRecord implements IdentityInterface
             'authority',
             'education',
             'combat',
-            'capitalCastleId'
+            'capitalHoldingId'
         ];
         
         if ($owner) {
@@ -132,7 +131,7 @@ class User extends ActiveRecord implements IdentityInterface
                 'educationBase',
                 'combatBase',
                 'currentGroupId',
-                'currentCastleId',
+                'currentHoldingId',
                 'registration',
                 'lastActive'
             ]);
@@ -176,25 +175,17 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCapitalCastle()
+    public function getCapitalHolding()
     {
-        return $this->hasOne(Castle::className(), ['id' => 'capitalCastleId']);
+        return $this->hasOne(Holding::className(), ['id' => 'capitalHoldingId']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCurrentCastle()
+    public function getCurrentHolding()
     {
-        return $this->hasOne(Castle::className(), ['id' => 'currentCastleId']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCastles()
-    {
-        return $this->hasMany(Castle::className(), ['userId' => 'id']);
+        return $this->hasOne(Holding::className(), ['id' => 'currentHoldingId']);
     }
 
     /**
@@ -320,17 +311,31 @@ class User extends ActiveRecord implements IdentityInterface
     }
     
     /**
+     * Произошёл ли левелап через calcLevel
+     * @var boolean 
+     */
+    public $isLevelUp = false;
+    
+    /**
      * Считает текущий уровень по опыту
      * @param boolean $save
      * @return boolean
      */
     public function calcLevel($save = false)
     {
+        $oldLevel = $this->level;
         $this->level = ExperienceCalculator::getLevelByExperience($this->experience);
+        $this->isLevelUp = ($oldLevel < $this->level);
         if ($save) {
             return $this->save();
         }
     }
+    
+    /**
+     * Начисленное через addExperienceForAction число очков опыта
+     * @var integer
+     */
+    public $experienceGained = 0;
     
     /**
      * Начисляет опыт за действие
@@ -342,7 +347,9 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function addExperienceForAction($category, $action = 0, $params = [], $save = false)
     {
-        $this->experience += ExperienceCalculator::get($category, $action, $params);
+        $xp = ExperienceCalculator::get($category, $action, $params);
+        $this->experience += $xp;
+        $this->experienceGained += $xp;
         return $this->calcLevel($save);
     }
     

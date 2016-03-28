@@ -5,8 +5,8 @@ namespace app\models;
 use Yii,
     app\models\ActiveRecord,
     app\models\UnitGroup,
-    app\models\Castle,
     app\models\Biome,
+    app\models\holdings\Holding,
     yii\db\ActiveQuery,
     yii\base\Exception;
 
@@ -28,7 +28,7 @@ use Yii,
  * @property string $biomeColor
  *
  * @property Biome $biome
- * @property Castle[] $castles
+ * @property Holding $holding
  * @property Title $title
  * @property UnitGroup[] $unitGroups
  */
@@ -141,9 +141,9 @@ class Tile extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCastles()
+    public function getHolding()
     {
-        return $this->hasMany(Castle::className(), ['tileId' => 'id']);
+        return $this->hasOne(Holding::className(), ['tileId' => 'id']);
     }
 
     /**

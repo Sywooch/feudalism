@@ -3,7 +3,10 @@
 namespace app\models;
 
 use Yii,
-    app\models\ActiveRecord;
+    app\models\ActiveRecord,
+    app\models\Tile,
+    app\models\User,
+    app\models\holdings\Holding;
 
 /**
  * Титулы. Таблица "titles".
@@ -17,7 +20,7 @@ use Yii,
  * @property integer $createdByUserId
  * @property integer $captured
  *
- * @property Castle[] $castles
+ * @property Holding[] $holdings
  * @property Tile[] $tiles
  * @property User $createdByUser
  * @property Title $suzerain
@@ -82,9 +85,9 @@ class Title extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCastles()
+    public function getHoldings()
     {
-        return $this->hasMany(Castle::className(), ['titleId' => 'id']);
+        return $this->hasMany(Holding::className(), ['titleId' => 'id']);
     }
 
     /**

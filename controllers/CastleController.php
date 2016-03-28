@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use Yii,
-    app\models\Castle,
+    app\models\holdings\Castle,
     app\models\Tile,
     app\models\Unit,
     app\controllers\Controller,
@@ -52,11 +52,10 @@ class CastleController extends Controller
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
-        $isOwner = $model->userId === $this->viewer_id;
         if (is_null($model)) {
             return $this->renderJsonError(Yii::t('app','Castle not found'));
         } else {
-            return $this->renderJson($model->getDisplayedAttributes($isOwner, [
+            return $this->renderJson($model->getDisplayedAttributes($model->isOwner($this->user), [
                 'userName',
                 'userLevel'
             ]));
@@ -159,6 +158,7 @@ class CastleController extends Controller
             return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
         }
         
+        /* @var $unit Unit */
         $unit = $model->spawnUnit(Yii::$app->request->post('protoId'), $this->user);
         if (!$unit->isNewRecord && !count($model->getErrors())) {
             return $this->renderJson($unit);
