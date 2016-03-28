@@ -1,8 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\models\titles;
 
 use Yii,
+    yii\base\Exception,
     app\models\ActiveRecord,
     app\models\Tile,
     app\models\User,
@@ -29,6 +30,50 @@ use Yii,
  */
 class Title extends ActiveRecord
 {
+	
+    /**
+     * Баронство
+     */
+    const LEVEL_BARONY = 1;
+    
+    const LEVEL = null;
+    
+    public static function getLeveledName()
+    {
+        throw new Exception(static::className()."::getLeveledName() not overrided!");
+    }
+    
+    public static function getUserName()
+    {
+        throw new Exception(static::className()."::getUserName() not overrided!");
+    }
+
+    public function init()
+    {
+        $this->level = static::PROTOTYPE;
+        parent::init();
+    }
+
+    public static function find()
+    {
+        return new TitleQuery(get_called_class(), ['level' => static::LEVEL]);
+    }
+
+    public function beforeSave($insert)
+    {
+        $this->level = static::PROTOTYPE;
+        
+        if ($insert) {
+            $this->created = time();
+        }
+                
+        if ($this->userId !== $this->oldAttributes['userId']) {
+            $this->captured = $this->userId ? time() : null;
+        }
+                
+        return parent::beforeSave($insert);
+    }
+    
     /**
      * @inheritdoc
      */
@@ -130,17 +175,12 @@ class Title extends ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
     
-    public function beforeSave($insert)
+    /**
+     * 
+     * @return boolean
+     */
+    public function isOwner(User &$user)
     {
-        if ($insert) {
-            $this->created = time();
-        }
-                
-        if ($this->userId !== $this->oldAttributes['userId']) {
-            $this->captured = $this->userId ? time() : null;
-        }
-        
-        return parent::beforeSave($insert);
+        return ($this->userId === $user->id);
     }
-
 }

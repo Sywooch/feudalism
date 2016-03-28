@@ -11,6 +11,7 @@ use Yii,
     app\models\UnitGroup,
     app\models\Invite,
     app\models\Unit,
+    app\models\titles\Title,
     app\models\holdings\Holding;
 
 /**

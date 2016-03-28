@@ -6,9 +6,9 @@ use Yii,
     yii\base\Exception,
     app\models\ActiveRecord,
     app\models\holdings\HoldingQuery,
+    app\models\titles\Title,
     app\models\Unit,
     app\models\User,
-    app\models\Title,
     app\models\Tile;
 
 /**
@@ -49,7 +49,7 @@ class Holding extends ActiveRecord
      */
     const PROTOTYPE_CASTLE = 1;
     
-    const PROTOTYPE = 0;
+    const PROTOTYPE = null;
 
     public function init()
     {

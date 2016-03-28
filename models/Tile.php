@@ -7,6 +7,7 @@ use Yii,
     app\models\UnitGroup,
     app\models\Biome,
     app\models\holdings\Holding,
+    app\models\titles\Title,
     yii\db\ActiveQuery,
     yii\base\Exception;
 
