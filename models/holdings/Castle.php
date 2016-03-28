@@ -4,6 +4,7 @@ namespace app\models\holdings;
 
 use Yii,
     app\models\holdings\Holding,
+    app\models\titles\Title,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -11,30 +12,6 @@ use Yii,
 /**
  * Замок феодала
  *
- * @property integer $id
- * @property integer $tileId 
- * @property integer $titleId
- * @property string $name
- * @property integer $population
- * @property integer $fortification
- * @property integer $quarters
- * @property integer $quartersUsed
- * @property integer $builded 
- * @property integer $buildedUserId
- * @property integer $captured 
- *
- * @property Unit[] $units
- * @property User[] $users
- * @property Tile $tile
- * @property Title $title
- * @property User $buildedUser
- * 
- * @property string $userName
- * @property integer $userLevel
- * 
- * @property boolean $canFortificationIncreases 
- * @property boolean $canQuartersIncreases
- * @property boolean $canSpawnUnit
  */
 class Castle extends Holding
 {

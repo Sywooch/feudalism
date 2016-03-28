@@ -21,7 +21,7 @@ use Yii,
  * @property Unit[] $units
  * @property User[] $users
  */
-class UnitGroup extends ActiveRecord
+class UnitGroup extends ActiveRecord implements Position
 {
     /**
      * @inheritdoc

@@ -6,9 +6,10 @@ use Yii,
     yii\base\Exception,
     app\models\ActiveRecord,
     app\models\holdings\HoldingQuery,
+    app\models\titles\Title,
+    app\models\Position,
     app\models\Unit,
     app\models\User,
-    app\models\Title,
     app\models\Tile;
 
 /**
@@ -41,7 +42,7 @@ use Yii,
  * @property boolean $canQuartersIncreases
  * @property boolean $canSpawnUnit
  */
-class Holding extends ActiveRecord
+class Holding extends ActiveRecord implements Position
 {
 	
     /**
@@ -49,7 +50,7 @@ class Holding extends ActiveRecord
      */
     const PROTOTYPE_CASTLE = 1;
     
-    const PROTOTYPE = 0;
+    const PROTOTYPE = null;
 
     public function init()
     {
@@ -189,7 +190,7 @@ class Holding extends ActiveRecord
     
     public function getUserName()
     {
-        return $this->title->user->genderedName;
+        return $this->title->userName;
     }
     
     public function getUserLevel()

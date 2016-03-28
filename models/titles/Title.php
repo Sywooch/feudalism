@@ -1,8 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\models\titles;
 
 use Yii,
+    yii\base\Exception,
     app\models\ActiveRecord,
     app\models\Tile,
     app\models\User,
@@ -26,9 +27,70 @@ use Yii,
  * @property Title $suzerain
  * @property Title[] $vassals
  * @property User $user
+ * 
+ * @property integer $userLevel
+ * @property string $userName
+ * @property string $fullName
  */
 class Title extends ActiveRecord
 {
+	
+    /**
+     * Баронство
+     */
+    const LEVEL_BARONY = 1;
+    
+    const LEVEL = null;
+    
+    public function getFullName()
+    {
+        throw new Exception(static::className()."::getLeveledName() not overrided!");
+    }
+    
+    public function getUserName()
+    {
+        throw new Exception(static::className()."::getUserName() not overrided!");
+    }
+
+    public function init()
+    {
+        $this->level = static::LEVEL;
+        parent::init();
+    }
+
+    public static function find()
+    {
+        return new TitleQuery(get_called_class(), ['level' => static::LEVEL]);
+    }
+
+    public function beforeSave($insert)
+    {
+        $this->level = static::LEVEL;
+        
+        if ($insert) {
+            $this->created = time();
+        }
+                
+        if ($this->userId !== $this->oldAttributes['userId']) {
+            $this->captured = $this->userId ? time() : null;
+        }
+                
+        return parent::beforeSave($insert);
+    }
+    
+    public static function instantiate($row)
+    {
+            $className = "app\\models\\titles\\";
+            switch (intval($row["level"])) {
+                case self::LEVEL_BARONY:
+                    $className .= "Barony";
+                    break;
+                default:
+                    throw new Exception("Invalid title level ({$row['level']}) in model ID{$row['id']}!");
+            }
+        return new $className($row);
+    }
+    
     /**
      * @inheritdoc
      */
@@ -43,7 +105,7 @@ class Title extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'level', 'created'], 'required'],
+            [['name', 'level'], 'required'],
             [['level', 'userId', 'suzerainId', 'created', 'createdByUserId', 'captured'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -71,6 +133,7 @@ class Title extends ActiveRecord
         $attributes = [
             'id',
             'name',
+            'fullName',
             'level',
             'userId',
             'suzerainId',
@@ -130,17 +193,17 @@ class Title extends ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
     
-    public function beforeSave($insert)
+    /**
+     * 
+     * @return boolean
+     */
+    public function isOwner(User &$user)
     {
-        if ($insert) {
-            $this->created = time();
-        }
-                
-        if ($this->userId !== $this->oldAttributes['userId']) {
-            $this->captured = $this->userId ? time() : null;
-        }
-        
-        return parent::beforeSave($insert);
+        return ($this->userId === $user->id);
     }
-
+    
+    public function getUserLevel()
+    {
+        return $this->user->level;
+    }
 }

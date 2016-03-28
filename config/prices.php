@@ -1,5 +1,7 @@
 <?php
 
+use app\models\titles\Title;
+
 return [
     
     'castle' => [ // Действия с замком
@@ -25,5 +27,14 @@ return [
             }
         },
     ],
+                
+    'title' => [
+        'create' => function(array $params) {
+            switch ($params['level']) {
+                case Title::LEVEL_BARONY:
+                    return 1.0;
+            }
+        },
+    ]
     
 ];
