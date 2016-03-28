@@ -9,13 +9,15 @@ $this->registerJsFile('/js/leaflet.js');
 $this->registerCssFile('/css/leaflet.css');
 $this->registerJsFile('/js/map.js');
 $this->registerJs('
+    
+    $("#map").css("height", $("#wrapper").height() - 30);
+
     var map = L.map("map",{
         maxZoom: 10,
         minZoom: 10,
         zoomControl: false
     }).setView([100,-180], 10);
     
-
     var canvasTiles = L.tileLayer.canvas({
         continuousWorld: true,
         tileSize: 270
@@ -55,4 +57,4 @@ $this->registerJs('
 ');
 
 ?>
-<div id="map" style="width: 100%; height: 500px"></div>
+<div id="map" style="width: 100%; height: 400px"></div>

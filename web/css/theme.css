@@ -5256,20 +5256,6 @@ legend {
   position: fixed;
 }
 
-
-body {
-  margin-top: 70px;
-}
-
-#wrapper {
-  padding-left: 0;
-}
-
-#page-wrapper {
-  width: 100%;
-  padding: 5px 15px;
-}
-
 /* Nav Messages */
 
 .messages-dropdown .dropdown-menu .message-preview .avatar,
