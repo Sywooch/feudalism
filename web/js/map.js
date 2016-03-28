@@ -23,14 +23,8 @@ function coordsChunkToTile(chunkCoords, chunkX, chunkY)
 }
 
 function loadChunk(ctx, x, y) {
-    var display = new ROT.Display({
-        forceSquareRatio: false,
-        fontSize: 20,
-        fontFamily: 'pt_monoregular',
-        context: ctx,
-        width: 25,
-        height: 15
-    });
+    var options = $.extend({context: ctx}, ROT_OPTIONS);
+    var display = new ROT.Display(options);
     chunkCache[x+"x"+y] = display;
     
     $.get("/map/chunk?x="+x+"&y="+y,
@@ -40,7 +34,7 @@ function loadChunk(ctx, x, y) {
                 var coords = coordsTileToChunk(tile);
                 display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,"#000");
                 if (tile.holding) {
-                    display.draw(coords.x,coords.y,"Ω","#fff");
+                    display.draw(coords.x,coords.y,"Ω","#fff", "#000");
                 }
                 
                 tilesCache[tile.x+"x"+tile.y] = tile;
@@ -50,3 +44,10 @@ function loadChunk(ctx, x, y) {
 }
 
 var chunkCache = {}, tilesCache = {};
+var ROT_OPTIONS = {
+    forceSquareRatio: false,
+    fontSize: 20,
+    fontFamily: 'pt_monoregular',
+    width: 25,
+    height: 15
+};

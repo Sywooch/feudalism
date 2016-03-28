@@ -43,6 +43,7 @@ $this->registerJs('
     });
     
     $("#map").on("mousemove", "canvas.leaflet-tile", function(e){
+        $("#right-bottom-label").empty();
         if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
             var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
             var displayCoords = display.eventToPosition(e);
@@ -56,6 +57,10 @@ $this->registerJs('
                 }
             }
         }
+    });
+    
+    $("#map").on("mouseover", "canvas.leaflet-tile", function(e){
+        $("#right-bottom-label").empty();
     });
 ');
 
