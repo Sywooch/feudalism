@@ -21,7 +21,7 @@ $this->registerJs('
     
     var canvasTiles = L.tileLayer.canvas({
         continuousWorld: true,
-        tileSize: 270
+        tileSize: 300
     });
 
     canvasTiles.drawTile = function(canvas, tilePoint, zoom) {

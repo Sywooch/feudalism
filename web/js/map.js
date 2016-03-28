@@ -2,9 +2,9 @@ function coordsTileToChunk(tileCoords)
 {
     var chunkCoords = {};
     if (tileCoords.x >= 0) {
-        chunkCoords.x = tileCoords.x%27;
+        chunkCoords.x = tileCoords.x%25;
     } else {
-        chunkCoords.x = (Math.abs(tileCoords.x)%27) ? 27-Math.abs(tileCoords.x)%27 : 0;
+        chunkCoords.x = (Math.abs(tileCoords.x)%25) ? 25-Math.abs(tileCoords.x)%25 : 0;
     }
     if (tileCoords.y >= 0) {
         chunkCoords.y = tileCoords.y%15;
@@ -17,7 +17,7 @@ function coordsTileToChunk(tileCoords)
 function coordsChunkToTile(chunkCoords, chunkX, chunkY)
 {
     return {
-        'x': chunkCoords.x+chunkX*27,
+        'x': chunkCoords.x+chunkX*25,
         'y': chunkCoords.y+chunkY*15
     };
 }
@@ -25,9 +25,10 @@ function coordsChunkToTile(chunkCoords, chunkX, chunkY)
 function loadChunk(ctx, x, y) {
     var display = new ROT.Display({
         forceSquareRatio: false,
-        fontSize: 18,
+        fontSize: 20,
+        fontFamily: 'pt_monoregular',
         context: ctx,
-        width: 27,
+        width: 25,
         height: 15
     });
     chunkCache[x+"x"+y] = display;
