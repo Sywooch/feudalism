@@ -51,3 +51,12 @@ var ROT_OPTIONS = {
     width: 25,
     height: 15
 };
+
+function showTileInfo(tile) {
+    $('.right-main-panel').hide();
+    $('#tile-info-character').text(tile.biomeCharacter);
+    $('#tile-info-character').css('color', tile.biomeColor);
+    $('#tile-info-label').text(tile.biomeLabel);
+    $('#tile-info-label').css('color', tile.biomeColor);
+    $('#tile-info').show();
+}

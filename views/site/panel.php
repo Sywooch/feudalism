@@ -20,7 +20,10 @@ $this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
             <?=$this->renderFile('@app/views/map/default.php')?>
         </div>
         <div class="col-lg-3 col-md-4" id="right-panel">
-            <h5><span class="text-info">You are:</span> <span title="<?=Yii::t('app', 'Level {0} [{1,number} XP / {2,number} XP for level {3}]', [$user->level, $user->experience, ExperienceCalculator::getExperienceByLevel($user->level+1), $user->level+1])?>" >[<?=$user->level?>]</span> <?=$user->fullName?></h5>
+            <div class="right-main-panel" id="tile-info" >
+                <span id="tile-info-character"></span> <span id="tile-info-label" ></span>
+                <button class="btn btn-primary btn-xs"><?=Yii::t('app', 'Build a castle')?></button>
+            </div>
             <div class="label-info" id="right-bottom-label"></div>
         </div>
     </div>

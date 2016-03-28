@@ -44,7 +44,7 @@ $this->registerJs('
     
     $("#map").on("mousemove", "canvas.leaflet-tile", function(e){
         $("#right-bottom-label").empty();
-        if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
+        if (!$("#map").hasClass("dragging")) { // проверка, что это не конец перетаскивания
             var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
             var displayCoords = display.eventToPosition(e);
             var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
@@ -55,6 +55,19 @@ $this->registerJs('
                 if (tile.holding) {
                     $("#right-bottom-label").append(tile.holding.name);
                 }
+            }
+        }
+    });
+    
+    $("#map").on("click", "canvas.leaflet-tile", function(e){
+        if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
+            var display = chunkCache[$(this).data("x")+"x"+$(this).data("y")];
+            var displayCoords = display.eventToPosition(e);
+            var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},$(this).data("x"),$(this).data("y"));
+
+            var tile = tilesCache[realCoords.x+"x"+realCoords.y];
+            if (tile) {
+                showTileInfo(tile);
             }
         }
     });
