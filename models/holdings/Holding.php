@@ -7,6 +7,7 @@ use Yii,
     app\models\ActiveRecord,
     app\models\holdings\HoldingQuery,
     app\models\titles\Title,
+    app\models\Position,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -41,7 +42,7 @@ use Yii,
  * @property boolean $canQuartersIncreases
  * @property boolean $canSpawnUnit
  */
-class Holding extends ActiveRecord
+class Holding extends ActiveRecord implements Position
 {
 	
     /**

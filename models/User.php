@@ -45,6 +45,7 @@ use Yii,
  * @property Unit[] $units
  * @property Holding $capitalHolding
  * @property Holding $currentHolding
+ * @property Position $position
  * @property Group $currentGroup
  * @property Title $primaryTitle
  * @property Title[] $titles
@@ -376,6 +377,21 @@ class User extends ActiveRecord implements IdentityInterface
         }
         
         return parent::beforeSave($insert);
+    }
+    
+    /**
+     * 
+     * @return Position
+     */
+    public function getPosition()
+    {
+        if (!is_null($this->currentGroup)) {
+            return $this->currentGroup;
+        } elseif (!is_null($this->currentHolding)) {
+            return $this->currentHolding;
+        } else {
+            return null;
+        }
     }
 
 }

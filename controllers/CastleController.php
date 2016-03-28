@@ -77,6 +77,11 @@ class CastleController extends Controller
         
         $model = Castle::build($Castle['name'], $this->user, $tile);
         if ($model->id) {
+            
+            if (is_null($this->user->position)) {
+                $this->user->link('currentHolding', $model);
+            }
+            
             return $this->renderJson($model);
         } else {
             if (count($model->getErrors())) {
