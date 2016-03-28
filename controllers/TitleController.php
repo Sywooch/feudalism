@@ -71,6 +71,8 @@ class TitleController extends Controller
     public function actionCreateBarony()
     {
         $Title = Yii::$app->request->post('Title');
+        
+        /* @var $title Title */
         $holding = Holding::findOne(Yii::$app->request->post('holdingId'));
         if (is_null($holding)) {
             return $this->renderJsonError(Yii::t('app','Invalid holding ID'));
@@ -80,7 +82,9 @@ class TitleController extends Controller
         if ($model->id) {            
             if (is_null($this->user->primaryTitle)) {
                 $this->user->link('primaryTitle', $model);
-            }            
+            }      
+            $holding->link('title', $model);
+            
             return $this->renderJson($model);
         } else {
             if (count($model->getErrors())) {
