@@ -3,8 +3,7 @@
 namespace app\controllers;
 
 use Yii,
-    yii\web\Controller,
-    yii\web\HttpException,
+    yii\web\Controller as YiiController,
     app\models\User;
 
 /**
@@ -13,7 +12,7 @@ use Yii,
  * @property User $user залогиненый юзер
  */
 
-class MyController extends Controller
+class Controller extends YiiController
 {
     /**
      * Массив или объект, возвращаемый в поле result
@@ -49,14 +48,20 @@ class MyController extends Controller
     {
         Yii::$app->response->format = 'json';
         
-        if ($result) {
+        if (!is_null($result)) {
             $this->result = $result;
             $this->error = false;
         }
         if ($this->error) {
             $this->result = 'error';
             if (is_array($this->error)) {
-                $this->error = print_r($this->error,true);
+                
+                $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->error));
+                $this->error = [];
+                foreach ($iterator as $key => $value) {                
+                    $this->error[] = $value;
+                }
+                $this->error = implode(',', $this->error);
             }
         }
         
@@ -75,13 +80,13 @@ class MyController extends Controller
     /**
      * Рендерит JSON-ok
      * 
+     * @param array $addFields
      * @return array
      */
-    protected function renderJsonOk()
+    protected function renderJsonOk($addFields = [])
     {
         $this->error = false;
-        $this->result = "ok";
-        return $this->_r();
+        return $this->renderJson("ok", $addFields);
     }
     
     /**
@@ -112,6 +117,7 @@ class MyController extends Controller
             } 
         } else {
             $this->viewer_id = Yii::$app->user->id;
+            Yii::$app->language = 'ru';
         }
         
         return parent::beforeAction($action);
@@ -126,7 +132,7 @@ class MyController extends Controller
     protected function getUser()
     {
         if (is_null($this->_user)) {
-            $this->_user = User::findOne($this->viewer_id);
+            $this->_user = Yii::$app->user->identity;
         }
         return $this->_user;
     }

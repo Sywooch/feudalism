@@ -5,12 +5,14 @@ namespace app\models;
 use Yii,
     yii\web\IdentityInterface,
     app\components\Pricelist,
-    app\models\MyModel,
+    app\components\ExperienceCalculator,
+    app\models\ActiveRecord,
     app\models\Auth,
     app\models\UnitGroup,
     app\models\Invite,
     app\models\Unit,
-    app\models\Castle;
+    app\models\titles\Title,
+    app\models\holdings\Holding;
 
 /**
  * This is the model class for table "users".
@@ -20,6 +22,8 @@ use Yii,
  * @property integer $gender 
  * @property boolean $invited 
  * @property integer $level
+ * @property integer $experience
+ * @property integer $primaryTitleId Основной титул
  * @property double $balance 
  * @property integer $magic Магия
  * @property integer $authority Авторитет (внушительность)
@@ -30,22 +34,27 @@ use Yii,
  * @property integer $educationBase Образованность (без бонусов)
  * @property integer $combatBase Боевые навыки (без бонусов)
  * @property integer $currentGroupId
- * @property integer $currentCastleId
- * @property integer $capitalCastleId
+ * @property integer $currentHoldingId
+ * @property integer $capitalHoldingId
+ * @property integer $registration 
+ * @property integer $lastActive 
  *
  * @property Auth[] $auths
  * @property UnitGroup[] $groups
  * @property Invite $invite
  * @property Unit[] $units
- * @property Castle $capitalCastle
- * @property Castle $currentCastle
- * @property Castle[] $castles
+ * @property Holding $capitalHolding
+ * @property Holding $currentHolding
+ * @property Position $position
  * @property Group $currentGroup
+ * @property Title $primaryTitle
+ * @property Title[] $titles
  * 
  * @property string $genderPrefix
  * @property string $genderedName
+ * @property string $fullName
  */
-class User extends MyModel implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
     /**
      * @inheritdoc
@@ -63,10 +72,10 @@ class User extends MyModel implements IdentityInterface
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['gender', 'level', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentCastleId', 'capitalCastleId'], 'integer'],
+            [['gender', 'level', 'experience', 'primaryTitleId', 'magic', 'authority', 'education', 'combat', 'magicBase', 'authorityBase', 'educationBase', 'combatBase', 'currentGroupId', 'currentHoldingId', 'capitalHoldingId', 'registration', 'lastActive'], 'integer'],
             [['invited'], 'boolean'],
             [['balance'], 'number'],
-            [['capitalCastleId'], 'unique']
+            [['capitalHoldingId'], 'unique']
         ];
     }
 
@@ -81,6 +90,8 @@ class User extends MyModel implements IdentityInterface
             'gender' => Yii::t('app', 'Gender'), 
             'invited' => Yii::t('app', 'Invited'), 
             'level' => Yii::t('app', 'Level'),
+            'experience' => Yii::t('app', 'XP'),
+            'primaryTitleId' => Yii::t('app', 'Primary Title ID'),
             'balance' => Yii::t('app', 'Balance'),
             'magic' => Yii::t('app', 'Magic'),
             'authority' => Yii::t('app', 'Authority'),
@@ -91,9 +102,45 @@ class User extends MyModel implements IdentityInterface
             'educationBase' => Yii::t('app', 'Education Base'),
             'combatBase' => Yii::t('app', 'Combat Base'),
             'currentGroupId' => Yii::t('app', 'Current Group ID'),
-            'currentCastleId' => Yii::t('app', 'Current Castle ID'),
-            'capitalCastleId' => Yii::t('app', 'Capital Castle ID'),
+            'currentHoldingId' => Yii::t('app', 'Current Holding ID'),
+            'capitalHoldingId' => Yii::t('app', 'Capital Holding ID'),
+            'registration' => Yii::t('app', 'Registration'), 
+            'lastActive' => Yii::t('app', 'Last Active'), 
         ];
+    }
+
+    public static function displayedAttributes($owner = false)
+    {
+        $attributes = [
+            'id',
+            'name',
+            'genderedName',
+            'gender',
+            'level',
+            'primaryTitleId',
+            'magic',
+            'authority',
+            'education',
+            'combat',
+            'capitalHoldingId'
+        ];
+        
+        if ($owner) {
+            $attributes = array_merge($attributes, [
+                'experience',
+                'balance',
+                'magicBase',
+                'authorityBase',
+                'educationBase',
+                'combatBase',
+                'currentGroupId',
+                'currentHoldingId',
+                'registration',
+                'lastActive'
+            ]);
+        }
+        
+        return $attributes;
     }
 
     /**
@@ -131,25 +178,17 @@ class User extends MyModel implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCapitalCastle()
+    public function getCapitalHolding()
     {
-        return $this->hasOne(Castle::className(), ['id' => 'capitalCastleId']);
+        return $this->hasOne(Holding::className(), ['id' => 'capitalHoldingId']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCurrentCastle()
+    public function getCurrentHolding()
     {
-        return $this->hasOne(Castle::className(), ['id' => 'currentCastleId']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCastles()
-    {
-        return $this->hasMany(Castle::className(), ['userId' => 'id']);
+        return $this->hasOne(Holding::className(), ['id' => 'currentHoldingId']);
     }
 
     /**
@@ -159,10 +198,34 @@ class User extends MyModel implements IdentityInterface
     {
         return $this->hasOne(UnitGroup::className(), ['id' => 'currentGroupId']);
     }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTitles()
+    {
+        return $this->hasMany(Title::className(), ['userId' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUnitGroups()
+    {
+        return $this->hasMany(UnitGroup::className(), ['userId' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPrimaryTitle()
+    {
+        return $this->hasOne(Title::className(), ['id' => 'primaryTitleId']);
+    }
 
     public function getAuthKey()
     {
-        return md5($this->id.Yii::$app->params['AUTH_KEY_SECRET']);
+        return md5($this->id."wtf");
     }
 
     public function getId()
@@ -223,27 +286,121 @@ class User extends MyModel implements IdentityInterface
         return $this->genderPrefix.' '.$this->name;
     }
     
+    public function getFullName()
+    {
+        if ($this->primaryTitle) {
+            return $this->primaryTitle->userName;
+        } else {
+            return $this->genderedName;
+        }
+    }
+   
     /**
      * 
      * @param integer $category
      * @param integer $action
+     * @param array $params
      * @return boolean
      */
-    public function isHaveMoneyForAction($category, $action = 0)
+    public function isHaveMoneyForAction($category, $action = 0, $params = [])
     {
-        return $this->balance >= Pricelist::get($category, $action);
+        return $this->balance >= Pricelist::get($category, $action, $params);
     }
     
     /**
      * 
-     * @param type $category
-     * @param type $action
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     * @param boolean $saveModel
      */
-    public function payForAction($category, $action = 0, $saveModel = false)
+    public function payForAction($category, $action = 0, $params = [], $saveModel = false)
     {
-        $this->balance -= Pricelist::get($category, $action);
+        $this->balance -= Pricelist::get($category, $action, $params);
         if ($saveModel) {
             return $this->save();
+        }
+    }
+    
+    /**
+     * Произошёл ли левелап через calcLevel
+     * @var boolean 
+     */
+    public $isLevelUp = false;
+    
+    /**
+     * Считает текущий уровень по опыту
+     * @param boolean $save
+     * @return boolean
+     */
+    public function calcLevel($save = false)
+    {
+        $oldLevel = $this->level;
+        $this->level = ExperienceCalculator::getLevelByExperience($this->experience);
+        $this->isLevelUp = ($oldLevel < $this->level);
+        if ($save) {
+            return $this->save();
+        }
+    }
+    
+    /**
+     * Начисленное через addExperienceForAction число очков опыта
+     * @var integer
+     */
+    public $experienceGained = 0;
+    
+    /**
+     * Начисляет опыт за действие
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     * @param boolean $save
+     * @return boolean
+     */
+    public function addExperienceForAction($category, $action = 0, $params = [], $save = false)
+    {
+        $xp = ExperienceCalculator::get($category, $action, $params);
+        $this->experience += $xp;
+        $this->experienceGained += $xp;
+        return $this->calcLevel($save);
+    }
+    
+    /**
+     * Меняет параметры юзера за совершённое действие (снимает деньги, начисляет опыт)
+     * @TODO: добавить уведомления
+     * @param string $category
+     * @param string $action
+     * @param array $params
+     * @param boolean $save
+     * @return boolean
+     */
+    public function makeAction($category, $action = 0, $params = [], $save = false)
+    {
+        $this->payForAction($category, $action, $params, false);
+        return $this->addExperienceForAction($category, $action, $params, $save);
+    }
+    
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->registration = time();
+        }
+        
+        return parent::beforeSave($insert);
+    }
+    
+    /**
+     * 
+     * @return Position
+     */
+    public function getPosition()
+    {
+        if (!is_null($this->currentGroup)) {
+            return $this->currentGroup;
+        } elseif (!is_null($this->currentHolding)) {
+            return $this->currentHolding;
+        } else {
+            return null;
         }
     }
 

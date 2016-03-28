@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -21,7 +21,7 @@ use Yii,
  * @property Unit[] $units
  * @property User[] $users
  */
-class UnitGroup extends MyModel
+class UnitGroup extends ActiveRecord implements Position
 {
     /**
      * @inheritdoc
@@ -56,6 +56,16 @@ class UnitGroup extends MyModel
         ];
     }
 
+    public static function displayedAttributes($owner = false)
+    {
+        return [
+            'id',
+            'userId',
+            'tileId',
+            'name'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -87,4 +97,5 @@ class UnitGroup extends MyModel
     {
         return $this->hasMany(User::className(), ['currentGroupId' => 'id']);
     }
+
 }

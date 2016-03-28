@@ -2,11 +2,14 @@
 
 $params = require(__DIR__ . '/params.php');
 $params['prices'] = require (__DIR__ . '/prices.php');
+$params['experience'] = require (__DIR__ . '/experience.php');
 $authClients = require(__DIR__ . '/auth-clients.php');
 
 $config = [
     'id' => 'feudalism',
     'basePath' => dirname(__DIR__),
+    'language' => 'en-US',
+    'sourceLanguage' => 'en-US',
     'bootstrap' => ['log'],
     'components' => [
         'request' => [

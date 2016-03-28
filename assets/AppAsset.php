@@ -11,9 +11,10 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/square.css',
         'css/style.css',
-        '//fonts.googleapis.com/css?family=Amatic+SC:400,700',
+        'css/theme.css'
     ];
     public $js = [
+        'js/request.js',
         'js/fullscreen.js',
         'js/icheck.js',
         'js/jquery-dateFormat.min.js',
@@ -21,6 +22,8 @@ class AppAsset extends AssetBundle
     ];
     public $depends = [
         'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
+        'yii\bootstrap\BootstrapPluginAsset',
     ];
     
 }

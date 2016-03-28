@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\models\MyModel,
+use app\models\ActiveRecord,
     app\models\User;
 
 /**
@@ -15,7 +15,7 @@ use app\models\MyModel,
  * 
  * @property User $user
  */
-class Invite extends MyModel
+class Invite extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -50,6 +50,11 @@ class Invite extends MyModel
             'userId' => Yii::t('app', 'User ID'),
             'time' => Yii::t('app', 'Time'),
         ];
+    }
+
+    public static function displayedAttributes($owner = false)
+    {
+        return [];
     }
     
     /**
@@ -96,4 +101,5 @@ class Invite extends MyModel
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
+    
 }

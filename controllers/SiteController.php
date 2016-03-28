@@ -4,14 +4,15 @@ namespace app\controllers;
 
 use Yii,
     yii\filters\AccessControl,
+    yii\filters\VerbFilter,
     yii\web\ErrorAction,
     yii\web\UploadedFile,
     yii\authclient\AuthAction,
     app\models\Auth,
     app\models\InviteForm,
-    app\controllers\MyController;
+    app\controllers\Controller;
 
-class SiteController extends MyController
+class SiteController extends Controller
 {
 
     public function actions()
@@ -33,14 +34,20 @@ class SiteController extends MyController
         
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['invite'],
+            'only' => ['invite', 'logout'],
             'rules' => [
                 [
-                    'actions' => ['invite'],
+                    'actions' => ['invite', 'logout'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
-            ]
+            ],
+        ];
+        $behaviors['verbs'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'logout' => ['post'],
+            ],
         ];
 
         return $behaviors;
@@ -113,5 +120,12 @@ class SiteController extends MyController
         }
 
         return $this->render('invite', ['model' => $model]);
+    }
+    
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
+
+        return $this->goHome();
     }
 }

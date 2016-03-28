@@ -22,7 +22,7 @@ use yii\widgets\ActiveForm;
 
                 <?= $form->field($model, 'imageFile')->fileInput() ?>
 
-                <button class="btn btn-blue"><?=Yii::t('app','Send')?></button>
+                <button class="btn btn-primary"><?=Yii::t('app','Send')?></button>
 
             <?php ActiveForm::end() ?>
         </div>

@@ -2,12 +2,13 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use yii\db\ActiveRecord as YiiActiveRecord,
+    yii\base\Exception;
 
 /**
  * Надстройка над ActiveRecord
  */
-abstract class MyModel extends ActiveRecord
+abstract class ActiveRecord extends YiiActiveRecord
 {
     
     /**
@@ -34,6 +35,34 @@ abstract class MyModel extends ActiveRecord
         }
         
         return $m;
+    }
+    
+    /**
+     * Возвращает массив имён аттрибутов, доступных для отображения клиенту
+     * @param boolean $owner если true то расширенный список, доступный владельцу
+     * @return array
+     */
+    public static function displayedAttributes($owner = false)
+    {
+        throw new Exception('ActiveRecord::displayedAttributes not overwrited in '.static::className());
+    }
+    
+    /**
+     * Возвращает массив доступных для отображения клиенту аттрибутов
+     * @param boolean $owner
+     * @return array
+     */
+    public function getDisplayedAttributes($owner = false, $displayedAttributes = [])
+    {
+        $values = [];
+        $attrs = static::displayedAttributes($owner);
+        if (count($displayedAttributes)) {
+            $attrs = array_merge($attrs, $displayedAttributes);
+        }
+        foreach ($attrs as $attr) {
+            $values[$attr] = $this->$attr;
+        }
+        return $values;
     }
     
 }

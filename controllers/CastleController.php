@@ -3,27 +3,44 @@
 namespace app\controllers;
 
 use Yii,
-    app\models\Castle,
-    yii\web\NotFoundHttpException,
-    yii\filters\VerbFilter,
-    app\controllers\MyController,
-    app\components\Pricelist;
+    app\models\holdings\Castle,
+    app\models\Tile,
+    app\models\Unit,
+    app\controllers\Controller,
+    yii\filters\AccessControl,
+    yii\filters\VerbFilter;
 
 /**
  * CastleController implements the CRUD actions for Castle model.
  */
-class CastleController extends MyController
+class CastleController extends Controller
 {
     public function behaviors()
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'build' => ['post'],
+        $behaviors = parent::behaviors();
+        
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
+            'rules' => [
+                [
+                    'actions' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
+                    'allow' => true,
+                    'roles' => ['@'],
                 ],
             ],
         ];
+        $behaviors['verbs'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'build' => ['post'],
+                'fortification-increase' => ['post'],
+                'quarters-increase' => ['post'],
+                'spawn-unit' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
     }
 
     /**
@@ -33,61 +50,135 @@ class CastleController extends MyController
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        /* @var $model Castle */
+        $model = Castle::findOne($id);
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Castle not found'));
+        } else {
+            return $this->renderJson($model->getDisplayedAttributes($model->isOwner($this->user), [
+                'userName',
+                'userLevel'
+            ]));
+        }
     }
 
     /**
      * Creates a new Castle model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param integer $Castle
      * @return mixed
      */
     public function actionBuild()
     {
-        if (!Yii::$app->user->isGuest) {
+        $Castle = Yii::$app->request->post('Castle');
+        $tile = Tile::findOne($Castle['tileId']);
+        if (is_null($tile)) {
+            return $this->renderJsonError(Yii::t('app','Invalid tile ID'));
+        }
+        
+        $model = Castle::build($Castle['name'], $this->user, $tile);
+        if ($model->id) {
             
-            if ($this->user->isHaveMoneyForAction('castle', 'build')) {
+            if (is_null($this->user->position)) {
+                $this->user->link('currentHolding', $model);
+            }
             
-                $model = new Castle();
-                $transaction = Yii::$app->db->beginTransaction();
-                if ($model->load(Yii::$app->request->post())) {
-                    $model->userId = $this->viewer_id;
-                    $model->fortification = 1;
-                    $model->quarters = 1;
-                    if ($model->save()) {
-                        if ($this->user->payForAction('castle', 'build', true)) {
-                            $transaction->commit();
-                            return $this->renderJson($model);
-                        } else {
-                            return $this->renderJsonError($this->user->getErrors());
-                        }
-                    } else {
-                        return $this->renderJsonError($model->getErrors());
-                    }
-                } else {
-                    return $this->renderJsonError('Can not load castle info');
-                }
+            return $this->renderJson($model);
+        } else {
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
             } else {
-                return $this->renderJsonError('You haven`t money');
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
             }
         }
     }
-
-
+    
     /**
-     * Finds the Castle model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Increase a fortification for Castle model.
      * @param integer $id
-     * @return Castle the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return mixed
      */
-    protected function findModel($id)
+    public function actionFortificationIncrease()
     {
-        if (($model = Castle::findOne($id)) !== null) {
-            return $model;
+        /* @var $model Castle */
+        $model = Castle::findOne(Yii::$app->request->post('id'));
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
+        
+        if ($model->fortificationIncrease($this->user)) {
+            return $this->renderJsonOk([
+                'newValue' => $model->fortification
+            ]);
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
         }
     }
+    
+    /**
+     * Increase a quarters for Castle model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionQuartersIncrease()
+    {        
+        /* @var $model Castle */
+        $model = Castle::findOne(Yii::$app->request->post('id'));
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
+        
+        if ($model->quartersIncrease($this->user)) {
+            return $this->renderJsonOk([
+                'newValue' => $model->quarters
+            ]);
+        } else {
+            if (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
+        }
+    }
+    
+    /**
+     * Spawn new unit in castle
+     * @param integer $id
+     * @param integer $protoId
+     */
+    public function actionSpawnUnit()
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne(Yii::$app->request->post('id'));
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
+        
+        /* @var $unit Unit */
+        $unit = $model->spawnUnit(Yii::$app->request->post('protoId'), $this->user);
+        if (!$unit->isNewRecord && !count($model->getErrors())) {
+            return $this->renderJson($unit);
+        } else {
+            if (count($unit->getErrors())) {
+                return $this->renderJsonError($unit->getErrors());
+            } elseif (count($model->getErrors())) {
+                return $this->renderJsonError($model->getErrors());
+            } elseif (count($this->user->getErrors())) {
+                return $this->renderJsonError($this->user->getErrors());
+            } else {
+                return $this->renderJsonError(Yii::t('app','Unknown error!'));
+            }
+        }
+        
+    }
+    
 }

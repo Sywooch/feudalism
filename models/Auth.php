@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii,
-    app\models\MyModel,
+    app\models\ActiveRecord,
     app\models\User;
 
 /**
@@ -15,7 +15,7 @@ use Yii,
  * 
  * @property User $user
  */
-class Auth extends MyModel
+class Auth extends ActiveRecord
 {
     
     const SOURCE_GOOGLE = 1;
@@ -55,6 +55,11 @@ class Auth extends MyModel
             'source' => Yii::t('app', 'Source'),
             'sourceId' => Yii::t('app', 'Source ID'),
         ];
+    }
+
+    public static function displayedAttributes($owner = false)
+    {
+        return [];
     }
     
     public function getUser()
@@ -122,5 +127,5 @@ class Auth extends MyModel
                 return static::SOURCE_VKAPP;
         }
     }
-    
+
 }
