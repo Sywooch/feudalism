@@ -43,7 +43,7 @@ function loadChunk(ctx, x, y) {
     );   
 }
 
-var chunkCache = {}, tilesCache = {};
+var chunkCache = {}, tilesCache = {}, map;
 var ROT_OPTIONS = {
     forceSquareRatio: false,
     fontSize: 20,
@@ -59,4 +59,71 @@ function showTileInfo(tile) {
     $('#tile-info-label').text(tile.biomeLabel);
     $('#tile-info-label').css('color', tile.biomeColor);
     $('#tile-info').show();
+}
+
+function mapInit() {
+    
+    resizeBlocks();
+
+    map = L.map("map",{
+        maxZoom: 10,
+        minZoom: 10,
+        zoomControl: false
+    }).setView([100,-180], 10);
+    
+    var canvasTiles = L.tileLayer.canvas({
+        continuousWorld: true,
+        tileSize: 300
+    });
+
+    canvasTiles.drawTile = function(canvas, tilePoint, zoom) {
+        var ctx = canvas.getContext("2d");
+        canvas.setAttribute("data-x",tilePoint.x);
+        canvas.setAttribute("data-y",tilePoint.y);
+        loadChunk(ctx, tilePoint.x, tilePoint.y);
+    };
+
+    canvasTiles.addTo(map);
+    
+    map.on("dragstart", function(e) {
+        $("#map").addClass("dragging");
+    });
+    map.on("dragend", function (e) {
+        setTimeout(function() {
+            $("#map").removeClass("dragging");
+        }, 100);
+    });
+    
+    $("#map").on("mousemove", "canvas.leaflet-tile", function(e){
+        $("#right-bottom-label").empty();
+        if (!$("#map").hasClass("dragging")) { // проверка, что это не перетаскивание
+            var tile = getTileByEvent($(this).data("x"), $(this).data("y"), e);
+            if (tile) {
+                $("#right-bottom-label").text(tile.id+" ["+tile.x+","+tile.y+"] "+tile.biomeLabel);
+                if (tile.holding) {
+                    $("#right-bottom-label").append(tile.holding.name);
+                }
+            }
+        }
+    });
+    
+    $("#map").on("click", "canvas.leaflet-tile", function(e){
+        if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
+            var tile = getTileByEvent($(this).data("x"), $(this).data("y"), e);
+            if (tile) {
+                showTileInfo(tile);
+            }
+        }
+    });
+    
+    $("#map").on("mouseover", "canvas.leaflet-tile", function(e){
+        $("#right-bottom-label").empty();
+    });
+}
+
+function getTileByEvent(chunkX, chunkY, e){
+    var display = chunkCache[chunkX+"x"+chunkY];
+    var displayCoords = display.eventToPosition(e);
+    var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},chunkX,chunkY);
+    return tilesCache[realCoords.x+"x"+realCoords.y];
 }
