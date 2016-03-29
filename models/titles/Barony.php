@@ -22,7 +22,7 @@ class Barony extends Title {
     
     public function getUserName()
     {
-        return Yii::t('app', "{0,select,".User::GENDER_FEMALE."{Baroness} ".User::GENDER_MALE."{Baron} other{Baron}} {1}", [$this->user->gender, $this->user->name]);
+        return Yii::t('app', "{0,select,".User::GENDER_FEMALE."{Baroness} ".User::GENDER_MALE."{Baron} other{Baron}} [{2}] {1}", [$this->user->gender, $this->user->name, $this->user->level]);
     }
     
     /**

@@ -64,13 +64,13 @@ class TitleController extends Controller
     
     /**
      * Creates a new Barony model.
-     * @param array $Title
+     * @param array $Barony
      * @param integer $holdingId
      * @return mixed
      */
     public function actionCreateBarony()
     {
-        $Title = Yii::$app->request->post('Title');
+        $Barony = Yii::$app->request->post('Barony');
         
         /* @var $title Title */
         $holding = Holding::findOne(Yii::$app->request->post('holdingId'));
@@ -78,7 +78,7 @@ class TitleController extends Controller
             return $this->renderJsonError(Yii::t('app','Invalid holding ID'));
         }
         
-        $model = Barony::create($Title['name'], $this->user, $holding);
+        $model = Barony::create($Barony['name'], $this->user, $holding);
         if ($model->id) {            
             if (is_null($this->user->primaryTitle)) {
                 $this->user->link('primaryTitle', $model);

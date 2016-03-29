@@ -192,12 +192,12 @@ class Holding extends ActiveRecord implements Position
     
     public function getUserName()
     {
-        return $this->title->userName;
+        return $this->title ? $this->title->userName : Yii::t('app', 'no owner');
     }
     
     public function getUserLevel()
     {
-        return $this->title->user->level;
+        return $this->title ? $this->title->user->level : null;
     }
     
     public function getCanFortificationIncreases()

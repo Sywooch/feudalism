@@ -25,7 +25,13 @@ $this->registerJs('mapInit()');
             <span id="tile-biomeCharacter"></span> [<span id="tile-x"></span>,<span id="tile-y"></span>] <span id="tile-biomeLabel" ></span>
         </div>
         <div class="panel-body">
-            <span class="text-info"><?=Yii::t('app', 'Land owner:')?></span> <span id="tile-ownerName"></span>
+            <span class="text-info"><?=Yii::t('app', 'Land owner')?>:</span>
+            <div class="well-sm">
+                <span id="tile-ownerName"></span>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-primary btn-xs right-panel-btn" id="build-castle-btn"><?=Yii::t('app', 'Build a castle')?></button>
         </div>
     </div>
     <div class="panel panel-default right-main-panel" id="holding-info">
@@ -33,9 +39,41 @@ $this->registerJs('mapInit()');
             <span id="holding-character"></span> <span id="holding-name" ></span>
         </div>
         <div class="panel-body">
+            <span class="text-info"><?=Yii::t('app', 'Holding owner')?>:</span>
+            <div class="well-sm">
+                <span id="holding-userName"></span>
+            </div>
+            <table class="table table-hover">
+                <tr>
+                    <td>
+                        <span class="text-info">[p] <?=Yii::t('app', 'Population')?>:</span>
+                    </td>
+                    <td>
+                        <span id="holding-population"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="text-info">[f] <?=Yii::t('app', 'Fortification')?>:</span>
+                    </td>
+                    <td> 
+                        <span id="holding-fortification"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="text-info">[q] <?=Yii::t('app', 'Quarters')?>:</span>
+                    </td>
+                    <td> 
+                        <span id="holding-quarters"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-success btn-xs right-panel-btn" id="create-barony-btn"><?=Yii::t('app', 'Create a barony')?></button>
         </div>
     </div>
-    <button style="display:none" class="btn btn-primary btn-xs right-panel-btn" id="build-castle-btn"><?=Yii::t('app', 'Build a castle')?></button>
     <div class="label-info" id="right-bottom-label"></div>
 </div>
 
@@ -64,6 +102,37 @@ $this->registerJs('mapInit()');
             <div class="modal-footer">
                 <?=Html::button(Yii::t('app', 'Cancel'), ['class' => 'btn btn-default', 'data-dismiss' => 'modal'])?>
                 <?=Html::submitButton(Yii::t('app', 'Build'), ['class' => 'btn btn-primary'])?>
+            </div>
+            <?php $form->end() ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="create-barony-modal" style="display:none">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?=Yii::t('app', 'Create a new barony')?></h4>
+            </div>
+            <?php
+                /* @var $form ActiveForm */
+                $form = ActiveForm::begin([
+                    'id' => 'create-barony-form',
+                    'options' => ['class' => 'request-form'],
+                    'method' => 'post',
+                    'action' => ['title/create-barony'],
+                ]);
+            ?>        
+            <div class="modal-body">
+                <div class="form-well">
+                    <?=$form->field(new \app\models\titles\Barony, 'name')->textInput()?>
+                    <?=Html::hiddenInput('holdingId','',['class' => 'current-holding-id'])?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <?=Html::button(Yii::t('app', 'Cancel'), ['class' => 'btn btn-default', 'data-dismiss' => 'modal'])?>
+                <?=Html::submitButton(Yii::t('app', 'Create'), ['class' => 'btn btn-primary'])?>
             </div>
             <?php $form->end() ?>
         </div>

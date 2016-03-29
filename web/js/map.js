@@ -31,16 +31,20 @@ function loadChunk(ctx, x, y) {
         function(data) {
             for (var i = 0; i < data.result.length; i++) {
                 var tile = data.result[i];
-                var coords = coordsTileToChunk(tile);
-                display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,"#000");
-                if (tile.holding) {
-                    display.draw(coords.x,coords.y,"Ω","#fff", "#000");
-                }
-                
+                drawTile(display, tile);                
                 tilesCache[tile.x+"x"+tile.y] = tile;
             }
         }
     );   
+}
+
+function drawTile(display, tile, backgroundColor) {
+    var coords = coordsTileToChunk(tile);
+    backgroundColor = backgroundColor || "#000";
+    display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,backgroundColor);
+    if (tile.holding) {
+        display.draw(coords.x,coords.y,"Ω","#fff", backgroundColor);
+    }
 }
 
 var chunkCache = {}, tilesCache = {}, map;
@@ -63,7 +67,7 @@ function showInfo(type, data, hideAll) {
     $block = $('#'+type+'-info');
     
     for (var i in data) {
-        if (data[i] && typeof data[i] !== 'function' && typeof data[i] !== 'object') {
+        if (data[i] !== undefined && typeof data[i] !== 'function' && typeof data[i] !== 'object') {
             $('#'+type+'-'+i).text(data[i]);
         }
     }
@@ -76,11 +80,19 @@ function showTileInfo(tile) {
     $('#tile-info').children('.panel-heading').css('color', tile.biomeColor);
     $('.current-tile-id').val(tile.id);
     if (tile.holding) {
-        showInfo('holding', tile.holding);
+        showHoldingInfo(tile.holding);
     } else {
         if (tile.titleId === null && tile.biomeId >= 20) {
             $('#build-castle-btn').show();
         }
+    }
+}
+
+function showHoldingInfo(holding) {
+    showInfo('holding', holding);    
+    $('.current-holding-id').val(holding.id);
+    if (holding.titleId === null) {
+        $('#create-barony-btn').show();
     }
 }
 
@@ -124,7 +136,7 @@ function mapInit() {
             if (tile) {
                 $("#right-bottom-label").text(tile.id+" ["+tile.x+","+tile.y+"] "+tile.biomeLabel);
                 if (tile.holding) {
-                    $("#right-bottom-label").append(tile.holding.name);
+                    $("#right-bottom-label").append(' — '+tile.holding.name);
                 }
             }
         }
@@ -135,6 +147,9 @@ function mapInit() {
             var tile = getTileByEvent($(this).data("x"), $(this).data("y"), e);
             if (tile) {
                 showTileInfo(tile);
+                mapCursor.set(chunkCache[$(this).data("x")+"x"+$(this).data("y")], tile);
+            } else {
+                mapCursor.clear();
             }
         }
     });
@@ -146,6 +161,10 @@ function mapInit() {
     $('#build-castle-btn').click(function(){
        $('#build-castle-modal').modal();
     });
+    
+    $('#create-barony-btn').click(function(){
+       $('#create-barony-modal').modal();
+    });
 }
 
 function getTileByEvent(chunkX, chunkY, e){
@@ -154,3 +173,47 @@ function getTileByEvent(chunkX, chunkY, e){
     var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},chunkX,chunkY);
     return tilesCache[realCoords.x+"x"+realCoords.y];
 }
+
+var mapCursor = new (function() {
+    
+    this.set = function(chunk, tile) {
+        if (this.active) {
+            this.stopBlink();
+        }
+        this.chunk = chunk;
+        this.tile = tile;
+        this.startBlink();
+    };
+    
+    this.clear = function() {
+        this.stopBlink();
+        this.chunk = null;
+        this.tile = null;
+    };
+    
+    this.active = false;
+    this.blinkingState = false;
+    this.blinkerInterval;
+    
+    this.startBlink = function() {
+        this.active = true;
+        this.blink();
+        this.blinkerInterval = setInterval(this.blink, 500);
+    };
+    
+    this.stopBlink = function() {
+        this.active = false;
+        this.blinkingState = false;
+        this.blink();
+        clearInterval(this.blinkerInterval);
+    };
+    
+    this.blink = function() {
+        if (mapCursor.chunk) {
+            var backgroundColor = mapCursor.blinkingState ? "#ff0" : "#000";
+            drawTile(mapCursor.chunk, mapCursor.tile, backgroundColor);
+            mapCursor.blinkingState = !mapCursor.blinkingState;        
+        }
+    };
+    
+});
