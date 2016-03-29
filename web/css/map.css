@@ -1,8 +1,4 @@
 
-.right-main-panel {
-    display: none;
-}
-
 .leaflet-layer {
     cursor: pointer;
 }
@@ -23,4 +19,12 @@
     position: absolute;
     bottom: 0;
     left: 0;
+}
+
+.right-main-panel {
+    display: none;
+}
+
+.right-panel-btn {
+    display: none;
 }

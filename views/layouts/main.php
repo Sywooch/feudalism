@@ -7,6 +7,9 @@ use yii\helpers\Html,
 /* @var $content string */
 
 AppAsset::register($this);
+
+$this->registerJs('init()');
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

@@ -57,6 +57,7 @@ function showInfo(type, data, hideAll) {
     
     if (hideAll) {        
         $('.right-main-panel').hide();
+        $('.right-panel-btn').hide();
     }
     console.log(data);
     $block = $('#'+type+'-info');
@@ -73,8 +74,13 @@ function showInfo(type, data, hideAll) {
 function showTileInfo(tile) {
     showInfo('tile', tile, true);
     $('#tile-info').children('.panel-heading').css('color', tile.biomeColor);
+    $('.current-tile-id').val(tile.id);
     if (tile.holding) {
         showInfo('holding', tile.holding);
+    } else {
+        if (tile.titleId === null && tile.biomeId >= 20) {
+            $('#build-castle-btn').show();
+        }
     }
 }
 
@@ -135,6 +141,10 @@ function mapInit() {
     
     $("#map").on("mouseover", "canvas.leaflet-tile", function(e){
         $("#right-bottom-label").empty();
+    });
+    
+    $('#build-castle-btn').click(function(){
+       $('#build-castle-modal').modal();
     });
 }
 

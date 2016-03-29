@@ -14,6 +14,7 @@ class AppAsset extends AssetBundle
         'css/theme.css'
     ];
     public $js = [
+        'js/init.js',
         'js/request.js',
         'js/fullscreen.js',
         'js/resizes.js',

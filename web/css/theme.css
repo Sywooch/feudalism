@@ -1687,7 +1687,7 @@ output {
   padding: 8px 12px;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #BDBDBD;
+  color: #282828;
   background-color: #ffffff;
   background-image: none;
   border: 1px solid #282828;
@@ -5163,6 +5163,16 @@ legend {
 }
 .alert .close:hover,
 .alert .close:focus {
+  color: #fff;
+  opacity: 1;
+}
+.close {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.4;
+}
+.close:hover,
+.close:focus {
   color: #fff;
   opacity: 1;
 }

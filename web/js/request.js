@@ -61,3 +61,18 @@ var Request = (function() {
     };
 })();
 
+function requestFormsInit() {
+    $(document).on("submit", ".request-form", function(){
+        var callback = $(this).data('callback') || defaultRequestJsonCallback;
+        Request.postJson(
+            $(this).attr('action'),
+            $(this).serialize(),
+            callback
+        );
+        return false;
+    });
+}
+
+function defaultRequestJsonCallback(data) {
+    alert("ok");
+}
