@@ -52,13 +52,30 @@ var ROT_OPTIONS = {
     height: 15
 };
 
+function showInfo(type, data, hideAll) {
+    hideAll = !!hideAll;
+    
+    if (hideAll) {        
+        $('.right-main-panel').hide();
+    }
+    console.log(data);
+    $block = $('#'+type+'-info');
+    
+    for (var i in data) {
+        if (data[i] && typeof data[i] !== 'function' && typeof data[i] !== 'object') {
+            $('#'+type+'-'+i).text(data[i]);
+        }
+    }
+    
+    $block.show();
+}
+
 function showTileInfo(tile) {
-    $('.right-main-panel').hide();
-    $('#tile-info-character').text(tile.biomeCharacter);
-    $('#tile-info-character').css('color', tile.biomeColor);
-    $('#tile-info-label').text(tile.biomeLabel);
-    $('#tile-info-label').css('color', tile.biomeColor);
-    $('#tile-info').show();
+    showInfo('tile', tile, true);
+    $('#tile-info').children('.panel-heading').css('color', tile.biomeColor);
+    if (tile.holding) {
+        showInfo('holding', tile.holding);
+    }
 }
 
 function mapInit() {

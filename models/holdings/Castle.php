@@ -4,7 +4,6 @@ namespace app\models\holdings;
 
 use Yii,
     app\models\holdings\Holding,
-    app\models\titles\Title,
     app\models\Unit,
     app\models\User,
     app\models\Tile;
@@ -17,6 +16,8 @@ class Castle extends Holding
 {
     
     const PROTOTYPE = Holding::PROTOTYPE_CASTLE;
+    
+    const CHARACTER = 'Ω';
     
     /**
      * Строит новый замок со всеми необходимыми проверками

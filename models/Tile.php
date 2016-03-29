@@ -27,6 +27,7 @@ use Yii,
  * @property string $biomeLabel
  * @property string $biomeCharacter
  * @property string $biomeColor
+ * @property string $ownerName
  *
  * @property Biome $biome
  * @property Holding $holding
@@ -100,10 +101,6 @@ class Tile extends ActiveRecord
             'biomeLabel',
             'biomeCharacter',
             'biomeColor',
-            'elevation',
-            'temperature',
-            'rainfall',
-            'drainage'
         ];
     }
         
@@ -145,6 +142,14 @@ class Tile extends ActiveRecord
     public function getHolding()
     {
         return $this->hasOne(Holding::className(), ['tileId' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTitle()
+    {
+        return $this->hasOne(Title::className(), ['id' => 'titleId']);
     }
 
     /**
@@ -204,6 +209,11 @@ class Tile extends ActiveRecord
         $this->drainage = $this->biome->drainage;
         
         return parent::beforeSave($insert);
+    }
+    
+    public function getOwnerName()
+    {
+        return $this->title ? $this->title->userName : Yii::t('app', 'no owner');
     }
 
 }

@@ -1,0 +1,26 @@
+
+.right-main-panel {
+    display: none;
+}
+
+.leaflet-layer {
+    cursor: pointer;
+}
+
+.dragging .leaflet-layer {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+}
+
+#right-panel {
+    position: relative;
+    min-height: 100%;
+}
+
+#right-bottom-label {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}

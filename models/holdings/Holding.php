@@ -37,6 +37,7 @@ use Yii,
  * 
  * @property string $userName
  * @property integer $userLevel
+ * @property string $character
  * 
  * @property boolean $canFortificationIncreases 
  * @property boolean $canQuartersIncreases
@@ -51,6 +52,7 @@ class Holding extends ActiveRecord implements Position
     const PROTOTYPE_CASTLE = 1;
     
     const PROTOTYPE = null;
+    const CHARACTER = null;
 
     public function init()
     {
@@ -220,6 +222,11 @@ class Holding extends ActiveRecord implements Position
     public function isOwner(User &$user)
     {
         return ($this->title && $this->title->userId === $user->id);
+    }
+        
+    public function getCharacter()
+    {
+        return static::CHARACTER;
     }
 
 }

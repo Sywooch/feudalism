@@ -23,17 +23,22 @@ class MapController extends Controller {
         $tiles = Tile::findByChunk($x, $y)
                 ->with('holding')
                 ->with('holding.title.user')
+                ->with('title')
+                ->with('title.user')
                 ->all();
         
         $result = [];
         /* @var $tile Tile */
         foreach ($tiles as $tile) {
-            $tileinfo = $tile->getDisplayedAttributes();
+            $tileinfo = $tile->getDisplayedAttributes(true, [
+                'ownerName'
+            ]);
             
             if ($tile->holding) {
                 $tileinfo['holding'] = $tile->holding->getDisplayedAttributes(true, [
                     'userName',
-                    'userLevel'
+                    'userLevel',
+                    'character'
                 ]);
             }
                         
