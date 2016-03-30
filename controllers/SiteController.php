@@ -104,6 +104,10 @@ class SiteController extends Controller
 
     public function actionInvite()
     {
+        if ($this->user->invited) {
+            return $this->redirect('/');
+        }
+        
         $model = new InviteForm();
 
         if (Yii::$app->request->isPost) {
@@ -111,8 +115,8 @@ class SiteController extends Controller
             if ($model->validate()) {
                 $invite = $model->getInvite();
                 if ($invite) {
-                    $invite->activate(Yii::$app->user->identity);
-                    $this->redirect("/");
+                    $invite->activate($this->user);
+                    $this->redirect('/');
                 } else {
                     $model->addError('imageFile', 'Invalid invite');
                 }
