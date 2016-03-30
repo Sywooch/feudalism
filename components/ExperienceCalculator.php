@@ -73,6 +73,24 @@ abstract class ExperienceCalculator {
     }
     
     /**
+     * Процент набранного опыта с текущего до следующего уровня
+     * @param integer $exp
+     * @return double
+     */
+    public static function getPercentOfNextLevel($exp)
+    {
+        $level = static::getLevelByExperience($exp);
+        
+        $expStart = static::getExperienceByLevel($level);
+        $expEnd = static::getExperienceByLevel($level+1);
+        
+        $expGained = $exp - $expStart;
+        $expNeed = $expEnd - $expStart;
+        
+        return 100.0 * $expGained/$expNeed;
+    }
+    
+    /**
      * Число опыта за действие
      * @param string $category
      * @param string $action

@@ -42,7 +42,11 @@ class UserController extends Controller
         $model = User::findIdentity($id);
         $owner = $this->viewer_id === $model->id;
         if (!is_null($model)) {
-            return $this->renderJson($model->getDisplayedAttributes($owner));
+            if (Yii::$app->request->isAjax) {
+                return $this->renderPartial('view', ['model' => $model, 'isOwner' => $owner]);
+            } else {
+                return $this->render('view', ['model' => $model, 'isOwner' => $owner]);
+            }
         } else {
             return $this->renderJsonError(Yii::t('app','User not found'));
         }
