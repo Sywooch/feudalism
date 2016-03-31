@@ -204,7 +204,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getTitles()
     {
-        return $this->hasMany(Title::className(), ['userId' => 'id']);
+        return $this->hasMany(Title::className(), ['userId' => 'id'])->orderBy(['level' => SORT_DESC, 'captured' => SORT_DESC]);
     }
     
     /**

@@ -206,4 +206,14 @@ class Title extends ActiveRecord
     {
         return $this->user->level;
     }
+    
+    /**
+     * 
+     * @param User $user
+     * @return boolean
+     */
+    public function isPrimaryTitle(User &$user)
+    {
+        return $this->id === $user->primaryTitleId;
+    }
 }
