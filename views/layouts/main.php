@@ -72,8 +72,15 @@ $this->registerJs('init()');
         </div>
         <footer id="footer" class="footer">
             <div class="container">
-                <div class="col-md-3 col-xs-12 col-sm-12 text-left copyright">
+                <div class="col-md-3 col-xs-6 col-sm-6 text-left copyright">
                     <?=Yii::t('app','Developed by')?> <?=Html::a('LazzyTeam', 'http://lazzyteam.pw', ['target'=>'_blank'])?>
+                </div>
+                <div class="col-md-3 col-xs-6 col-sm-6 text-right col-md-offset-6">
+                    <?=Html::a(Yii::t('app', 'About'), '/about')?>
+                    |
+                    <?=Html::a(Yii::t('app', 'Help'), 'http://wiki.feudalism.pw', ['target'=>'_blank'])?>
+                    |
+                    <?=Html::a(Yii::t('app', 'Blog'), 'http://blog.feudalism.pw', ['target'=>'_blank'])?>
                 </div>
             </div>
         </footer>

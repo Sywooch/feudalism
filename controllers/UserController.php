@@ -39,7 +39,12 @@ class UserController extends Controller
      */
     public function actionView($id)
     {
-        $model = User::findIdentity($id);
+        $model = User::find()
+                ->where(['id' => $id])
+                ->with('titles')
+                ->with('titles.holdings')
+                ->with('primaryTitle')
+                ->one();
         $owner = $this->viewer_id === $model->id;
         if (!is_null($model)) {
             if (Yii::$app->request->isAjax) {

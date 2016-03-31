@@ -35,8 +35,8 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                 <?php endif?>
                 <?php endif?>
             </div>
-            <div class="col-lg-6 col-md-6">
-                <table class="table table-hover">
+            <div class="col-lg-6 col-md-6 well">
+                <table class="table table-hover" style="margin-bottom: 0">
                     <tr>
                         <td class="text-info text-right" ><?=$model->getAttributeLabel('balance')?>:</td>
                         <td><?=$model->balance?></td>
@@ -59,7 +59,7 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                     </tr>
                 </table>
             </div>
-            <div class="col-lg-6 col-md-6">
+            <div class="col-lg-6 col-md-6 well">
                 <h4><?=Yii::t('app', 'Current traits:')?></h4>
             </div>
         </div>
@@ -78,6 +78,29 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                                 <td class="prettyDate" data-unixtime="<?=$title->captured?>" ><?=date("d-m-Y", $title->captured)?></td>
                             </tr>
                         </table>
+                        <?php if (count($title->holdings)): ?>
+                        <h4><?=Yii::t('app', 'Holdings')?></h4>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>[p]</th>
+                                    <th>[f]</th>
+                                    <th>[q]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($title->holdings as $holding): ?>
+                                <tr>
+                                    <td>[<?=$holding->character?>] <?=$holding->fullName?></td>
+                                    <td><?=$holding->population?></td>
+                                    <td><?=$holding->fortification?></td>
+                                    <td><?=$isOwner ? $holding->quartersUsed . '/' . $holding->quarters : $holding->quarters?></td>
+                                </tr>
+                                <?php endforeach ?>
+                            </tbody>
+                        </table>
+                        <?php endif ?>
                     </div>
                 </div>
             <?php endforeach ?>
@@ -86,11 +109,6 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                 <?=Yii::t('app', 'You have no one titular title')?>
             </div>
             <?php endif ?>
-            <pre>
-                <code>
-                    <?php var_dump($model->titles) ?>
-                </code>
-            </pre>
         </div>
     </div>
 </div>

@@ -288,8 +288,8 @@ class User extends ActiveRecord implements IdentityInterface
     
     public function getFullName()
     {
-        if ($this->primaryTitle) {
-            return $this->primaryTitle->userName;
+        if ($this->primaryTitleId) {
+            return $this->primaryTitle->getUserName($this);
         } else {
             return $this->genderedName;
         }

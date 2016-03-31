@@ -35,6 +35,7 @@ use Yii,
  * @property Title $title
  * @property User $buildedUser
  * 
+ * @property string $fullName
  * @property string $userName
  * @property integer $userLevel
  * @property string $character
@@ -228,5 +229,10 @@ class Holding extends ActiveRecord implements Position
     {
         return static::CHARACTER;
     }
-
+    
+    public function getFullName()
+    {
+        return $this->name;
+    }
+    
 }

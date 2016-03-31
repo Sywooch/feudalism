@@ -172,5 +172,10 @@ class Castle extends Holding
 
         return $unit;
     }
+        
+    public function getFullName()
+    {
+        return Yii::t('app', "{0} castle", [$this->name]);
+    }
 
 }
