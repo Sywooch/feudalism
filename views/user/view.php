@@ -13,7 +13,7 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
     <div class="row">
         <div class="col-lg-6 col-md-12">
             <h1><?=$model->fullName?></h1>
-            <div class="progress" title="<?=Yii::t('app', '{0,number} XP / {1,number} for level {2}',[$model->experience, ExperienceCalculator::getExperienceByLevel($model->level+1), $model->level+1])?>" >
+            <div class="progress" title="<?=Yii::t('app', '{0,number} / {1,number} XP for level {2}',[$model->experience, ExperienceCalculator::getExperienceByLevel($model->level+1), $model->level+1])?>" >
                 <div class="progress-bar" style="width: <?=round(ExperienceCalculator::getPercentOfNextLevel($model->experience))?>%;"></div>
             </div>
             <div class="well">
@@ -60,7 +60,7 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                 </table>
             </div>
             <div class="col-lg-6 col-md-6 well">
-                <h4><?=Yii::t('app', 'Current traits:')?></h4>
+                <h4><?=Yii::t('app', 'Current traits')?>:</h4>
             </div>
         </div>
         <div class="col-lg-6 col-md-12">
