@@ -31,7 +31,7 @@ function loadChunk(ctx, x, y) {
         function(data) {
             for (var i = 0; i < data.result.length; i++) {
                 var tile = data.result[i];
-                drawTile(display, tile);                
+                drawTile(display, tile, (tile.titleId ? "#333" : "#000"));                
                 tilesCache[tile.x+"x"+tile.y] = tile;
             }
         }

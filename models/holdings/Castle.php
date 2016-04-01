@@ -177,5 +177,13 @@ class Castle extends Holding
     {
         return Yii::t('app', "{0} castle", [$this->name]);
     }
+        
+    /**
+     * return integer
+     */
+    public function calcTitleSize()
+    {
+        return $this->fortification*3;
+    }
 
 }

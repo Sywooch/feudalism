@@ -2,6 +2,8 @@
 
 namespace app\components;
 
+use app\models\Tile;
+
 /**
  * Полезные математические штуки
  *
@@ -99,6 +101,17 @@ abstract class MathHelper {
     {
         $p = pow(10,strlen($number)-1);
         return ($ceil ? ceil($number/$p) : round($number/$p))*$p;        
+    }
+    
+    /**
+     * 
+     * @param Tile $a
+     * @param Tile $b
+     * @return double
+     */
+    public static function calcDist(Tile $a, Tile $b)
+    {
+        return abs($a->x - $b->x)*abs($a->y - $b->y);
     }
     
 }

@@ -3,8 +3,10 @@
 namespace app\models\titles;
 
 use Yii,
+    app\components\MathHelper,
     app\models\holdings\Holding,
-    app\models\User;
+    app\models\User,
+    app\models\Tile;
 
 /**
  * Баронство
@@ -59,4 +61,26 @@ class Barony extends Title {
         return $model;
     }
     
+    public function getClaimedTerritory()
+    {
+        $capital = $this->holdings[0];
+        $capitalTile = $capital->tile;
+        $size = $capital->calcTitleSize();
+        $square = Tile::find()
+                ->where(['>', 'x', $capitalTile->x - $size])
+                ->andWhere(['<', 'x', $capitalTile->x + $size])
+                ->andWhere(['>', 'y', $capitalTile->y - $size])
+                ->andWhere(['<', 'y', $capitalTile->y + $size])
+                ->all();
+        
+        $tiles = [];
+        foreach ($square as $tile) {
+            if (MathHelper::calcDist($capitalTile, $tile) <= $size+0.5) {
+                $tiles[] = $tile;
+            }
+        }
+        
+        return $tiles;
+    }
+        
 }

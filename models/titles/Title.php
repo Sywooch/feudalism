@@ -216,4 +216,14 @@ class Title extends ActiveRecord
     {
         return $this->id === $user->primaryTitleId;
     }
+    
+    /**
+     * 
+     * @throws Exception
+     * @return Tile[]
+     */
+    public function getClaimedTerritory()
+    {
+        throw new Exception("Method ".static::className()."::claimTerritory() not overrided!");
+    }
 }

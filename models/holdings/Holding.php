@@ -76,7 +76,7 @@ class Holding extends ActiveRecord implements Position
         
         return parent::beforeSave($insert);
     }
-
+    
     public static function instantiate($row)
     {
             $className = "app\\models\\holdings\\";
@@ -233,6 +233,14 @@ class Holding extends ActiveRecord implements Position
     public function getFullName()
     {
         return $this->name;
+    }
+    
+    /**
+     * return integer
+     */
+    public function calcTitleSize()
+    {
+        throw new Exception("Method ".static::className()."::calcTitleSize() not overrided!");
     }
     
 }
