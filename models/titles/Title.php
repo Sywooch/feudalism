@@ -71,7 +71,7 @@ class Title extends ActiveRecord
             $this->created = time();
         }
                 
-        if ($this->userId !== $this->oldAttributes['userId']) {
+        if (!(isset($this->oldAttributes['userId'])) || $this->userId !== $this->oldAttributes['userId']) {
             $this->captured = $this->userId ? time() : null;
         }
                 
