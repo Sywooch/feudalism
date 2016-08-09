@@ -1,6 +1,6 @@
 <?php
 
-use yii\authclient\widgets\AuthChoice;
+use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 $this->title = Yii::t('app', 'Feudalism');
@@ -13,10 +13,7 @@ $this->title = Yii::t('app', 'Feudalism');
                 <big>Ω <?=Yii::t('app', 'Feudalism')?></big>
                 <small>α</small>
             </h1>
-            <?=AuthChoice::widget([
-                'baseAuthUrl' => ['site/auth'],
-                'popupMode' => false
-            ])?>
+            <?=Html::a(Yii::t('app','Login with Google'), ['site/auth', 'authclient' => 'google'], ['class' => 'btn btn-lg btn-primary'])?>
         </div>
     </div>
 </div>
