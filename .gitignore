@@ -50,12 +50,11 @@ $RECYCLE.BIN/
 config/db.php
 config/params.php
 config/auth-clients.php
-web/assets
+web/assets/*
 web/.htaccess
-mail
-runtime
+runtime/*
 vendor
-database
+database/*
 
 requirements.php
 
