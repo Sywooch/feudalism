@@ -14,6 +14,8 @@ use Yii,
  * @property integer $id
  * @property integer $userId
  * @property integer $tileId
+ * @property double $lat
+ * @property double $lng
  * @property string $name
  *
  * @property Tile $tile
@@ -37,7 +39,7 @@ class UnitGroup extends ActiveRecord implements Position
     public function rules()
     {
         return [
-            [['userId', 'tileId'], 'required'],
+            [['userId', 'tileId', 'lat', 'lng'], 'required'],
             [['userId', 'tileId'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -52,6 +54,8 @@ class UnitGroup extends ActiveRecord implements Position
             'id' => Yii::t('app', 'ID'),
             'userId' => Yii::t('app', 'User ID'),
             'tileId' => Yii::t('app', 'Tile ID'),
+            'lat' => Yii::t('app', 'Latitude'),
+            'lng' => Yii::t('app', 'Longitude'),
             'name' => Yii::t('app', 'Name'),
         ];
     }
@@ -62,7 +66,9 @@ class UnitGroup extends ActiveRecord implements Position
             'id',
             'userId',
             'tileId',
-            'name'
+            'lat',
+            'lng',
+            'name',
         ];
     }
 
@@ -71,7 +77,7 @@ class UnitGroup extends ActiveRecord implements Position
      */
     public function getTile()
     {
-        return $this->hasOne(Tiles::className(), ['id' => 'tileId']);
+        return $this->hasOne(Tile::className(), ['id' => 'tileId']);
     }
 
     /**
@@ -79,7 +85,7 @@ class UnitGroup extends ActiveRecord implements Position
      */
     public function getUser()
     {
-        return $this->hasOne(Users::className(), ['id' => 'userId']);
+        return $this->hasOne(User::className(), ['id' => 'userId']);
     }
     
     /**

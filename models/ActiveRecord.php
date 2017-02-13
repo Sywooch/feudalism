@@ -7,6 +7,7 @@ use yii\db\ActiveRecord as YiiActiveRecord,
 
 /**
  * Надстройка над ActiveRecord
+ * @property array $displayedAttributes
  */
 abstract class ActiveRecord extends YiiActiveRecord
 {

@@ -11,7 +11,8 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/square.css',
         'css/style.css',
-        'css/theme.css'
+        'css/theme.css',
+        '//fonts.googleapis.com/css?family=Anonymous+Pro:400,400i,700,700i&amp;subset=cyrillic',
     ];
     public $js = [
         'js/init.js',

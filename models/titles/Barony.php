@@ -19,7 +19,7 @@ class Barony extends Title {
     
     public function getFullName()
     {
-        return Yii::t('app', "{0} barony", [$this->name]);
+        return Yii::t('app', "{0} barony", [$this->getLeveledName()]);
     }
     
     public function getUserName(User &$user = null)
@@ -27,7 +27,7 @@ class Barony extends Title {
         if (is_null($user)) {
             $user = &$this->user;
         }
-        return Yii::t('app', "{0,select,".User::GENDER_FEMALE."{Baroness} ".User::GENDER_MALE."{Baron} other{Baron}} [{2}] {1}", [$user->gender, $user->name, $user->level]);
+        return Yii::t('app', "{0,select,".User::GENDER_FEMALE."{Baroness} ".User::GENDER_MALE."{Baron} other{Baron}} {1}", [$user->gender, $user->getLeveledName()]);
     }
     
     /**

@@ -281,9 +281,14 @@ class User extends ActiveRecord implements IdentityInterface
         }
     }
     
+    public function getLeveledName()
+    {
+        return '['.$this->level.'] '.$this->name;
+    }
+    
     public function getGenderedName()
     {
-        return $this->genderPrefix.' '.$this->name;
+        return $this->genderPrefix.' '.$this->getLeveledName();
     }
     
     public function getFullName()

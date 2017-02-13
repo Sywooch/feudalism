@@ -16,17 +16,17 @@ class Castle extends Holding
 {
     
     const PROTOTYPE = Holding::PROTOTYPE_CASTLE;
-    
-    const CHARACTER = 'Ω';
-    
+        
     /**
      * Строит новый замок со всеми необходимыми проверками
      * @param string $name
      * @param User $user
      * @param Tile $tile
+     * @param double $lat
+     * @param double $lng
      * @return self
      */
-    public static function build($name, User &$user, Tile &$tile)
+    public static function build($name, User &$user, Tile &$tile, $lat, $lng)
     {
         $model = new self();
         if (!$user->isHaveMoneyForAction('castle', 'build')) {
@@ -42,6 +42,8 @@ class Castle extends Holding
             'name' => $name,
             'buildedUserId' => $user->id,
             'tileId' => $tile->id,
+            'lat' => $lat,
+            'lng' => $lng,
             'fortification' => 1,
             'quarters' => 1
         ],'') && $model->save()) {
@@ -175,7 +177,7 @@ class Castle extends Holding
         
     public function getFullName()
     {
-        return Yii::t('app', "{0} castle", [$this->name]);
+        return Yii::t('app', "Castle of {0}", [$this->name]);
     }
         
     /**
@@ -183,7 +185,7 @@ class Castle extends Holding
      */
     public function calcTitleSize()
     {
-        return $this->fortification*3;
+        return $this->fortification*1;
     }
 
 }

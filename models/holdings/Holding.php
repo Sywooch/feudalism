@@ -19,6 +19,8 @@ use Yii,
  * @property integer $id
  * @property integer $protoId
  * @property integer $tileId 
+ * @property double $lat 
+ * @property double $lng 
  * @property integer $titleId
  * @property string $name
  * @property integer $population
@@ -38,7 +40,6 @@ use Yii,
  * @property string $fullName
  * @property string $userName
  * @property integer $userLevel
- * @property string $character
  * 
  * @property boolean $canFortificationIncreases 
  * @property boolean $canQuartersIncreases
@@ -52,9 +53,11 @@ class Holding extends ActiveRecord implements Position
      */
     const PROTOTYPE_CASTLE = 1;
     
+    /**
+     * Переопределяется в наследниках
+     */
     const PROTOTYPE = null;
-    const CHARACTER = null;
-
+    
     public function init()
     {
         $this->protoId = static::PROTOTYPE;
@@ -63,7 +66,7 @@ class Holding extends ActiveRecord implements Position
 
     public static function find()
     {
-        return new HoldingQuery(get_called_class(), ['protoId' => static::PROTOTYPE]);
+        return new HoldingQuery(static::className(), ['protoId' => static::PROTOTYPE]);
     }
 
     public function beforeSave($insert)
@@ -104,10 +107,12 @@ class Holding extends ActiveRecord implements Position
     public function rules()
     {
         return [
-            [['tileId', 'titleId', 'population', 'fortification', 'quarters', 'quartersUsed', 'builded', 'buildedUserId', 'captured'], 'integer'],
-            [['tileId', 'name'], 'required'],
+            [['tileId', 'name', 'lat', 'lng'], 'required'],
+            [['tileId', 'titleId', 'population', 'fortification', 'quarters', 'quartersUsed', 'builded', 'buildedUserId', 'captured'], 'integer', 'min' => 0],
+            [['lat', 'lng'], 'number'],
             [['name'], 'string', 'max' => 255],
-            [['tileId'], 'unique']
+            [['tileId'], 'unique'],
+            [['tileId'], 'exist', 'targetClass' => Tile::className(), 'targetAttribute' => ['tileId' => 'id']],
         ];
     }
 
@@ -120,6 +125,8 @@ class Holding extends ActiveRecord implements Position
             'id' => Yii::t('app', 'ID'),
             'tileId' => Yii::t('app', 'Tile ID'), 
             'titleId' => Yii::t('app', 'Title ID'), 
+            'lat' => Yii::t('app', 'Latitude'),
+            'lng' => Yii::t('app', 'Longitude'),
             'name' => Yii::t('app', 'Name'),
             'population' => Yii::t('app', 'Population'),
             'fortification' => Yii::t('app', 'Fortification'),
@@ -138,12 +145,14 @@ class Holding extends ActiveRecord implements Position
             'tileId',
             'titleId',
             'name',
+            'lat',
+            'lng',
             'population',
             'fortification',
             'quarters',
             'builded',
             'buildedUserId',
-            'captured'
+            'captured',
         ];
         if ($owner) {
             $attributes[] = 'quartersUsed';
@@ -172,7 +181,7 @@ class Holding extends ActiveRecord implements Position
      */
     public function getUsers()
     {
-        return $this->hasMany(User::className(), ['currentCastleId' => 'id']);
+        return $this->hasMany(User::className(), ['currentHoldingId' => 'id']);
     }
     
     /** 
@@ -198,7 +207,7 @@ class Holding extends ActiveRecord implements Position
     
     public function getUserLevel()
     {
-        return $this->title ? $this->title->user->level : null;
+        return $this->title && $this->title->user ? $this->title->user->level : null;
     }
     
     public function getCanFortificationIncreases()
@@ -223,11 +232,6 @@ class Holding extends ActiveRecord implements Position
     public function isOwner(User &$user)
     {
         return ($this->title && $this->title->userId === $user->id);
-    }
-        
-    public function getCharacter()
-    {
-        return static::CHARACTER;
     }
     
     public function getFullName()

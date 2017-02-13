@@ -13,11 +13,12 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
     <div class="row">
         <div class="col-lg-6 col-md-12">
             <h1><?=$model->fullName?></h1>
-            <div class="progress" title="<?=Yii::t('app', '{0,number} / {1,number} XP for level {2}',[$model->experience, ExperienceCalculator::getExperienceByLevel($model->level+1), $model->level+1])?>" >
+            <div class="progress" >
+                <span class="label"><?= Yii::t('app', '{0,number} / {1,number} XP for level {2}',[$model->experience, ExperienceCalculator::getExperienceByLevel($model->level+1), $model->level+1]) ?></span>
                 <div class="progress-bar" style="width: <?=round(ExperienceCalculator::getPercentOfNextLevel($model->experience))?>%;"></div>
             </div>
             <div class="well">
-                <?php if ($model->primaryTitleId): ?>
+            <?php if ($model->primaryTitleId): ?>
                 <h5><?=$model->getAttributeLabel('primaryTitle')?>:</h5>
                 <div class="text-primary">
                     [<?=$model->primaryTitle->level?>] <?=$model->primaryTitle->fullName?>
@@ -33,7 +34,7 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
                     <?=Yii::t('app','Independent ruler')?>
                 </div>
                 <?php endif?>
-                <?php endif?>
+            <?php endif?>
             </div>
             <div class="col-lg-6 col-md-6 well">
                 <table class="table table-hover" style="margin-bottom: 0">
