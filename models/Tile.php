@@ -6,16 +6,11 @@ use Yii,
     app\models\ActiveRecord,
     app\models\UnitGroup,
     app\models\holdings\Holding,
-    app\models\titles\Title,
-    yii\db\ActiveQuery,
-    yii\base\Exception;
+    app\models\titles\Title;
 
 /**
  * This is the model class for table "tiles".
  * 
- * $tile = Tile::find()->select(['*', 'ABS(center_lat'.($city->getLatitude()>0?'-':'+').abs($city->getLatitude()).') + ABS(center_lng'.($city->getLongitude()>0?'-':'+').abs($city->getLongitude()).') AS delta'])->orderBy(['delta' => SORT_ASC])->one();
- * Так можно найти тайл которому принадлежит точка
- *
  * @property integer $id
  * @property integer $x
  * @property integer $y
@@ -24,6 +19,7 @@ use Yii,
  * @property double $centerLng 
  * 
  * @property string $ownerName
+ * @property array $coords
  *
  * @property Holding $holding
  * @property Title $title
@@ -79,6 +75,7 @@ class Tile extends ActiveRecord
             'titleId',
             'centerLat',
             'centerLng',
+            'coords',
         ];
     }
 
@@ -119,6 +116,24 @@ class Tile extends ActiveRecord
     public function getOwnerName()
     {
         return $this->title ? $this->title->userName : Yii::t('app', 'no owner');
+    }
+        
+    public function getLatFactor()
+    {
+        return cos($this->centerLat*0.0175)*0.088765;
+    }
+    
+    public function getCoords()
+    {
+        $latFactor = $this->latFactor;
+        return [
+            [$this->centerLat,$this->centerLng+0.1], # east
+            [$this->centerLat-$latFactor,$this->centerLng+0.05], # east-south
+            [$this->centerLat-$latFactor,$this->centerLng-0.05], # west-south
+            [$this->centerLat,$this->centerLng-0.1], # west
+            [$this->centerLat+$latFactor,$this->centerLng-0.05], # west-nord
+            [$this->centerLat+$latFactor,$this->centerLng+0.05] # east-nord
+        ];
     }
 
 }

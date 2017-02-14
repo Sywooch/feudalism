@@ -2,7 +2,8 @@
 
 namespace app\controllers;
 
-use app\controllers\Controller,
+use Yii,
+    app\controllers\Controller,
     app\models\Tile;
 
 /**
@@ -14,37 +15,20 @@ class MapController extends Controller {
     
     public function actionIndex()
     {
-        
         return $this->render('default');
     }
-        
-    public function actionChunk($x, $y)
+    
+    public function actionGetPolygons(float $minLat, float $maxLat, float $minLng, float $maxLng)
     {
-        $tiles = Tile::findByChunk($x, $y)
-                ->with('holding')
-                ->with('holding.title.user')
-                ->with('title')
-                ->with('title.user')
+        $tiles = Tile::find()
+                ->where(['between', 'centerLat', $minLat, $maxLat])
+                ->andWhere(['between', 'centerLng', $minLng, $maxLng])
                 ->all();
-        
         $result = [];
-        /* @var $tile Tile */
         foreach ($tiles as $tile) {
-            $tileinfo = $tile->getDisplayedAttributes(true, [
-                'ownerName'
-            ]);
-            
-            if ($tile->holding) {
-                $tileinfo['holding'] = $tile->holding->getDisplayedAttributes(true, [
-                    'userName',
-                    'userLevel',
-                    'character'
-                ]);
-            }
-                        
-            $result[] = $tileinfo;
+            $result[] = $tile->displayedAttributes;
         }
-        
         return $this->renderJson($result);
     }
+    
 }
