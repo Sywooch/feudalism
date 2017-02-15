@@ -18,6 +18,12 @@ class MapController extends Controller {
         return $this->render('default');
     }
     
+    
+    public function actionBuildCastle()
+    {
+        return $this->render('build-castle');
+    }
+    
     public function actionGetPolygons(float $minLat, float $maxLat, float $minLng, float $maxLng)
     {
         $tiles = Tile::find()

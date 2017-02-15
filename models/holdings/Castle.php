@@ -26,14 +26,14 @@ class Castle extends Holding
      * @param double $lng
      * @return self
      */
-    public static function build($name, User &$user, Tile &$tile, $lat, $lng)
+    public static function build($name, User &$user, Tile &$tile)
     {
         $model = new self();
         if (!$user->isHaveMoneyForAction('castle', 'build')) {
             $model->addError('userId', Yii::t('app','You haven`t money'));
         }
         
-        if ($tile->getHolding()->count()) {
+        if ($tile->getHolding()->exists()) {
             $model->addError('tileId', Yii::t('app', 'Tile allready occupied'));
         }
 
@@ -42,8 +42,6 @@ class Castle extends Holding
             'name' => $name,
             'buildedUserId' => $user->id,
             'tileId' => $tile->id,
-            'lat' => $lat,
-            'lng' => $lng,
             'fortification' => 1,
             'quarters' => 1
         ],'') && $model->save()) {

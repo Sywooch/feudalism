@@ -12,8 +12,6 @@ class m170213_141646_holdings_coordinates extends Migration
             'id' => 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
             'protoId' => 'INTEGER(2) NOT NULL',
             'tileId' => 'INTEGER REFERENCES tiles(id) NOT NULL',
-            'lat' => 'REAL NOT NULL',
-            'lng' => 'REAL NOT NULL',
             'titleId' => 'INTEGER REFERENCES titles(id) DEFAULT NULL',
             'name' => 'VARCHAR(255) NOT NULL',
             'population' => 'INTEGER NOT NULL DEFAULT(0)',
@@ -26,8 +24,6 @@ class m170213_141646_holdings_coordinates extends Migration
         ]);
         $this->createIndex('holdingsProto', 'holdings', ['protoId']);
         $this->createIndex('holdingsTile', 'holdings', ['tileId'], true);
-        $this->createIndex('holdingsLat', 'holdings', ['lat']);
-        $this->createIndex('holdingsLng', 'holdings', ['lng']);
         $this->createIndex('holdingsTitle', 'holdings', ['titleId']);
         $this->createIndex('holdingsBuilded', 'holdings', ['builded']);
         $this->createIndex('holdingsBuildedUser', 'holdings', ['buildedUserId']);
@@ -38,14 +34,10 @@ class m170213_141646_holdings_coordinates extends Migration
             'id' => 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
             'userId' => 'INTEGER REFERENCES users(id) NOT NULL',
             'tileId' => 'INTEGER REFERENCES tiles(id) NOT NULL',
-            'lat' => 'REAL NOT NULL',
-            'lng' => 'REAL NOT NULL',
             'name' => 'VARCHAR(255) DEFAULT NULL',
         ]);
         $this->createIndex('unitsGroupsUser', 'unitsGroups', ['userId']);
         $this->createIndex('unitsGroupsTile', 'unitsGroups', ['tileId']);
-        $this->createIndex('unitsGroupsLat', 'unitsGroups', ['lat']);
-        $this->createIndex('unitsGroupsLng', 'unitsGroups', ['lng']);
     }
 
     public function safeDown()

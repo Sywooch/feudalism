@@ -14,10 +14,20 @@ function loadPolygons() {
     $('#map-info-label').text('Loading tiles…').show();
     var bounds = map.getBounds();
     polygonsLoading = true;
-    Request.getJson('map/get-polygons', {minLat:bounds.getSouth(),maxLat:bounds.getNorth(),minLng:bounds.getWest(),maxLng:bounds.getEast()}, function(data){
+    Request.getJson('/map/get-polygons', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
         while (tile = data.result.pop()) {
             var polygon = L.polygon(tile.coords, {
                 weight: 1
+            });
+            polygon.id = tile.id;
+            polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);
+            polygon.on("click", function(e){
+                popup.setLatLng(e.target.center).setContent('<a href="/castle/build-form?tileId='+e.target.id+'" class="btn btn-primary" >Build castle here</a>').openOn(map);
             });
             polygon.addTo(map);
             polygons.push(polygon);
@@ -51,24 +61,34 @@ function mapInit() {
 //    CartoDB_DarkMatter.addTo(map);
         
     map.on("dragstart", function(e){
+        $("#map").addClass("dragging");
+    });
+    map.on("dragend", function(e){
+        setTimeout(function() {
+            $("#map").removeClass("dragging");
+        }, 100);
+    });
+}
+
+function mapInitBuildingSelect(){
+    
+    map.on("dragstart", function(e){
         clearPolygons();
         $("#map").addClass("dragging");
     });
     map.on("dragend", function(e){
         clearPolygons();
-        if (map.getZoom() > 6 && !polygonsLoading) {
+        if (map.getZoom() > 7 && !polygonsLoading) {
             loadPolygons();
         }
-        setTimeout(function() {
-            $("#map").removeClass("dragging");
-        }, 100);
     });
+    
     map.on("zoomstart", function(e){
         clearPolygons();
     });
     map.on("zoomend", function(e){
         clearPolygons();
-        if (map.getZoom() > 6 && !polygonsLoading) {
+        if (map.getZoom() > 7 && !polygonsLoading) {
             loadPolygons();
         } else {
             $('#map-info-label').text('Zoom in to see tiles').show();

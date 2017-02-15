@@ -7,6 +7,8 @@ use Yii,
     app\models\Tile,
     app\models\Unit,
     app\controllers\Controller,
+    yii\web\Response,
+    yii\widgets\ActiveForm,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
@@ -82,7 +84,7 @@ class CastleController extends Controller
                 $this->user->link('currentHolding', $model);
             }
             
-            return $this->renderJson($model);
+            return $this->redirect(['/castle/view', 'id' => $model->id]);
         } else {
             if (count($model->getErrors())) {
                 return $this->renderJsonError($model->getErrors());
@@ -92,6 +94,24 @@ class CastleController extends Controller
                 return $this->renderJsonError(Yii::t('app','Unknown error!'));
             }
         }
+    }
+    
+    public function actionBuildForm(int $tileId)
+    {
+        $model = new Castle([
+            'tileId' => $tileId,
+            'protoId' => Castle::PROTOTYPE,
+            'buildedUserId' => $this->viewer_id,
+        ]);
+        
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        
+        return $this->render('build-form',[
+            'model' => $model,
+        ]);
     }
     
     /**

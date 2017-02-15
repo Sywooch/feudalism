@@ -19,8 +19,6 @@ use Yii,
  * @property integer $id
  * @property integer $protoId
  * @property integer $tileId 
- * @property double $lat 
- * @property double $lng 
  * @property integer $titleId
  * @property string $name
  * @property integer $population
@@ -107,9 +105,8 @@ class Holding extends ActiveRecord implements Position
     public function rules()
     {
         return [
-            [['tileId', 'name', 'lat', 'lng'], 'required'],
+            [['tileId', 'name'], 'required'],
             [['tileId', 'titleId', 'population', 'fortification', 'quarters', 'quartersUsed', 'builded', 'buildedUserId', 'captured'], 'integer', 'min' => 0],
-            [['lat', 'lng'], 'number'],
             [['name'], 'string', 'max' => 255],
             [['tileId'], 'unique'],
             [['tileId'], 'exist', 'targetClass' => Tile::className(), 'targetAttribute' => ['tileId' => 'id']],
@@ -125,8 +122,6 @@ class Holding extends ActiveRecord implements Position
             'id' => Yii::t('app', 'ID'),
             'tileId' => Yii::t('app', 'Tile ID'), 
             'titleId' => Yii::t('app', 'Title ID'), 
-            'lat' => Yii::t('app', 'Latitude'),
-            'lng' => Yii::t('app', 'Longitude'),
             'name' => Yii::t('app', 'Name'),
             'population' => Yii::t('app', 'Population'),
             'fortification' => Yii::t('app', 'Fortification'),
@@ -145,8 +140,6 @@ class Holding extends ActiveRecord implements Position
             'tileId',
             'titleId',
             'name',
-            'lat',
-            'lng',
             'population',
             'fortification',
             'quarters',

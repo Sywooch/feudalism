@@ -14,8 +14,6 @@ use Yii,
  * @property integer $id
  * @property integer $userId
  * @property integer $tileId
- * @property double $lat
- * @property double $lng
  * @property string $name
  *
  * @property Tile $tile
@@ -30,7 +28,7 @@ class UnitGroup extends ActiveRecord implements Position
      */
     public static function tableName()
     {
-        return 'unitGroups';
+        return 'unitsGroups';
     }
 
     /**
@@ -39,7 +37,7 @@ class UnitGroup extends ActiveRecord implements Position
     public function rules()
     {
         return [
-            [['userId', 'tileId', 'lat', 'lng'], 'required'],
+            [['userId', 'tileId'], 'required'],
             [['userId', 'tileId'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -54,8 +52,6 @@ class UnitGroup extends ActiveRecord implements Position
             'id' => Yii::t('app', 'ID'),
             'userId' => Yii::t('app', 'User ID'),
             'tileId' => Yii::t('app', 'Tile ID'),
-            'lat' => Yii::t('app', 'Latitude'),
-            'lng' => Yii::t('app', 'Longitude'),
             'name' => Yii::t('app', 'Name'),
         ];
     }
@@ -66,8 +62,6 @@ class UnitGroup extends ActiveRecord implements Position
             'id',
             'userId',
             'tileId',
-            'lat',
-            'lng',
             'name',
         ];
     }

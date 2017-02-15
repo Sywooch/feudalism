@@ -10,7 +10,7 @@ class AppAsset extends AssetBundle
     public $baseUrl = '@web';
     public $css = [
         'css/square.css',
-        'css/style.css',
+        'css/style.css?123',
         'css/theme.css',
         '//fonts.googleapis.com/css?family=Anonymous+Pro:400,400i,700,700i&amp;subset=cyrillic',
     ];
