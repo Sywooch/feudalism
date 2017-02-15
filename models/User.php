@@ -45,6 +45,7 @@ use Yii,
  * @property Unit[] $units
  * @property Holding $capitalHolding
  * @property Holding $currentHolding
+ * @property Holding[] $buildedHoldings
  * @property Position $position
  * @property Group $currentGroup
  * @property Title $primaryTitle
@@ -189,6 +190,14 @@ class User extends ActiveRecord implements IdentityInterface
     public function getCurrentHolding()
     {
         return $this->hasOne(Holding::className(), ['id' => 'currentHoldingId']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBuildedHoldings()
+    {
+        return $this->hasMany(Holding::className(), ['buildedUserId' => 'id']);
     }
 
     /**
@@ -384,16 +393,7 @@ class User extends ActiveRecord implements IdentityInterface
         $this->payForAction($category, $action, $params, false);
         return $this->addExperienceForAction($category, $action, $params, $save);
     }
-    
-    public function beforeSave($insert)
-    {
-        if ($insert) {
-            $this->registration = time();
-        }
         
-        return parent::beforeSave($insert);
-    }
-    
     /**
      * 
      * @return Position

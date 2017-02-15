@@ -17,7 +17,15 @@ $this->registerJs('$(window).resize(resizeBlocks)');
                     <h4 class="box-title"><?= Yii::t('app', 'Holdings') ?></h4>
                 </div>
                 <div class="box-body">
+                <?php if (count($user->buildedHoldings)): ?>
+                    <ul>
+                    <?php foreach ($user->buildedHoldings as $holding): ?>
+                        <li><a href="/castle/view?id=<?=$holding->id?>"><?=$holding->getFullName()?></a></li>
+                    <?php endforeach ?>
+                    </ul>
+                <?php else: ?>
                     <p><?= Yii::t('app', 'No holdings') ?></p>
+                <?php endif ?>
                 </div>
                 <div class="box-footer">
                     <a href="map/build-castle" class="btn btn-success"><?= Yii::t('app', 'Build new castle') ?></a>

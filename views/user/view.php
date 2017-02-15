@@ -7,7 +7,7 @@
 use app\components\ExperienceCalculator;
 
 $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
-
+var_dump(date('d-m-Y', $model->registration));
 ?>
 <div class="container">
     <div class="row">

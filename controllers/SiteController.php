@@ -58,12 +58,14 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             return $this->render('index');
         } else {
-            if (Yii::$app->user->identity->invited) {
+            if (!Yii::$app->user->identity->invited) {
+                return $this->redirect(["invite"]);
+            } elseif (!Yii::$app->user->identity->registration) {
+                return $this->redirect(["/user/create"]);
+            } else {
                 return $this->render('panel',[
                     'user' => Yii::$app->user->identity
                 ]);
-            } else {
-                return $this->redirect(["invite"]);
             }
         }
     }

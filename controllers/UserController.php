@@ -55,7 +55,25 @@ class UserController extends Controller
         } else {
             return $this->renderJsonError(Yii::t('app','User not found'));
         }
+        
     }
-
+    
+    public function actionCreate()
+    {
+        
+        $model = $this->user;
+        if (Yii::$app->request->post('submit')) {
+            if ($model->load(Yii::$app->request->post())) {
+                $model->registration = time();
+                if ($model->save()) {
+                    $this->redirect(['/']);
+                }
+            }
+        }
+        
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+    }
     
 }
