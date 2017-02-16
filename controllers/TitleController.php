@@ -29,7 +29,7 @@ class TitleController extends Controller
             'only' => ['view', 'create-barony'],
             'rules' => [
                 [
-                    'actions' => ['view', 'create-barony'],
+                    'actions' => ['view', 'create-barony', 'destroy'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -39,6 +39,7 @@ class TitleController extends Controller
             'class' => VerbFilter::className(),
             'actions' => [
                 'create-barony' => ['post'],
+                'destroy' => ['post'],
             ],
         ];
 
@@ -123,5 +124,30 @@ class TitleController extends Controller
             'holding' => $holding,
         ]);
         
+    }
+    
+    public function actionDestroy()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif ($model->getHoldings()->exists()) {
+            throw new HttpException(403, Yii::t('app', 'Title have holdings and can not be destroyed'));
+        } elseif ($model->getVassals()->exists()) {
+            throw new HttpException(403, Yii::t('app', 'Title have vassals and can not be destroyed'));
+        }
+        
+        if ($model->isPrimaryTitle($this->user)) {
+            $newPrimaryTitle = $this->user->getTitles()->orderBy(['level' => SORT_DESC])->where(['<>', 'id', $id])->one();
+            if ($newPrimaryTitle) {
+                $this->user->link('primaryTitle', $newPrimaryTitle);
+            }
+        }
+        $model->delete();
+        return $this->redirect('/');
     }
 }

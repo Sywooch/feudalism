@@ -4,7 +4,8 @@
 /* @var $model app\models\User */
 /* @var $isOwner boolean */
 
-use app\components\ExperienceCalculator;
+use app\components\ExperienceCalculator,
+    yii\helpers\Html;
 
 $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
 var_dump(date('d-m-Y', $model->registration));
@@ -103,7 +104,16 @@ var_dump(date('d-m-Y', $model->registration));
                         </table>
                         <?php endif ?>
                     </div>
+                <div class="panel-footer">
+                    <?= Html::beginForm(['/title/destroy'], 'post')
+                        . Html::hiddenInput('id', $title->id)
+                        . Html::submitButton(
+                            Yii::t('app','Destroy title'),
+                            ['class' => 'btn btn-danger btn-xs']
+                        )
+                        . Html::endForm() ?>
                 </div>
+            </div>
             <?php endforeach ?>
             <?php else: ?>
             <div class="label-warning">
