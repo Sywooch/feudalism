@@ -37,4 +37,19 @@ class MapController extends Controller {
         return $this->renderJson($result);
     }
     
+    public function actionGetHoldings(float $minLat, float $maxLat, float $minLng, float $maxLng)
+    {
+        $tiles = Tile::find()
+                ->where(['between', 'centerLat', $minLat, $maxLat])
+                ->andWhere(['between', 'centerLng', $minLng, $maxLng])
+                ->joinWith('holding')
+                ->andWhere('holdings.id IS NOT NULL')
+                ->all();
+        $result = [];
+        foreach ($tiles as $tile) {
+            $result[] = $tile->holding->displayedAttributes;
+        }
+        return $this->renderJson($result);
+    }
+    
 }

@@ -16,7 +16,7 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
         'js/init.js',
-        'js/request.js?123',
+        'js/request.js?test',
         'js/fullscreen.js',
         'js/resizes.js',
         'js/icheck.js',

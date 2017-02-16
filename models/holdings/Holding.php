@@ -38,6 +38,7 @@ use Yii,
  * @property string $fullName
  * @property string $userName
  * @property integer $userLevel
+ * @property array $coords
  * 
  * @property boolean $canFortificationIncreases 
  * @property boolean $canQuartersIncreases
@@ -145,6 +146,7 @@ class Holding extends ActiveRecord implements Position
     {
         $attributes = [
             'id',
+            'protoId',
             'tileId',
             'titleId',
             'name',
@@ -154,6 +156,7 @@ class Holding extends ActiveRecord implements Position
             'builded',
             'buildedUserId',
             'captured',
+            'coords',
         ];
         if ($owner) {
             $attributes[] = 'quartersUsed';
@@ -246,6 +249,11 @@ class Holding extends ActiveRecord implements Position
     public function calcTitleSize()
     {
         throw new Exception("Method ".static::className()."::calcTitleSize() not overrided!");
+    }
+    
+    public function getCoords()
+    {
+        return [$this->tile->centerLat, $this->tile->centerLng];
     }
     
 }

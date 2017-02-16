@@ -2,7 +2,7 @@
 var Request = (function() {
     function make(url, data, dataType, method, callback) {
         data._csrf = yii.getCsrfToken();
-        $.ajax({
+        return $.ajax({
             type: method,
             url: url,
             data: data,

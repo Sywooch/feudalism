@@ -1,6 +1,7 @@
 
 var popup = L.popup();
 var polygons = [];
+var markers = [];
 
 function clearPolygons() {
     while(polygon = polygons.pop()) {
@@ -8,13 +9,34 @@ function clearPolygons() {
     }
 }
 
-var polygonsLoading = false;
+function clearMarkers() {
+    while(marker = markers.pop()) {
+        map.removeLayer(marker);
+    }
+}
+
+var cityIcon = L.icon({
+    iconUrl: '/img/city.png',
+    iconRetinaUrl: '/img/city@x2.png',
+    iconSize: [32, 32],
+});
+
+var castleIcon = L.icon({
+    iconUrl: '/img/castle.png',
+    iconRetinaUrl: '/img/castle@x2.png',
+    iconSize: [32, 32],
+});
+
+var currentRequestPolygons = false;
+var currentRequestMarkers = false;
 
 function loadPolygons() {
     $('#map-info-label').text('Loading tiles…').show();
     var bounds = map.getBounds();
-    polygonsLoading = true;
-    Request.getJson('/map/get-polygons', {
+    if (currentRequestPolygons) {
+        currentRequestPolygons.abort();
+    }
+    currentRequestPolygons = Request.getJson('/map/get-polygons', {
         minLat: bounds.getSouth()-0.1,
         maxLat: bounds.getNorth()+0.1,
         minLng: bounds.getWest()-0.1,
@@ -32,7 +54,32 @@ function loadPolygons() {
             polygon.addTo(map);
             polygons.push(polygon);
         }
-        polygonsLoading = false;
+        currentRequestPolygons = false;
+        $('#map-info-label').hide();
+    });
+}
+
+function loadMarkers() {
+    $('#map-info-label').text('Loading holdings…').show();
+    var bounds = map.getBounds();
+    if (currentRequestMarkers) {
+        currentRequestMarkers.abort();
+    }
+    currentRequestMarkers = Request.getJson('/map/get-holdings', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
+        while (holding = data.result.pop()) {
+            var marker = L.marker(holding.coords, {
+                icon: holding.protoId == 1 ? castleIcon : cityIcon
+            });
+            marker.id = holding.id;
+            marker.addTo(map);
+            markers.push(marker);
+        }
+        currentRequestMarkers = false;
         $('#map-info-label').hide();
     });
 }
@@ -62,23 +109,41 @@ function mapInit() {
         
     map.on("dragstart", function(e){
         $("#map").addClass("dragging");
+        clearMarkers();
     });
     map.on("dragend", function(e){
         setTimeout(function() {
             $("#map").removeClass("dragging");
         }, 100);
+        clearMarkers();
+        if (map.getZoom() > 4) {
+            loadMarkers();
+        }
     });
+    
+    map.on("zoomstart", function(e){
+        clearMarkers();
+    });
+    map.on("zoomend", function(e){
+        clearMarkers();
+        if (map.getZoom() > 4) {
+            loadMarkers();
+        } else {
+            $('#map-info-label').text('Zoom in to see holdings').show();
+        }
+    });
+    
+    $('#map-info-label').text('Zoom in to see holdings').show();
 }
 
 function mapInitBuildingSelect(){
     
     map.on("dragstart", function(e){
         clearPolygons();
-        $("#map").addClass("dragging");
     });
     map.on("dragend", function(e){
         clearPolygons();
-        if (map.getZoom() > 7 && !polygonsLoading) {
+        if (map.getZoom() > 7) {
             loadPolygons();
         }
     });
@@ -88,13 +153,13 @@ function mapInitBuildingSelect(){
     });
     map.on("zoomend", function(e){
         clearPolygons();
-        if (map.getZoom() > 7 && !polygonsLoading) {
+        if (map.getZoom() > 7) {
             loadPolygons();
         } else {
             $('#map-info-label').text('Zoom in to see tiles').show();
         }
     });
     
-    $('#map-info-label').text('Zoom in to see tiles').show()
+    $('#map-info-label').text('Zoom in to see tiles').show();
     
 }
