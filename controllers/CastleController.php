@@ -7,6 +7,7 @@ use Yii,
     app\models\Tile,
     app\models\Unit,
     app\controllers\Controller,
+    yii\web\NotFoundHttpException,
     yii\web\Response,
     yii\widgets\ActiveForm,
     yii\filters\AccessControl,
@@ -50,18 +51,17 @@ class CastleController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionView($id)
+    public function actionIndex(int $id)
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
         if (is_null($model)) {
-            return $this->renderJsonError(Yii::t('app','Castle not found'));
-        } else {
-            return $this->renderJson($model->getDisplayedAttributes($model->isOwner($this->user), [
-                'userName',
-                'userLevel'
-            ]));
+            throw new NotFoundHttpException(Yii::t('app', 'Castle not found'));
         }
+        
+        return $this->render('view', [
+            'castle' => $model,
+        ]);
     }
 
     /**

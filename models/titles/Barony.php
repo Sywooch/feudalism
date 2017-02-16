@@ -19,7 +19,7 @@ class Barony extends Title {
     
     public function getFullName()
     {
-        return Yii::t('app', "{0} barony", [$this->getLeveledName()]);
+        return Yii::t('app', "{0} barony", [$this->name]);
     }
     
     public function getUserName(User &$user = null)

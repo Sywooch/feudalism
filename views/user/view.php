@@ -93,7 +93,7 @@ var_dump(date('d-m-Y', $model->registration));
                             <tbody>
                                 <?php foreach ($title->holdings as $holding): ?>
                                 <tr>
-                                    <td>[<?=$holding->character?>] <?=$holding->fullName?></td>
+                                    <td>[Ω] <?=$holding->fullName?></td>
                                     <td><?=$holding->population?></td>
                                     <td><?=$holding->fortification?></td>
                                     <td><?=$isOwner ? $holding->quartersUsed . '/' . $holding->quarters : $holding->quarters?></td>

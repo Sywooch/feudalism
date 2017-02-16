@@ -5,8 +5,6 @@
 
 $this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
 
-$this->registerJs('$(window).resize(resizeBlocks)');
-
 ?>
 
 <div class="container">
@@ -14,13 +12,13 @@ $this->registerJs('$(window).resize(resizeBlocks)');
         <div class="col-md-6 col-xs-12">
             <div class="box box-info">
                 <div class="box-header with-border">
-                    <h4 class="box-title"><?= Yii::t('app', 'Holdings') ?></h4>
+                    <h4 class="box-title"><?= Yii::t('app', 'Builded holdings') ?></h4>
                 </div>
                 <div class="box-body">
                 <?php if (count($user->buildedHoldings)): ?>
                     <ul>
                     <?php foreach ($user->buildedHoldings as $holding): ?>
-                        <li><a href="/castle/view?id=<?=$holding->id?>"><?=$holding->getFullName()?></a></li>
+                        <li><a href="/castle?id=<?=$holding->id?>"><?=$holding->getFullName()?></a></li>
                     <?php endforeach ?>
                     </ul>
                 <?php else: ?>

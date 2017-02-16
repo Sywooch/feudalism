@@ -44,7 +44,7 @@ class Title extends ActiveRecord
     
     public function getFullName()
     {
-        throw new Exception(static::className()."::getLeveledName() not overrided!");
+        throw new Exception(static::className()."::getFullName() not overrided!");
     }
     
     public function getUserName()

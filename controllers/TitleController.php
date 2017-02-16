@@ -7,6 +7,8 @@ use Yii,
     app\models\titles\Barony,
     app\models\holdings\Holding,
     app\controllers\Controller,
+    yii\web\NotFoundHttpException,
+    yii\web\HttpException,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
@@ -85,7 +87,7 @@ class TitleController extends Controller
             }      
             $holding->link('title', $model);
             
-            return $this->renderJson($model);
+            return $this->redirect(['/title', 'id' => $model->id]);
         } else {
             if (count($model->getErrors())) {
                 return $this->renderJsonError($model->getErrors());
@@ -97,5 +99,29 @@ class TitleController extends Controller
                 return $this->renderJsonError(Yii::t('app','Unknown error!'));
             }
         }
+    }
+    
+    public function actionCreateBaronyForm(int $holdingId)
+    {
+        /* @var $title Title */
+        $holding = Holding::findOne($holdingId);
+        if (is_null($holding)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Holding not found'));
+        }
+        if ($holding->title || Yii::$app->user->isGuest || $holding->buildedUserId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        }
+        
+        $model = new Barony([
+            'level' => Barony::LEVEL,
+            'userId' => $this->user->id,
+            'createdByUserId' => $this->user->id,
+            'name' => $holding->name,
+        ]);
+        return $this->render('create-barony-form', [
+            'model' => $model,
+            'holding' => $holding,
+        ]);
+        
     }
 }
