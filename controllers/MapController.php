@@ -29,10 +29,11 @@ class MapController extends Controller {
         $tiles = Tile::find()
                 ->where(['between', 'centerLat', $minLat, $maxLat])
                 ->andWhere(['between', 'centerLng', $minLng, $maxLng])
+                ->joinWith('holding')
                 ->all();
         $result = [];
         foreach ($tiles as $tile) {
-            $result[] = $tile->displayedAttributes;
+            $result[] = array_merge($tile->displayedAttributes, ['occupied' => !!$tile->holding]);
         }
         return $this->renderJson($result);
     }

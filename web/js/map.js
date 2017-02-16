@@ -44,12 +44,17 @@ function loadPolygons() {
     }, function(data){
         while (tile = data.result.pop()) {
             var polygon = L.polygon(tile.coords, {
-                weight: 1
+                weight: 1,
+                color: 'white',
+                fillColor: tile.occupied ? 'red' : 'white',
             });
             polygon.id = tile.id;
             polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);
+            polygon.occupied = tile.occupied;
             polygon.on("click", function(e){
-                popup.setLatLng(e.target.center).setContent('<a href="/castle/build-form?tileId='+e.target.id+'" class="btn btn-primary" >Build castle here</a>').openOn(map);
+                if (!e.target.occupied) {
+                    popup.setLatLng(e.target.center).setContent('<a href="/castle/build-form?tileId='+e.target.id+'" class="btn btn-primary" >Build castle here</a>').openOn(map);
+                }
             });
             polygon.addTo(map);
             polygons.push(polygon);

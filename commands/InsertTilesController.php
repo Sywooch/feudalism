@@ -49,6 +49,7 @@ class InsertTilesController extends Controller
     public function actionCities()
     {
         
+        City::deleteAll(['protoId' => City::PROTOTYPE]);
         $citiesTiles = [];
         for ($i = 0; $i <= 33; $i++) {
             $data = json_decode(file_get_contents(Yii::$app->basePath.'/data/hexagons/part'.$i.'.json'));
@@ -95,7 +96,7 @@ class InsertTilesController extends Controller
                 $minD = INF;
                 $tile = $tiles[0];
                 foreach ($tiles as $cTile) {
-                    $d = hypot($tile[0]-$centerX, $tile[1]-$centerY);
+                    $d = hypot($cTile[0]-$centerX, $cTile[1]-$centerY);
                     if ($d < $minD) {
                         $minD = $d;
                         $tile = $cTile;
