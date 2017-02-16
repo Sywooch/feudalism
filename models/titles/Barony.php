@@ -10,8 +10,9 @@ use Yii,
 
 /**
  * Баронство
+ * 
+ * @var Holding $holding
  *
- * @author i.gorohov
  */
 class Barony extends Title {
     
@@ -61,9 +62,13 @@ class Barony extends Title {
         return $model;
     }
     
+    public function getHolding() {
+        return $this->hasOne(Holding::className(), ['titleId' => 'id']);
+    }
+    
     public function getClaimedTerritory()
     {
-        $capital = $this->holdings[0];
+        $capital = $this->holding;
         $capitalTile = $capital->tile;
         $size = $capital->calcTitleSize();
         $square = Tile::find()

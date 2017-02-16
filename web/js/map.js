@@ -47,6 +47,7 @@ function loadPolygons() {
                 weight: 1,
                 color: 'white',
                 fillColor: tile.occupied ? 'red' : 'white',
+                fillOpacity: 0.2
             });
             polygon.id = tile.id;
             polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);

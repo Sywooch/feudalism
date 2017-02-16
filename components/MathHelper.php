@@ -111,7 +111,7 @@ abstract class MathHelper {
      */
     public static function calcDist(Tile $a, Tile $b)
     {
-        return abs($a->x - $b->x)*abs($a->y - $b->y);
+        return hypot($a->x - $b->x,$a->y - $b->y);
     }
     
 }

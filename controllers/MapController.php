@@ -27,13 +27,14 @@ class MapController extends Controller {
     public function actionGetPolygons(float $minLat, float $maxLat, float $minLng, float $maxLng)
     {
         $tiles = Tile::find()
+                ->select(['tiles.*', 'holdings.id as holdingId'])
                 ->where(['between', 'centerLat', $minLat, $maxLat])
                 ->andWhere(['between', 'centerLng', $minLng, $maxLng])
-                ->joinWith('holding')
+                ->leftJoin('holdings', 'holdings.tileId = tiles.id')
                 ->all();
         $result = [];
         foreach ($tiles as $tile) {
-            $result[] = array_merge($tile->displayedAttributes, ['occupied' => !!$tile->holding]);
+            $result[] = array_merge($tile->displayedAttributes, ['occupied' => $tile->titleId || $tile->holdingId]);
         }
         return $this->renderJson($result);
     }

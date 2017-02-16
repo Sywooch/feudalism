@@ -28,6 +28,8 @@ use Yii,
 class Tile extends ActiveRecord
 {
     
+    public $holdingId;
+    
     /**
      * @inheritdoc
      */

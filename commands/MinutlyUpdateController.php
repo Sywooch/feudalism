@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use yii\console\Controller,
+    yii\helpers\ArrayHelper,
     app\models\titles\Title,
     app\models\Tile;
 
@@ -24,34 +25,34 @@ class MinutlyUpdateController extends Controller {
                 ->orderBy(['level' => SORT_ASC, 'captured' => SORT_ASC])
                 ->all();
         
-        Tile::updateAll(['titleId' => null], 'titleId IS NOT NULL');
-        
-        $tilesToSave = [];
+        if ($debug) {
+            echo "Start calculate territories for ".count($titles)." titles...".PHP_EOL;
+        }
         
         /* @var $title Title*/
         foreach ($titles as $title) {
-            $tiles = $title->getClaimedTerritory();
-            foreach ($tiles as $tile) {
-                if (!isset($tilesToSave[$tile->id])) {
-                    $tilesToSave[$tile->id] = $tile;
-                    $tilesToSave[$tile->id]->titleId = $title->id;
+            $claimedTiles = [];
+            $unclaimedTiles = [];
+            foreach ($title->getClaimedTerritory() as $tile) {
+                $tileId = (int)$tile->id;
+                $claimedTiles[$tileId] = $tileId;
+            }
+            foreach ($title->tiles as $tile) {
+                $tileId = (int)$tile->id;
+                if (isset($claimedTiles[$tileId])) {
+                    unset($claimedTiles[$tileId]);
+                } else {
+                    $unclaimedTiles[$tileId] = $tileId;
                 }
             }
-        }
-        
-        if ($debug) {
-            $count = count($tilesToSave);
-            echo "{$count} tiles will be saved:".PHP_EOL;
-        }
-        
-        $i = 0;
-        foreach ($tilesToSave as $id => $tile) {
-            $tile->save();
-            $i++;
-            if ($debug && $i%10) {
-                echo "Saved {$i}/{$count} tiles".PHP_EOL;
+            Tile::updateAll(['titleId' => null], ['in', 'id', $unclaimedTiles]);
+            Tile::updateAll(['titleId' => $title->id], ['in', 'id', $claimedTiles]);
+            
+            if ($debug) {
+                echo "Title {$title->fullName} updated.".PHP_EOL;
             }
         }
+        
         
         if ($debug) {
             echo "All tiles saved.".PHP_EOL;

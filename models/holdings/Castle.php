@@ -183,7 +183,7 @@ class Castle extends Holding
      */
     public function calcTitleSize()
     {
-        return $this->fortification*1;
+        return $this->fortification*5;
     }
 
 }
