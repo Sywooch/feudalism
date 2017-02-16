@@ -135,5 +135,10 @@ class Tile extends ActiveRecord
             [$this->centerLat+$latFactor,$this->centerLng+0.05] # east-nord
         ];
     }
+    
+    public static function findByXY(int $x, int $y)
+    {
+        return static::find()->where(['x' => $x, 'y' => $y])->one();
+    }
 
 }

@@ -50,6 +50,11 @@ class Holding extends ActiveRecord implements Position
      * Замок
      */
     const PROTOTYPE_CASTLE = 1;
+	
+    /**
+     * Город
+     */
+    const PROTOTYPE_CITY = 2;
     
     /**
      * Переопределяется в наследниках
@@ -84,6 +89,9 @@ class Holding extends ActiveRecord implements Position
             switch (intval($row["protoId"])) {
                 case self::PROTOTYPE_CASTLE:
                     $className .= "Castle";
+                    break;
+                case self::PROTOTYPE_CITY:
+                    $className .= "City";
                     break;
                 default:
                     throw new Exception("Invalid holding prototype ({$row['protoId']}) in model ID{$row['id']}!");
