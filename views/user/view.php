@@ -94,7 +94,7 @@ var_dump(date('d-m-Y', $model->registration));
                             <tbody>
                                 <?php foreach ($title->holdings as $holding): ?>
                                 <tr>
-                                    <td>[Ω] <?=$holding->fullName?></td>
+                                    <td><a href="/castle?id=<?= $holding->id ?>"><?=$holding->fullName?></a></td>
                                     <td><?=$holding->population?></td>
                                     <td><?=$holding->fortification?></td>
                                     <td><?=$isOwner ? $holding->quartersUsed . '/' . $holding->quarters : $holding->quarters?></td>

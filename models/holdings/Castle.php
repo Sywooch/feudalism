@@ -4,7 +4,7 @@ namespace app\models\holdings;
 
 use Yii,
     app\models\holdings\Holding,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\User,
     app\models\Tile;
 
@@ -134,17 +134,17 @@ class Castle extends Holding
      * @param User $user
      * @return Unit
      */
-    public function spawnUnit($protoId, User &$user)
+    public function spawnUnit(int $protoId, User &$user)
     {
 
         $unit = Unit::findOrCreate([
             'userId' => $user->id,
             'protoId' => $protoId,
-            'currentHoldingId' => $this->id
+            'currentHoldingId' => $this->id,
         ]);
         
         // Юзер — владелец замка
-        if ($this->isOwner($user)) {
+        if (!$this->isOwner($user)) {
             $this->addError('user', Yii::t('app','Action not allowed'));
         }
             

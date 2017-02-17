@@ -8,7 +8,7 @@ use Yii,
     app\models\holdings\HoldingQuery,
     app\models\titles\Title,
     app\models\Position,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\User,
     app\models\Tile;
 
@@ -169,7 +169,7 @@ class Holding extends ActiveRecord implements Position
      */
     public function getUnits()
     {
-        return $this->hasMany(Unit::className(), ['currentCastleId' => 'id']);
+        return $this->hasMany(Unit::className(), ['currentHoldingId' => 'id']);
     }
 
     /**

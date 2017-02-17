@@ -8,9 +8,9 @@ use Yii,
     app\components\ExperienceCalculator,
     app\models\ActiveRecord,
     app\models\Auth,
-    app\models\UnitGroup,
+    app\models\units\UnitGroup,
     app\models\Invite,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\titles\Title,
     app\models\holdings\Holding;
 

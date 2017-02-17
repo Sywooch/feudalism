@@ -4,7 +4,7 @@ namespace app\models;
 
 use Yii,
     app\models\ActiveRecord,
-    app\models\UnitGroup,
+    app\models\units\UnitGroup,
     app\models\holdings\Holding,
     app\models\titles\Title;
 

@@ -1,10 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\models\units;
 
 use Yii,
     app\models\ActiveRecord,
-    app\models\UnitGroup,
     app\models\User,
     app\models\holdings\Holding;
 
@@ -26,6 +25,79 @@ use Yii,
 class Unit extends ActiveRecord
 {
     /**
+     * Переопределяется в наследниках
+     */
+    const PROTOTYPE = null;
+    
+    const PROTOTYPE_SWORDMANS = 1;
+    
+    const PROTOTYPE_BOWMANS = 2;
+    
+    const PROTOTYPE_HORSEMANS = 3;
+    
+    public function init()
+    {
+        $this->protoId = static::PROTOTYPE;
+        parent::init();
+    }
+
+    public static function find()
+    {
+        return new UnitQuery(static::className(), ['protoId' => static::PROTOTYPE]);
+    }
+
+    public function beforeSave($insert)
+    {
+        $this->protoId = static::PROTOTYPE;
+        
+        if ($insert) {
+            $this->spawned = time();
+            $this->lastSalary = time();
+        }
+        
+        return parent::beforeSave($insert);
+    }
+    
+    public static function instantiate($row)
+    {
+        switch ((int)$row['protoId']) {
+            case self::PROTOTYPE_SWORDMANS:
+                return new Swordmans($row);
+            case self::PROTOTYPE_BOWMANS:
+                return new Bowmans($row);
+            case self::PROTOTYPE_HORSEMANS:
+                return new Horsemans($row);
+            default:
+                throw new Exception("Invalid unit prototype (ID:{$row['protoId']})!");
+        }
+    }
+    
+    public static function getList()
+    {
+        return [
+            self::PROTOTYPE_SWORDMANS => Swordmans::getPrototypeName(),
+            self::PROTOTYPE_BOWMANS => Bowmans::getPrototypeName(),
+            self::PROTOTYPE_HORSEMANS => Horsemans::getPrototypeName(),
+        ];
+    }
+
+
+    public function getName()
+    {
+        return $this->count . " " . mb_strtolower(static::getPrototypeName());
+    }
+    
+    public function getFullName()
+    {
+        return $this->count . " " . mb_strtolower(static::getPrototypeName()) . " from " . $this->user->fullName;
+    }
+    
+    public static function getPrototypeName()
+    {
+        throw new Exception("Method ".static::className()."::getPrototypeName() not overrided!");
+    }
+
+    /**
      * @inheritdoc
      */
     public static function tableName()
@@ -41,7 +113,7 @@ class Unit extends ActiveRecord
         return [
             [['userId', 'protoId'], 'required'],
             [['userId', 'protoId', 'count', 'currentGroupId', 'currentHoldingId', 'spawned', 'lastSalary'], 'integer'],
-            [['userId', 'protoId', 'currentGroupId', 'currentHoldingId'], 'unique', 'targetAttribute' => ['userId', 'protoId', 'currentGroupId', 'currentCastleId'], 'message' => Yii::t('app','The combination of User ID, Proto ID, Current Group ID and Current Castle ID has already been taken.')]
+            [['userId', 'protoId', 'currentGroupId', 'currentHoldingId'], 'unique', 'targetAttribute' => ['userId', 'protoId', 'currentGroupId', 'currentHoldingId'], 'message' => Yii::t('app','The combination of User ID, Proto ID, Current Group ID and Current Holding ID has already been taken.')]
         ];
     }
 
@@ -103,17 +175,7 @@ class Unit extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'userId']);
     }
-    
-    public function beforeSave($insert)
-    {
-        if ($insert) {
-            $this->spawned = time();
-            $this->lastSalary = time();
-        }
         
-        return parent::beforeSave($insert);
-    }
-    
     public static function primaryKey()
     {
         return ['userId', 'protoId', 'currentGroupId', 'currentHoldingId'];

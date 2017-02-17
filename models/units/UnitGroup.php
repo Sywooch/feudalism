@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace app\models\units;
 
 use Yii,
     app\models\ActiveRecord,
