@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii,
     app\controllers\Controller,
+    app\models\titles\Title,
     app\models\Tile;
 
 /**
@@ -15,7 +16,12 @@ class MapController extends Controller {
     
     public function actionIndex()
     {
-        return $this->render('default');
+        $independentTitles = Title::find()
+                                ->where(['suzerainId' => null])
+                                ->all();
+        return $this->render('default', [
+            'independentTitles' => $independentTitles,
+        ]);
     }
     
     

@@ -142,5 +142,53 @@ class Tile extends ActiveRecord
     {
         return static::find()->where(['x' => $x, 'y' => $y])->one();
     }
+        
+    public static function getOffset(Tile $tile, int $direction, int $radius = 1)
+    {
+        $directions = [
+            [ #	    nord      n-e       s-e      south      s-w       n-w
+                [ [+1,  0], [ 0, +1], [-1, +1], [-1,  0], [-1, -1], [ 0, -1] ], #
+                [ [+1,  0], [+1, +1], [ 0, +1], [-1,  0], [ 0, -1], [+1, -1] ], #
+            ], [
+                [ [+1,  0], [ 0, +1], [-1, +1], [-1,  0], [-1, -1], [ 0, -1] ], #
+                [ [+1,  0], [+1, +1], [ 0, +1], [-1,  0], [ 0, -1], [+1, -1] ]  #
+            ]
+        ];
+        
+        $parityX = $tile->x & 1;
+        $parityY = $tile->y & 1;
+        $offset = $directions[$parityX][$parityY][$direction];
+        return [$offset[0]*$radius, $offset[1]*$radius];
+    }
+    
+    public static function getNeighbour(Tile $tile, int $direction, int $radius = 1)
+    {
+        $offset = static::getOffset($tile, $direction, $radius);
+        return static::findByXY($tile->x + $offset[0], $tile->y + $offset[1]);
+    }
+
+
+    public static function getSpiral(Tile $center, int $radius) {
+        $results = [$center];
+        for ($i = 1; $i <= $radius; $i++) {
+            $results = array_merge($results, static::getRing($center, $i));
+        }
+        return $results;
+    }
+    
+    public static function getRing(Tile $center, int $radius)
+    {
+        $results = [];
+        $tile = static::getNeighbour($center, 0, $radius);
+        
+        foreach ([2,3,4,5,0,1] as $i) {
+            for ($j = 0; $j < $radius; $j++) {
+                $results[] = $tile;
+                $tile = static::getNeighbour($tile, $i);
+            }
+        }
+        
+        return array_filter($results);
+    }
 
 }

@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\politics\Region;
+use app\models\titles\Title;
 
 /**
  * Объединитель регионов
@@ -32,7 +32,7 @@ class RegionCombiner extends TileCombiner
         static::$lines = [];
         static::$linesAdded = [];
         
-        /* @var $list Region[] */
+        /* @var $list Title[] */
         $list = $query->all();
         $count = $query->count();
         if ($count == 0) {

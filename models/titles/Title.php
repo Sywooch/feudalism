@@ -40,6 +40,14 @@ class Title extends ActiveRecord
      */
     const LEVEL_BARONY = 1;
     
+    const LEVEL_COUNT = 2;
+    
+    const LEVEL_DUKE = 3;
+    
+    const LEVEL_KING = 4;
+    
+    const LEVEL_EMPEROR = 5;
+    
     const LEVEL = null;
     
     public function getFullName()
@@ -226,4 +234,15 @@ class Title extends ActiveRecord
     {
         throw new Exception("Method ".static::className()."::claimTerritory() not overrided!");
     }
+    
+    public function getPolygon()
+    {
+        $filename = Yii::$app->basePath.'/data/polygons/'.$this->id.'.json';
+        if (file_exists($filename)) {
+            return file_get_contents($filename);
+        } else {
+            return '[]';
+        }
+    }
+    
 }

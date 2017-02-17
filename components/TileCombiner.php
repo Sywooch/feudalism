@@ -135,7 +135,7 @@ abstract class TileCombiner {
         }
         $tilesByXY = [];
         foreach ($list as $tile) {
-            $data = [$tile->lat, $tile->lon];
+            $data = [$tile->centerLat, $tile->centerLng];
             if (isset($tilesByXY[$tile->x])) {
                 $tilesByXY[$tile->x][$tile->y] = $data;
             } else {
