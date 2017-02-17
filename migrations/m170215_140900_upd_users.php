@@ -51,25 +51,25 @@ class m170215_140900_upd_users extends Migration
                             capitalHoldingId
                         ) 
                         SELECT
-                                id,
-                                name,
-                                gender,
-                                invited,
-                                level,
-                                experience,
-                                balance,
-                                magic,
-                                authority,
-                                education,
-                                combat,
-                                magicBase,
-                                authorityBase,
-                                educationBase,
-                                combatBase,
-                                currentGroupId,
-                                currentCastleId,
-                                capitalCastleId
-                            FROM tmp_users WHERE 1;
+                            id,
+                            name,
+                            gender,
+                            invited,
+                            level,
+                            experience,
+                            balance,
+                            magic,
+                            authority,
+                            education,
+                            combat,
+                            magicBase,
+                            authorityBase,
+                            educationBase,
+                            combatBase,
+                            currentGroupId,
+                            currentHoldingId,
+                            capitalHoldingId
+                        FROM tmp_users WHERE 1;
                         ');
         $this->dropTable('tmp_users');  
     }
@@ -121,25 +121,25 @@ class m170215_140900_upd_users extends Migration
                             capitalHoldingId
                         ) 
                         SELECT
-                                id,
-                                name,
-                                gender,
-                                invited,
-                                level,
-                                experience,
-                                balance,
-                                magic,
-                                authority,
-                                education,
-                                combat,
-                                magicBase,
-                                authorityBase,
-                                educationBase,
-                                combatBase,
-                                currentGroupId,
-                                currentCastleId,
-                                capitalCastleId
-                            FROM tmp_users WHERE 1;
+                            id,
+                            name,
+                            gender,
+                            invited,
+                            level,
+                            experience,
+                            balance,
+                            magic,
+                            authority,
+                            education,
+                            combat,
+                            magicBase,
+                            authorityBase,
+                            educationBase,
+                            combatBase,
+                            currentGroupId,
+                            currentHoldingId,
+                            capitalHoldingId
+                        FROM tmp_users WHERE 1;
                         ');
         $this->dropTable('tmp_users');  
     }

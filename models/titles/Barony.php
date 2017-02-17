@@ -11,7 +11,7 @@ use Yii,
 /**
  * Баронство
  * 
- * @var Holding $holding
+ * @property Holding $holding
  *
  */
 class Barony extends Title {
@@ -71,22 +71,19 @@ class Barony extends Title {
         $capital = $this->holding;
         $capitalTile = $capital->tile;
         $size = $capital->calcTitleSize();
-//        $square = Tile::find()
-//                ->where(['>', 'x', $capitalTile->x - $size])
-//                ->andWhere(['<', 'x', $capitalTile->x + $size])
-//                ->andWhere(['>', 'y', $capitalTile->y - $size])
-//                ->andWhere(['<', 'y', $capitalTile->y + $size])
-//                ->all();
-//        
-//        $tiles = [];
-//        foreach ($square as $tile) {
-//            if (MathHelper::calcDist($capitalTile, $tile) <= $size+0.5) {
-//                $tiles[] = $tile;
-//            }
-//        }
-//        
-//        return $tiles;
         return Tile::getSpiral($capitalTile, $size);
+    }
+    
+    public function calcTaxrent()
+    {
+        $capital = $this->holding;
+        $size = $capital->calcTitleSize();
+        $tilesCount = 1;
+        for ($i = 1; $i <= $size; $i++) {
+            $tilesCount += 6*$i;
+        }
+        
+        return $capital->population + $tilesCount;
     }
         
 }

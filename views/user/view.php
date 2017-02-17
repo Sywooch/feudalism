@@ -8,7 +8,7 @@ use app\components\ExperienceCalculator,
     yii\helpers\Html;
 
 $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
-var_dump(date('d-m-Y', $model->registration));
+
 ?>
 <div class="container">
     <div class="row">
@@ -71,7 +71,7 @@ var_dump(date('d-m-Y', $model->registration));
             <?php foreach ($model->titles as $title): ?>
             <div class="panel <?=$title->isPrimaryTitle($model) ? 'panel-info' : 'panel-default'?>">
                     <div class="panel-heading">
-                        [<?=$title->level?>] <?=$title->fullName?>
+                        [<?=$title->calcTaxrent()?>] <?=$title->fullName?>
                     </div>
                     <div class="panel-body">
                         <table class="table table-hover">
@@ -105,13 +105,33 @@ var_dump(date('d-m-Y', $model->registration));
                         <?php endif ?>
                     </div>
                 <div class="panel-footer">
-                    <?= Html::beginForm(['/title/destroy'], 'post')
-                        . Html::hiddenInput('id', $title->id)
-                        . Html::submitButton(
-                            Yii::t('app','Destroy title'),
-                            ['class' => 'btn btn-danger btn-xs']
-                        )
-                        . Html::endForm() ?>
+                    <div class="btn-group">
+                        <?= Html::beginForm(['/title/destroy'], 'post', ['class' => 'form-inline'])
+                            . Html::hiddenInput('id', $title->id)
+                            . Html::submitButton(
+                                Yii::t('app','Destroy title'),
+                                ['class' => 'btn btn-danger btn-xs']
+                            )
+                            . Html::endForm() ?>
+                        <?php if ($title->isCanBeTaxrented): ?>
+                        <?= Html::beginForm(['/title/taxrent'], 'post', ['class' => 'form-inline'])
+                            . Html::hiddenInput('id', $title->id)
+                            . Html::submitButton(
+                                Yii::t('app','Tax rent'),
+                                ['class' => 'btn btn-success btn-xs']
+                            )
+                            . Html::endForm() ?>
+                        <?php endif ?>
+                        <?php if (!$title->isPrimaryTitle($model) && (!$model->primaryTitle || $model->primaryTitle->level <= $title->level)): ?>
+                        <?= Html::beginForm(['/title/set-primary'], 'post', ['class' => 'form-inline'])
+                            . Html::hiddenInput('id', $title->id)
+                            . Html::submitButton(
+                                Yii::t('app','Set as primary'),
+                                ['class' => 'btn btn-primary btn-xs']
+                            )
+                            . Html::endForm() ?>
+                        <?php endif ?>
+                    </div>
                 </div>
             </div>
             <?php endforeach ?>

@@ -20,6 +20,7 @@ use Yii,
  * @property integer $created
  * @property integer $createdByUserId
  * @property integer $captured
+ * @property integer $lastTaxrent
  *
  * @property Holding[] $holdings
  * @property Tile[] $tiles
@@ -31,6 +32,8 @@ use Yii,
  * @property integer $userLevel
  * @property string $userName
  * @property string $fullName
+ * @property integer $nextTaxrent
+ * @property boolean $isCanBeTaxrented
  */
 class Title extends ActiveRecord
 {
@@ -114,7 +117,7 @@ class Title extends ActiveRecord
     {
         return [
             [['name', 'level'], 'required'],
-            [['level', 'userId', 'suzerainId', 'created', 'createdByUserId', 'captured'], 'integer'],
+            [['level', 'userId', 'suzerainId', 'created', 'createdByUserId', 'captured', 'lastTaxrent'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
     }
@@ -133,6 +136,7 @@ class Title extends ActiveRecord
             'created' => Yii::t('app', 'Created'),
             'createdByUserId' => Yii::t('app', 'Created By User ID'),
             'captured' => Yii::t('app', 'Captured'),
+            'lastTaxrent' => Yii::t('app', 'Last Tax Rent'),
         ];
     }
 
@@ -149,6 +153,10 @@ class Title extends ActiveRecord
             'createdByUserId',
             'captured'
         ];
+        
+        if ($owner) {
+            $attributes[] = 'lastTaxrent';
+        }
         
         return $attributes;
     }
@@ -235,6 +243,11 @@ class Title extends ActiveRecord
         throw new Exception("Method ".static::className()."::claimTerritory() not overrided!");
     }
     
+    public function calcTaxrent()
+    {
+        throw new Exception("Method ".static::className()."::calcTaxrent() not overrided!"); 
+    }
+    
     public function getPolygon()
     {
         $filename = Yii::$app->basePath.'/data/polygons/'.$this->id.'.json';
@@ -243,6 +256,16 @@ class Title extends ActiveRecord
         } else {
             return '[]';
         }
+    }
+    
+    public function getNextTaxrent() : int
+    {
+        return (int)$this->lastTaxrent + 24*60*60;
+    }
+    
+    public function getIsCanBeTaxrented() : bool
+    {
+        return $this->nextTaxrent < time();
     }
     
 }

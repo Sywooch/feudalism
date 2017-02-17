@@ -13,9 +13,7 @@ use Yii,
     yii\filters\VerbFilter;
 
 /**
- * Description of TitleController
- *
- * @author i.gorohov
+ * 
  */
 class TitleController extends Controller
 {
@@ -29,7 +27,7 @@ class TitleController extends Controller
             'only' => ['view', 'create-barony'],
             'rules' => [
                 [
-                    'actions' => ['view', 'create-barony', 'destroy'],
+                    'actions' => ['view', 'create-barony', 'destroy', 'taxrent'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -40,6 +38,7 @@ class TitleController extends Controller
             'actions' => [
                 'create-barony' => ['post'],
                 'destroy' => ['post'],
+                'taxrent' => ['post'],
             ],
         ];
 
@@ -150,4 +149,44 @@ class TitleController extends Controller
         $model->delete();
         return $this->redirect('/');
     }
+    
+    public function actionTaxrent()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif (!$model->isCanBeTaxrented) {
+            throw new HttpException(403, Yii::t('app', 'Next taxrent will be in {0}', [date('H:i:s d.m.Y', $model->nextTaxrent)]));
+        }
+        
+        $model->lastTaxrent = time();
+        $model->save();
+        $this->user->balance += $model->calcTaxrent();
+        $this->user->save();
+        
+        return $this->redirect('/');
+    }
+    
+    public function actionSetPrimary()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif ($this->user->primaryTitle && $model->level < $this->user->primaryTitle->level) {
+            throw new HttpException(403, Yii::t('app', 'Primary title must have maximum level'));
+        }
+        
+        $this->user->link('primaryTitle', $model);
+        
+        return $this->redirect('/');
+    }
+    
 }
