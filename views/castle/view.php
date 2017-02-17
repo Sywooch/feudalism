@@ -66,14 +66,30 @@ use yii\widgets\ActiveForm,
     <?php endif ?>
     </div>
     <div class="col-md-6">
-    <?php if (count($castle->units)): ?>
-        <table class="table table-hover">
-        <?php foreach($castle->units as $unit): ?>
-            <tr><td><?= $unit->getFullName() ?></td></tr>
-        <?php endforeach ?>
-        </table>
-    <?php else: ?>
-        <p><?= Yii::t('app', 'There is no units') ?></p>
-    <?php endif ?>
+        <div class="box">
+            <div class="box-header">
+                <h4 class="box-title"><?= Yii::t('app', 'Units') ?></h4>
+            </div>
+            <div class="box-body">
+            <?php if (count($castle->units)): ?>
+                <table class="table table-hover">
+                <?php foreach($castle->units as $unit): ?>
+                    <tr><td><?= $unit->getFullName() ?></td></tr>
+                <?php endforeach ?>
+                </table>
+            <?php else: ?>
+                <p><?= Yii::t('app', 'There is no units') ?></p>
+            <?php endif ?>
+            </div>
+            <div class="box-footer">
+            <?= Html::beginForm(['/castle/up-all-units'], 'post', ['class' => 'form-inline'])
+            . Html::hiddenInput('id', $castle->id)
+            . Html::submitButton(
+                Yii::t('app','Up all units'),
+                ['class' => 'btn btn-primary btn-xs'.(count($castle->units)?'':' disabled')]
+            )
+            . Html::endForm() ?>
+            </div>
+        </div>
     </div>
 </div>

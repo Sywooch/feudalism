@@ -51,11 +51,16 @@ class MapController extends Controller {
                 ->where(['between', 'centerLat', $minLat, $maxLat])
                 ->andWhere(['between', 'centerLng', $minLng, $maxLng])
                 ->joinWith('holding')
-                ->andWhere('holdings.id IS NOT NULL')
+                ->joinWith('unitGroups')
+                ->andWhere('holdings.id IS NOT NULL OR unitsGroups.tileId IS NOT NULL')
                 ->all();
-        $result = [];
+        $result = ['holdings' => [], 'armies' => []];
         foreach ($tiles as $tile) {
-            $result[] = $tile->holding->displayedAttributes;
+            /* @var $tile Tile */
+            $result['holdings'][] = $tile->holding->displayedAttributes;
+            foreach ($tile->unitGroups as $group) {
+                $result['armies'][] = $group->displayedAttributes;
+            }
         }
         return $this->renderJson($result);
     }

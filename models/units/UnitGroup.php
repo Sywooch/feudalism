@@ -4,7 +4,7 @@ namespace app\models\units;
 
 use Yii,
     app\models\ActiveRecord,
-    app\models\Unit,
+    app\models\Position,
     app\models\User,
     app\models\Tile;
 
@@ -63,6 +63,7 @@ class UnitGroup extends ActiveRecord implements Position
             'userId',
             'tileId',
             'name',
+            'coords',
         ];
     }
 
@@ -98,4 +99,9 @@ class UnitGroup extends ActiveRecord implements Position
         return $this->hasMany(User::className(), ['currentGroupId' => 'id']);
     }
 
+    public function getCoords()
+    {
+        return [$this->tile->centerLat-0.03, $this->tile->centerLng+0.03];
+    }
+    
 }

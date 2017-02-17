@@ -27,6 +27,12 @@ var castleIcon = L.icon({
     iconSize: [32, 32],
 });
 
+var armyIcon = L.icon({
+    iconUrl: '/img/army.png',
+    iconRetinaUrl: '/img/army@x2.png',
+    iconSize: [32, 32],
+});
+
 var currentRequestPolygons = false;
 var currentRequestMarkers = false;
 
@@ -77,11 +83,26 @@ function loadMarkers() {
         minLng: bounds.getWest()-0.1,
         maxLng: bounds.getEast()+0.1
     }, function(data){
-        while (holding = data.result.pop()) {
+        var holdings = data.result.holdings,
+            armies = data.result.armies;
+        var holding,army;
+        while (holding = holdings.pop()) {
             var marker = L.marker(holding.coords, {
                 icon: holding.protoId == 1 ? castleIcon : cityIcon
             });
             marker.id = holding.id;
+            marker.type = 'holding';
+            marker.bindPopup('<h5>'+holding.name+'</h5><a href="/castle?id='+holding.id+'" class="btn btn-info">[i] View info</a>');
+            marker.addTo(map);
+            markers.push(marker);
+        }
+        while (army = armies.pop()) {
+            var marker = L.marker(army.coords, {
+                icon: armyIcon
+            });
+            marker.id = army.id;
+            marker.type = 'army';
+            marker.bindPopup('<h5>'+army.name+'</h5>');
             marker.addTo(map);
             markers.push(marker);
         }

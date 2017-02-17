@@ -10,13 +10,14 @@ class AppAsset extends AssetBundle
     public $baseUrl = '@web';
     public $css = [
         'css/square.css',
-        'css/style.css?123',
+        'css/style.css',
+        'css/leaflet.css',
         'css/theme.css',
         '//fonts.googleapis.com/css?family=Anonymous+Pro:400,400i,700,700i&amp;subset=cyrillic',
     ];
     public $js = [
         'js/init.js',
-        'js/request.js?test',
+        'js/request.js',
         'js/fullscreen.js',
         'js/resizes.js',
         'js/icheck.js',

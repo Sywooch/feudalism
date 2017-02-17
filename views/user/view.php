@@ -141,5 +141,25 @@ $this->title = Yii::t('app','Feudalism') . ' — ' . $model->fullName;
             </div>
             <?php endif ?>
         </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="box">
+                <div class="box-header">
+                    <h4 class="box-title"><?= Yii::t('app', 'Armies:') ?></h4>
+                </div>
+                <div class="box-body">
+                <?php if (count($model->groups)): ?>
+                    <table class="table table-hover">
+                    <?php foreach ($model->groups as $group): ?>
+                        <tr>
+                            <td><?= $group->name ?></td>
+                        </tr>
+                    <?php endforeach ?>
+                    </table>
+                <?php else: ?>
+                    <p><?= Yii::t('app', 'You have no one army') ?></p>
+                <?php endif ?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
