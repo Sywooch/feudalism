@@ -5,12 +5,30 @@
 
 $this->title = Yii::t('app', 'Feudalism') . ' — ' . Yii::t('app','Panel');
 
-$this->registerJs('$(window).resize(resizeBlocks)');
-
 ?>
 
 <div class="container">
     <div class="row">
-        <?=$this->renderFile('@app/views/map/default.php')?>
+        <div class="col-md-6 col-xs-12">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h4 class="box-title"><?= Yii::t('app', 'Builded holdings') ?></h4>
+                </div>
+                <div class="box-body">
+                <?php if (count($user->buildedHoldings)): ?>
+                    <ul>
+                    <?php foreach ($user->buildedHoldings as $holding): ?>
+                        <li><a href="/castle?id=<?=$holding->id?>"><?=$holding->getFullName()?></a></li>
+                    <?php endforeach ?>
+                    </ul>
+                <?php else: ?>
+                    <p><?= Yii::t('app', 'No holdings') ?></p>
+                <?php endif ?>
+                </div>
+                <div class="box-footer">
+                    <a href="map/build-castle" class="btn btn-success"><?= Yii::t('app', 'Build new castle') ?></a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

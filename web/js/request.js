@@ -2,7 +2,7 @@
 var Request = (function() {
     function make(url, data, dataType, method, callback) {
         data._csrf = yii.getCsrfToken();
-        $.ajax({
+        return $.ajax({
             type: method,
             url: url,
             data: data,
@@ -34,7 +34,7 @@ var Request = (function() {
     }
 
     function makeHtml(url, data, method, callback) {
-        return make(url, data, 'text/html', method, callback);
+        return make(url, data, 'text', method, callback);
     }
 
     function getJson(url, data, callback) {
@@ -50,7 +50,7 @@ var Request = (function() {
     }
 
     function postHtml(url, data, callback) {
-        return makeJson(url, data, 'POST', callback);
+        return makeHtml(url, data, 'POST', callback);
     }
     
     return {

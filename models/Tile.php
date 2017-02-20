@@ -4,50 +4,31 @@ namespace app\models;
 
 use Yii,
     app\models\ActiveRecord,
-    app\models\UnitGroup,
-    app\models\Biome,
+    app\models\units\UnitGroup,
     app\models\holdings\Holding,
-    app\models\titles\Title,
-    yii\db\ActiveQuery,
-    yii\base\Exception;
+    app\models\titles\Title;
 
 /**
  * This is the model class for table "tiles".
- *
+ * 
  * @property integer $id
  * @property integer $x
  * @property integer $y
  * @property integer $titleId 
- * @property integer $biomeId
- * @property integer $elevation
- * @property integer $temperature
- * @property integer $rainfall
- * @property integer $drainage
+ * @property double $centerLat 
+ * @property double $centerLng 
  * 
- * @property string $biomeLabel
- * @property string $biomeCharacter
- * @property string $biomeColor
  * @property string $ownerName
+ * @property array $coords
  *
- * @property Biome $biome
  * @property Holding $holding
  * @property Title $title
  * @property UnitGroup[] $unitGroups
  */
 class Tile extends ActiveRecord
 {
-        
-    // Чанки
     
-    /**
-     * Ширина чанка
-     */    
-    const CHUNK_WIDTH = 27;
-    
-    /**
-     * Высота чанка
-     */
-    const CHUNK_HEIGHT = 15;
+    public $holdingId;
     
     /**
      * @inheritdoc
@@ -63,8 +44,11 @@ class Tile extends ActiveRecord
     public function rules()
     {
         return [
-            [['x', 'y', 'biomeId'], 'required'],
-            [['x', 'y', 'biomeId', 'titleId', 'elevation', 'temperature', 'rainfall', 'drainage'], 'integer'],
+            [['x', 'y', 'centerLat', 'centerLng'], 'required'],
+            [['x', 'y'], 'integer'],
+            [['centerLat', 'centerLng'], 'number'],
+            [['titleId'], 'integer', 'min' => 1],
+            [['titleId'], 'exist', 'targetClass' => Title::className(), 'targetAttribute' => ['titleId' => 'id']],
             [['x', 'y'], 'unique', 'targetAttribute' => ['x', 'y'], 'message' => Yii::t('app','The combination of X and Y has already been taken.')]
         ];
     }
@@ -78,15 +62,9 @@ class Tile extends ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'x' => Yii::t('app', 'X'),
             'y' => Yii::t('app', 'Y'),
-            'biomeId' => Yii::t('app', 'Biome ID'),
             'titleId' => Yii::t('app', 'Title ID'), 
-            'elevation' => Yii::t('app', 'Elevation'),
-            'temperature' => Yii::t('app', 'Temperature'),
-            'rainfall' => Yii::t('app', 'Rainfall'),
-            'drainage' => Yii::t('app', 'Drainage'),
-            'biomeLabel' => Yii::t('app', 'Biome label'),
-            'biomeCharacter' => Yii::t('app', 'Biome character'),
-            'biomeColor' => Yii::t('app', 'Biome color')
+            'centerLat' => Yii::t('app', 'Center latitude'),
+            'centerLng' => Yii::t('app', 'Center longitude'),
         ];
     }
 
@@ -97,43 +75,10 @@ class Tile extends ActiveRecord
             'x',
             'y',
             'titleId',
-            'biomeId',
-            'biomeLabel',
-            'biomeCharacter',
-            'biomeColor',
+            'centerLat',
+            'centerLng',
+            'coords',
         ];
-    }
-        
-    public function getBiomeLabel()
-    {
-        return $this->biome->label;
-    }
-        
-    public function getBiomeCharacter()
-    {
-        return $this->biome->character;
-    }
-        
-    public function getBiomeColor()
-    {
-        return $this->biome->color;
-    }
-    
-    private $_biome = null;
-    
-    public function getBiome()
-    {
-        if (is_null($this->_biome)) {
-            $this->_biome = new Biome([
-                'id' => $this->biomeId,
-                'temperature' => $this->temperature,
-                'elevation' => $this->elevation,
-                'rainfall' => $this->rainfall,
-                'drainage' => $this->drainage
-            ]);
-        }
-        
-        return $this->_biome;
     }
 
     /**
@@ -159,61 +104,91 @@ class Tile extends ActiveRecord
     {
         return $this->hasMany(UnitGroup::className(), ['tileId' => 'id']);
     }
-    
-    /**
-     * Находит или создаёт новый обьект тайла по переданным координатам
-     * @param integer $x
-     * @param integer $y
-     * @param integer $biomeId Const. biome type
-     * @param boolean $save autosave after create
-     * @return \self
-     * @throws Exception
-     */
-    public static function getByCoords($x, $y, $biomeId = Biome::BIOME_UNDEFINED, $save = false)
-    {        
-        return self::findOrCreate(['x' => $x, 'y' => $y], ['biomeId' => $biomeId], [], $save);
-    }
-    
+        
     /**
      * Сравнивает тайл по координатам
-     * @param ActiveRecord $record
+     * @param Tile $record
      * @return boolean
      */
     public function equals($record)
     {
-        return $this->x === $record->x && $this->y === $record->y;
+        return (int)$this->x === (int)$record->x && (int)$this->y === (int)$record->y;
     }
-       
-    /**
-     * 
-     * @param integer $x
-     * @param integer $y
-     * @return ActiveQuery
-     */
-    public static function findByChunk($x, $y)
-    {
-        return self::find()
-                ->where(['>=', 'x', $x*self::CHUNK_WIDTH])
-                ->andWhere(['<', 'x', ($x+1)*self::CHUNK_WIDTH])
-                ->andWhere(['>=', 'y', $y*self::CHUNK_HEIGHT])
-                ->andWhere(['<', 'y', ($y+1)*self::CHUNK_HEIGHT]);
-    }
-    
-    public function beforeSave($insert)
-    {
-        // Сохранение параметров биома
-        $this->biomeId = $this->biome->id;
-        $this->temperature = $this->biome->temperature;
-        $this->elevation = $this->biome->elevation;
-        $this->rainfall = $this->biome->rainfall;
-        $this->drainage = $this->biome->drainage;
         
-        return parent::beforeSave($insert);
-    }
-    
     public function getOwnerName()
     {
         return $this->title ? $this->title->userName : Yii::t('app', 'no owner');
+    }
+        
+    public function getLatFactor()
+    {
+        return cos($this->centerLat*0.0175)*0.088765;
+    }
+    
+    public function getCoords()
+    {
+        $latFactor = $this->latFactor;
+        return [
+            [$this->centerLat,$this->centerLng+0.1], # east
+            [$this->centerLat-$latFactor,$this->centerLng+0.05], # east-south
+            [$this->centerLat-$latFactor,$this->centerLng-0.05], # west-south
+            [$this->centerLat,$this->centerLng-0.1], # west
+            [$this->centerLat+$latFactor,$this->centerLng-0.05], # west-nord
+            [$this->centerLat+$latFactor,$this->centerLng+0.05] # east-nord
+        ];
+    }
+    
+    public static function findByXY(int $x, int $y)
+    {
+        return static::find()->where(['x' => $x, 'y' => $y])->one();
+    }
+        
+    public static function getOffset(Tile $tile, int $direction, int $radius = 1)
+    {
+        $directions = [
+            [ #	    nord      n-e       s-e      south      s-w       n-w
+                [ [+1,  0], [ 0, +1], [-1, +1], [-1,  0], [-1, -1], [ 0, -1] ], #
+                [ [+1,  0], [+1, +1], [ 0, +1], [-1,  0], [ 0, -1], [+1, -1] ], #
+            ], [
+                [ [+1,  0], [ 0, +1], [-1, +1], [-1,  0], [-1, -1], [ 0, -1] ], #
+                [ [+1,  0], [+1, +1], [ 0, +1], [-1,  0], [ 0, -1], [+1, -1] ]  #
+            ]
+        ];
+        
+        $parityX = $tile->x & 1;
+        $parityY = $tile->y & 1;
+        $offset = $directions[$parityX][$parityY][$direction];
+        return [$offset[0]*$radius, $offset[1]*$radius];
+    }
+    
+    public static function getNeighbour(Tile $tile, int $direction, int $radius = 1)
+    {
+        $offset = static::getOffset($tile, $direction, $radius);
+        return static::findByXY($tile->x + $offset[0], $tile->y + $offset[1]);
+    }
+
+
+    public static function getSpiral(Tile $center, int $radius) {
+        $results = [$center];
+        for ($i = 1; $i <= $radius; $i++) {
+            $results = array_merge($results, static::getRing($center, $i));
+        }
+        return $results;
+    }
+    
+    public static function getRing(Tile $center, int $radius)
+    {
+        $results = [];
+        $tile = static::getNeighbour($center, 0, $radius);
+        
+        foreach ([2,3,4,5,0,1] as $i) {
+            for ($j = 0; $j < $radius; $j++) {
+                $results[] = $tile;
+                $tile = static::getNeighbour($tile, $i);
+            }
+        }
+        
+        return array_filter($results);
     }
 
 }

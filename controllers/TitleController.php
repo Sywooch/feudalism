@@ -7,13 +7,13 @@ use Yii,
     app\models\titles\Barony,
     app\models\holdings\Holding,
     app\controllers\Controller,
+    yii\web\NotFoundHttpException,
+    yii\web\HttpException,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
 /**
- * Description of TitleController
- *
- * @author i.gorohov
+ * 
  */
 class TitleController extends Controller
 {
@@ -27,7 +27,7 @@ class TitleController extends Controller
             'only' => ['view', 'create-barony'],
             'rules' => [
                 [
-                    'actions' => ['view', 'create-barony'],
+                    'actions' => ['view', 'create-barony', 'destroy', 'taxrent'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -37,6 +37,8 @@ class TitleController extends Controller
             'class' => VerbFilter::className(),
             'actions' => [
                 'create-barony' => ['post'],
+                'destroy' => ['post'],
+                'taxrent' => ['post'],
             ],
         ];
 
@@ -85,7 +87,7 @@ class TitleController extends Controller
             }      
             $holding->link('title', $model);
             
-            return $this->renderJson($model);
+            return $this->redirect(['/title', 'id' => $model->id]);
         } else {
             if (count($model->getErrors())) {
                 return $this->renderJsonError($model->getErrors());
@@ -98,4 +100,93 @@ class TitleController extends Controller
             }
         }
     }
+    
+    public function actionCreateBaronyForm(int $holdingId)
+    {
+        /* @var $title Title */
+        $holding = Holding::findOne($holdingId);
+        if (is_null($holding)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Holding not found'));
+        }
+        if ($holding->title || Yii::$app->user->isGuest || $holding->buildedUserId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        }
+        
+        $model = new Barony([
+            'level' => Barony::LEVEL,
+            'userId' => $this->user->id,
+            'createdByUserId' => $this->user->id,
+            'name' => $holding->name,
+        ]);
+        return $this->render('create-barony-form', [
+            'model' => $model,
+            'holding' => $holding,
+        ]);
+        
+    }
+    
+    public function actionDestroy()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif ($model->getHoldings()->exists()) {
+            throw new HttpException(403, Yii::t('app', 'Title have holdings and can not be destroyed'));
+        } elseif ($model->getVassals()->exists()) {
+            throw new HttpException(403, Yii::t('app', 'Title have vassals and can not be destroyed'));
+        }
+        
+        if ($model->isPrimaryTitle($this->user)) {
+            $newPrimaryTitle = $this->user->getTitles()->orderBy(['level' => SORT_DESC])->where(['<>', 'id', $id])->one();
+            if ($newPrimaryTitle) {
+                $this->user->link('primaryTitle', $newPrimaryTitle);
+            }
+        }
+        $model->delete();
+        return $this->redirect('/');
+    }
+    
+    public function actionTaxrent()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif (!$model->isCanBeTaxrented) {
+            throw new HttpException(403, Yii::t('app', 'Next taxrent will be in {0}', [date('H:i:s d.m.Y', $model->nextTaxrent)]));
+        }
+        
+        $model->lastTaxrent = time();
+        $model->save();
+        $this->user->balance += $model->calcTaxrent();
+        $this->user->save();
+        
+        return $this->redirect('/');
+    }
+    
+    public function actionSetPrimary()
+    {
+        $id = Yii::$app->request->post('id');
+        /* @var $model Title */
+        $model = Title::findOne($id);
+        if (is_null($model)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Title not found'));
+        } elseif (Yii::$app->user->isGuest || $model->userId != $this->user->id) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        } elseif ($this->user->primaryTitle && $model->level < $this->user->primaryTitle->level) {
+            throw new HttpException(403, Yii::t('app', 'Primary title must have maximum level'));
+        }
+        
+        $this->user->link('primaryTitle', $model);
+        
+        return $this->redirect('/');
+    }
+    
 }

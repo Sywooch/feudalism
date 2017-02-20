@@ -1,99 +1,147 @@
-function coordsTileToChunk(tileCoords)
-{
-    var chunkCoords = {};
-    if (tileCoords.x >= 0) {
-        chunkCoords.x = tileCoords.x%25;
-    } else {
-        chunkCoords.x = (Math.abs(tileCoords.x)%25) ? 25-Math.abs(tileCoords.x)%25 : 0;
+
+var popup = L.popup();
+var polygons = [];
+var markers = [];
+
+function clearPolygons() {
+    while(polygon = polygons.pop()) {
+        map.removeLayer(polygon);
     }
-    if (tileCoords.y >= 0) {
-        chunkCoords.y = tileCoords.y%15;
-    } else {
-        chunkCoords.y = (Math.abs(tileCoords.y)%15) ? 15-Math.abs(tileCoords.y)%15 : 0;
-    }
-    return chunkCoords;
 }
 
-function coordsChunkToTile(chunkCoords, chunkX, chunkY)
-{
-    return {
-        'x': chunkCoords.x+chunkX*25,
-        'y': chunkCoords.y+chunkY*15
-    };
+function clearMarkers() {
+    while(marker = markers.pop()) {
+        map.removeLayer(marker);
+    }
 }
 
-function loadChunk(ctx, x, y) {
-    var options = $.extend({context: ctx}, ROT_OPTIONS);
-    var display = new ROT.Display(options);
-    chunkCache[x+"x"+y] = display;
-    
-    $.get("/map/chunk?x="+x+"&y="+y,
-        function(data) {
-            for (var i = 0; i < data.result.length; i++) {
-                var tile = data.result[i];
-                drawTile(display, tile, (tile.titleId ? "#333" : "#000"));                
-                tilesCache[tile.x+"x"+tile.y] = tile;
-            }
+var cityIcon = L.icon({
+    iconUrl: '/img/city.png',
+    iconRetinaUrl: '/img/city@x2.png',
+    iconSize: [32, 32],
+});
+
+var castleIcon = L.icon({
+    iconUrl: '/img/castle.png',
+    iconRetinaUrl: '/img/castle@x2.png',
+    iconSize: [32, 32],
+});
+
+var armyIcon = L.icon({
+    iconUrl: '/img/army.png',
+    iconRetinaUrl: '/img/army@x2.png',
+    iconSize: [32, 32],
+});
+
+var currentRequestPolygons = false;
+var currentRequestMarkers = false;
+
+function loadPolygonsForArmies() {
+    $('#map-info-label').text('Loading tiles…').show();
+    var bounds = map.getBounds();
+    if (currentRequestPolygons) {
+        currentRequestPolygons.abort();
+    }
+    currentRequestPolygons = Request.getJson('/map/get-polygons', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
+        while (tile = data.result.pop()) {
+            var polygon = L.polygon(tile.coords, {
+                weight: 1,
+                color: 'white',
+                fillColor: tile.occupied ? 'red' : 'white',
+                fillOpacity: 0.2
+            });
+            polygon.id = tile.id;
+            polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);
+            polygon.occupied = tile.occupied;
+            polygon.on("click", function(e){
+                L.polyline([army.coords, e.target.center]).addTo(map);
+            });
+            polygon.addTo(map);
+            polygons.push(polygon);
         }
-    );   
+        currentRequestPolygons = false;
+        $('#map-info-label').hide();
+    });
 }
 
-function drawTile(display, tile, backgroundColor) {
-    var coords = coordsTileToChunk(tile);
-    backgroundColor = backgroundColor || "#000";
-    display.draw(coords.x,coords.y,tile.biomeCharacter,tile.biomeColor,backgroundColor);
-    if (tile.holding) {
-        display.draw(coords.x,coords.y,"Ω","#fff", backgroundColor);
+function loadPolygons() {
+    $('#map-info-label').text('Loading tiles…').show();
+    var bounds = map.getBounds();
+    if (currentRequestPolygons) {
+        currentRequestPolygons.abort();
     }
-}
-
-var chunkCache = {}, tilesCache = {}, map;
-var ROT_OPTIONS = {
-    forceSquareRatio: false,
-    fontSize: 20,
-    fontFamily: 'pt_monoregular',
-    width: 25,
-    height: 15
-};
-
-function showInfo(type, data, hideAll) {
-    hideAll = !!hideAll;
-    
-    if (hideAll) {        
-        $('.right-main-panel').hide();
-        $('.right-panel-btn').hide();
-    }
-    console.log(data);
-    $block = $('#'+type+'-info');
-    
-    for (var i in data) {
-        if (data[i] !== undefined && typeof data[i] !== 'function' && typeof data[i] !== 'object') {
-            $('#'+type+'-'+i).text(data[i]);
+    currentRequestPolygons = Request.getJson('/map/get-polygons', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
+        while (tile = data.result.pop()) {
+            var polygon = L.polygon(tile.coords, {
+                weight: 1,
+                color: 'white',
+                fillColor: tile.occupied ? 'red' : 'white',
+                fillOpacity: 0.2
+            });
+            polygon.id = tile.id;
+            polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);
+            polygon.occupied = tile.occupied;
+            polygon.on("click", function(e){
+                if (!e.target.occupied) {
+                    popup.setLatLng(e.target.center).setContent('<a href="/castle/build-form?tileId='+e.target.id+'" class="btn btn-primary" >Build castle here</a>').openOn(map);
+                }
+            });
+            polygon.addTo(map);
+            polygons.push(polygon);
         }
-    }
-    
-    $block.show();
+        currentRequestPolygons = false;
+        $('#map-info-label').hide();
+    });
 }
 
-function showTileInfo(tile) {
-    showInfo('tile', tile, true);
-    $('#tile-info').children('.panel-heading').css('color', tile.biomeColor);
-    $('.current-tile-id').val(tile.id);
-    if (tile.holding) {
-        showHoldingInfo(tile.holding);
-    } else {
-        if (tile.titleId === null && tile.biomeId >= 20) {
-            $('#build-castle-btn').show();
+function loadMarkers() {
+    $('#map-info-label').text('Loading holdings…').show();
+    var bounds = map.getBounds();
+    if (currentRequestMarkers) {
+        currentRequestMarkers.abort();
+    }
+    currentRequestMarkers = Request.getJson('/map/get-holdings', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
+        var holdings = data.result.holdings,
+            armies = data.result.armies;
+        var holding,army;
+        while (holding = holdings.pop()) {
+            var marker = L.marker(holding.coords, {
+                icon: holding.protoId == 1 ? castleIcon : cityIcon
+            });
+            marker.id = holding.id;
+            marker.type = 'holding';
+            marker.bindPopup('<h5>'+holding.name+'</h5><a href="/castle?id='+holding.id+'" class="btn btn-info">[i] View info</a>');
+            marker.addTo(map);
+            markers.push(marker);
         }
-    }
-}
-
-function showHoldingInfo(holding) {
-    showInfo('holding', holding);    
-    $('.current-holding-id').val(holding.id);
-    if (holding.titleId === null) {
-        $('#create-barony-btn').show();
-    }
+        while (army = armies.pop()) {
+            var marker = L.marker(army.coords, {
+                icon: armyIcon
+            });
+            marker.id = army.id;
+            marker.type = 'army';
+            marker.bindPopup('<h5>'+army.name+'</h5>'+(army.isOwner ? '<a class="btn btn-primary btn-xs btn-army-move" href="/map/move-army?id='+army.id+'">[m] Relocate</a>' : ''));
+            marker.addTo(map);
+            markers.push(marker);
+        }
+        currentRequestMarkers = false;
+        $('#map-info-label').hide();
+    });
 }
 
 function mapInit() {
@@ -101,119 +149,105 @@ function mapInit() {
     resizeBlocks();
 
     map = L.map("map",{
-        maxZoom: 10,
-        minZoom: 10,
-        zoomControl: false
-    }).setView([100,-180], 10);
+        maxZoom: 19,
+        minZoom: 2,
+        maxBounds: new L.LatLngBounds(new L.LatLng(-90, -180), new L.LatLng(90, 180))
+    }).setView([0,0], 2);
     
-    var canvasTiles = L.tileLayer.canvas({
-        continuousWorld: true,
-        tileSize: 300
+    var CartoDB_DarkMatterNoLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
     });
-
-    canvasTiles.drawTile = function(canvas, tilePoint, zoom) {
-        var ctx = canvas.getContext("2d");
-        canvas.setAttribute("data-x",tilePoint.x);
-        canvas.setAttribute("data-y",tilePoint.y);
-        loadChunk(ctx, tilePoint.x, tilePoint.y);
-    };
-
-    canvasTiles.addTo(map);
-    
-    map.on("dragstart", function(e) {
+    CartoDB_DarkMatterNoLabels.addTo(map);
+//    var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+//        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+//        subdomains: 'abcd',
+//        maxZoom: 19
+//    });
+//    CartoDB_DarkMatter.addTo(map);
+        
+    map.on("dragstart", function(e){
         $("#map").addClass("dragging");
+        clearMarkers();
     });
-    map.on("dragend", function (e) {
+    map.on("dragend", function(e){
         setTimeout(function() {
             $("#map").removeClass("dragging");
         }, 100);
-    });
-    
-    $("#map").on("mousemove", "canvas.leaflet-tile", function(e){
-        $("#right-bottom-label").empty();
-        if (!$("#map").hasClass("dragging")) { // проверка, что это не перетаскивание
-            var tile = getTileByEvent($(this).data("x"), $(this).data("y"), e);
-            if (tile) {
-                $("#right-bottom-label").text(tile.id+" ["+tile.x+","+tile.y+"] "+tile.biomeLabel);
-                if (tile.holding) {
-                    $("#right-bottom-label").append(' — '+tile.holding.name);
-                }
-            }
+        clearMarkers();
+        if (map.getZoom() > 4) {
+            loadMarkers();
         }
     });
     
-    $("#map").on("click", "canvas.leaflet-tile", function(e){
-        if (!$("#map").hasClass("dragging")) { // проверка, что это клик, а не конец перетаскивания
-            var tile = getTileByEvent($(this).data("x"), $(this).data("y"), e);
-            if (tile) {
-                showTileInfo(tile);
-                mapCursor.set(chunkCache[$(this).data("x")+"x"+$(this).data("y")], tile);
-            } else {
-                mapCursor.clear();
-            }
+    map.on("zoomstart", function(e){
+        clearMarkers();
+    });
+    map.on("zoomend", function(e){
+        clearMarkers();
+        if (map.getZoom() > 4) {
+            loadMarkers();
+        } else {
+            $('#map-info-label').text('Zoom in to see holdings').show();
         }
     });
     
-    $("#map").on("mouseover", "canvas.leaflet-tile", function(e){
-        $("#right-bottom-label").empty();
-    });
-    
-    $('#build-castle-btn').click(function(){
-       $('#build-castle-modal').modal();
-    });
-    
-    $('#create-barony-btn').click(function(){
-       $('#create-barony-modal').modal();
-    });
+    $('#map-info-label').text('Zoom in to see holdings').show();
 }
 
-function getTileByEvent(chunkX, chunkY, e){
-    var display = chunkCache[chunkX+"x"+chunkY];
-    var displayCoords = display.eventToPosition(e);
-    var realCoords = coordsChunkToTile({x:displayCoords[0],y:displayCoords[1]},chunkX,chunkY);
-    return tilesCache[realCoords.x+"x"+realCoords.y];
+function mapInitBuildingSelect(){
+    
+    map.on("dragstart", function(e){
+        clearPolygons();
+    });
+    map.on("dragend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygons();
+        }
+    });
+    
+    map.on("zoomstart", function(e){
+        clearPolygons();
+    });
+    map.on("zoomend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygons();
+        } else {
+            $('#map-info-label').text('Zoom in to see tiles').show();
+        }
+    });
+    
+    $('#map-info-label').text('Zoom in to see tiles').show();
+    
 }
-
-var mapCursor = new (function() {
-    
-    this.set = function(chunk, tile) {
-        if (this.active) {
-            this.stopBlink();
+var army;
+function mapInitMoveArmy(a){
+    army = a;
+    map.on("dragstart", function(e){
+        clearPolygons();
+    });
+    map.on("dragend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygonsForArmies();
         }
-        this.chunk = chunk;
-        this.tile = tile;
-        this.startBlink();
-    };
+    });
     
-    this.clear = function() {
-        this.stopBlink();
-        this.chunk = null;
-        this.tile = null;
-    };
-    
-    this.active = false;
-    this.blinkingState = false;
-    this.blinkerInterval;
-    
-    this.startBlink = function() {
-        this.active = true;
-        this.blink();
-        this.blinkerInterval = setInterval(this.blink, 500);
-    };
-    
-    this.stopBlink = function() {
-        this.active = false;
-        this.blinkingState = false;
-        this.blink();
-        clearInterval(this.blinkerInterval);
-    };
-    
-    this.blink = function() {
-        if (mapCursor.chunk) {
-            var backgroundColor = mapCursor.blinkingState ? "#ff0" : "#000";
-            drawTile(mapCursor.chunk, mapCursor.tile, backgroundColor);
-            mapCursor.blinkingState = !mapCursor.blinkingState;        
+    map.on("zoomstart", function(e){
+        clearPolygons();
+    });
+    map.on("zoomend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygonsForArmies();
+        } else {
+            $('#map-info-label').text('Zoom in to see tiles').show();
         }
-    };
+    });
     
-});
+    $('#map-info-label').text('Zoom in to see tiles').show();
+    
+}

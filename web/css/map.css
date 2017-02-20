@@ -21,10 +21,11 @@
     left: 0;
 }
 
-.right-main-panel {
-    display: none;
-}
-
-.right-panel-btn {
-    display: none;
+#map-info-label {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px;
+    z-index: 100;
 }

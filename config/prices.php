@@ -1,6 +1,7 @@
 <?php
 
 use app\models\titles\Title;
+use app\models\units\Unit;
 
 return [
     
@@ -18,11 +19,11 @@ return [
     'unit' => [
         'spawn' => function(array $params) { // создание
             switch ($params['protoId']) {
-                case 1: // мечники
+                case Unit::PROTOTYPE_SWORDMANS: // мечники
                     return 2.0;
-                case 2: // лучники
+                case Unit::PROTOTYPE_BOWMANS: // лучники
                     return 1.0;
-                case 3: // конница
+                case Unit::PROTOTYPE_HORSEMANS: // конница
                     return 3.0;
             }
         },
@@ -33,6 +34,14 @@ return [
             switch ($params['level']) {
                 case Title::LEVEL_BARONY:
                     return 1.0;
+                case Title::LEVEL_COUNT:
+                    return 2.0;
+                case Title::LEVEL_DUKE:
+                    return 5.0;
+                case Title::LEVEL_KING:
+                    return 10.0;
+                case Title::LEVEL_EMPEROR:
+                    return 30.0;
             }
         },
     ],

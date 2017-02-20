@@ -8,9 +8,9 @@ use Yii,
     app\components\ExperienceCalculator,
     app\models\ActiveRecord,
     app\models\Auth,
-    app\models\UnitGroup,
+    app\models\units\UnitGroup,
     app\models\Invite,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\titles\Title,
     app\models\holdings\Holding;
 
@@ -45,6 +45,7 @@ use Yii,
  * @property Unit[] $units
  * @property Holding $capitalHolding
  * @property Holding $currentHolding
+ * @property Holding[] $buildedHoldings
  * @property Position $position
  * @property Group $currentGroup
  * @property Title $primaryTitle
@@ -194,6 +195,14 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getBuildedHoldings()
+    {
+        return $this->hasMany(Holding::className(), ['buildedUserId' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCurrentGroup()
     {
         return $this->hasOne(UnitGroup::className(), ['id' => 'currentGroupId']);
@@ -281,9 +290,14 @@ class User extends ActiveRecord implements IdentityInterface
         }
     }
     
+    public function getLeveledName()
+    {
+        return '['.$this->level.'] '.$this->name;
+    }
+    
     public function getGenderedName()
     {
-        return $this->genderPrefix.' '.$this->name;
+        return $this->genderPrefix.' '.$this->getLeveledName();
     }
     
     public function getFullName()
@@ -379,16 +393,7 @@ class User extends ActiveRecord implements IdentityInterface
         $this->payForAction($category, $action, $params, false);
         return $this->addExperienceForAction($category, $action, $params, $save);
     }
-    
-    public function beforeSave($insert)
-    {
-        if ($insert) {
-            $this->registration = time();
-        }
         
-        return parent::beforeSave($insert);
-    }
-    
     /**
      * 
      * @return Position

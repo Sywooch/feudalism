@@ -42,6 +42,12 @@ $this->registerJs('init()');
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <?php if (!Yii::$app->user->isGuest):?>
                     <ul class="nav navbar-nav navbar-right navbar-user">
+                        <li>
+                            <a href="/"><?= Yii::t('app', 'Panel') ?></a>
+                        </li>
+                        <li>
+                            <a href="/map"><?= Yii::t('app', 'Map') ?></a>
+                        </li>
                         <li class="dropdown user-dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <?=Yii::$app->user->identity->fullName?> <span class="badge">2</span> <b class="caret"></b></a>
                             <ul class="dropdown-menu">

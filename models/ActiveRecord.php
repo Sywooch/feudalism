@@ -7,6 +7,7 @@ use yii\db\ActiveRecord as YiiActiveRecord,
 
 /**
  * Надстройка над ActiveRecord
+ * @property array $displayedAttributes
  */
 abstract class ActiveRecord extends YiiActiveRecord
 {
@@ -23,7 +24,7 @@ abstract class ActiveRecord extends YiiActiveRecord
     {
         $m = static::find()->where($params)->one();
         if (is_null($m)) {
-            $m = new static(array_merge($params,$paramsToCreate));
+            $m = static::instantiate(array_merge($params,$paramsToCreate));
         } else {
             if ($paramsToLoad === false) {
                 $paramsToLoad = $paramsToCreate;

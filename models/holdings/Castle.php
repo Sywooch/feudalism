@@ -4,7 +4,7 @@ namespace app\models\holdings;
 
 use Yii,
     app\models\holdings\Holding,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\User,
     app\models\Tile;
 
@@ -16,14 +16,14 @@ class Castle extends Holding
 {
     
     const PROTOTYPE = Holding::PROTOTYPE_CASTLE;
-    
-    const CHARACTER = 'Ω';
-    
+        
     /**
      * Строит новый замок со всеми необходимыми проверками
      * @param string $name
      * @param User $user
      * @param Tile $tile
+     * @param double $lat
+     * @param double $lng
      * @return self
      */
     public static function build($name, User &$user, Tile &$tile)
@@ -33,7 +33,7 @@ class Castle extends Holding
             $model->addError('userId', Yii::t('app','You haven`t money'));
         }
         
-        if ($tile->getHolding()->count()) {
+        if ($tile->getHolding()->exists()) {
             $model->addError('tileId', Yii::t('app', 'Tile allready occupied'));
         }
 
@@ -134,17 +134,17 @@ class Castle extends Holding
      * @param User $user
      * @return Unit
      */
-    public function spawnUnit($protoId, User &$user)
+    public function spawnUnit(int $protoId, User &$user)
     {
 
         $unit = Unit::findOrCreate([
             'userId' => $user->id,
             'protoId' => $protoId,
-            'currentHoldingId' => $this->id
+            'currentHoldingId' => $this->id,
         ]);
         
         // Юзер — владелец замка
-        if ($this->isOwner($user)) {
+        if (!$this->isOwner($user)) {
             $this->addError('user', Yii::t('app','Action not allowed'));
         }
             
@@ -175,7 +175,7 @@ class Castle extends Holding
         
     public function getFullName()
     {
-        return Yii::t('app', "{0} castle", [$this->name]);
+        return Yii::t('app', "Castle of {0}", [$this->name]);
     }
         
     /**
@@ -183,7 +183,7 @@ class Castle extends Holding
      */
     public function calcTitleSize()
     {
-        return $this->fortification*3;
+        return $this->fortification*1;
     }
 
 }

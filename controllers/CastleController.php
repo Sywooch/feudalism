@@ -5,8 +5,12 @@ namespace app\controllers;
 use Yii,
     app\models\holdings\Castle,
     app\models\Tile,
-    app\models\Unit,
+    app\models\units\Unit,
+    app\models\units\UnitGroup,
     app\controllers\Controller,
+    yii\web\NotFoundHttpException,
+    yii\web\Response,
+    yii\widgets\ActiveForm,
     yii\filters\AccessControl,
     yii\filters\VerbFilter;
 
@@ -24,7 +28,7 @@ class CastleController extends Controller
             'only' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
             'rules' => [
                 [
-                    'actions' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit'],
+                    'actions' => ['build', 'fortification-increase', 'quarters-increase', 'spawn-unit', 'up-all-units'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -37,6 +41,7 @@ class CastleController extends Controller
                 'fortification-increase' => ['post'],
                 'quarters-increase' => ['post'],
                 'spawn-unit' => ['post'],
+                'up-all-units' => ['post'],
             ],
         ];
 
@@ -48,18 +53,17 @@ class CastleController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionView($id)
+    public function actionIndex(int $id)
     {
         /* @var $model Castle */
         $model = Castle::findOne($id);
         if (is_null($model)) {
-            return $this->renderJsonError(Yii::t('app','Castle not found'));
-        } else {
-            return $this->renderJson($model->getDisplayedAttributes($model->isOwner($this->user), [
-                'userName',
-                'userLevel'
-            ]));
+            throw new NotFoundHttpException(Yii::t('app', 'Castle not found'));
         }
+        
+        return $this->render('view', [
+            'castle' => $model,
+        ]);
     }
 
     /**
@@ -82,7 +86,7 @@ class CastleController extends Controller
                 $this->user->link('currentHolding', $model);
             }
             
-            return $this->renderJson($model);
+            return $this->redirect(['/castle/view', 'id' => $model->id]);
         } else {
             if (count($model->getErrors())) {
                 return $this->renderJsonError($model->getErrors());
@@ -92,6 +96,24 @@ class CastleController extends Controller
                 return $this->renderJsonError(Yii::t('app','Unknown error!'));
             }
         }
+    }
+    
+    public function actionBuildForm(int $tileId)
+    {
+        $model = new Castle([
+            'tileId' => $tileId,
+            'protoId' => Castle::PROTOTYPE,
+            'buildedUserId' => $this->viewer_id,
+        ]);
+        
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        
+        return $this->render('build-form',[
+            'model' => $model,
+        ]);
     }
     
     /**
@@ -179,6 +201,35 @@ class CastleController extends Controller
             }
         }
         
+    }
+    
+    /**
+     * 
+     * @param integer $id
+     */
+    public function actionUpAllUnits()
+    {
+        /* @var $model Castle */
+        $model = Castle::findOne(Yii::$app->request->post('id'));
+        if (is_null($model)) {
+            return $this->renderJsonError(Yii::t('app','Invalid castle ID'));
+        }
+        
+        if (!$model->isOwner($this->user)) {
+            return $this->renderJsonError(Yii::t('app','Action not allowed'));
+        }
+        
+        $group = new UnitGroup([
+            'userId' => $this->user->id,
+            'tileId' => $model->tileId,
+            'name' => Yii::t('app', '{0} army', [$model->name]),
+        ]);
+        if (!$group->save()) {
+            return $this->renderJsonError($group->getErrors());
+        }
+        Unit::updateAll(['currentGroupId' => $group->id, 'currentHoldingId' => null], ['currentHoldingId' => $model->id]);
+        
+        return $this->redirect('/map');
     }
     
 }

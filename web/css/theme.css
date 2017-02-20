@@ -1,6 +1,5 @@
 ﻿/* Dark Admin Bootstrap Theme by PrepBootstrap - http://www.prepbootstrap.com */
 html {
-  font-family: pt_monoregular;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -98,7 +97,6 @@ code,
 kbd,
 pre,
 samp {
-  font-family: pt_monoregular;
   font-size: 1em;
 }
 button,
@@ -265,7 +263,6 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 body {
-  font-family: pt_monoregular;
   font-size: 14px;
   line-height: 1.42857143;
   color: #BDBDBD;
@@ -354,7 +351,6 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: pt_monoregular;
   font-weight: 500;
   line-height: 1.1;
   color: #ffffff;
@@ -677,12 +673,6 @@ address {
   margin-bottom: 20px;
   font-style: normal;
   line-height: 1.42857143;
-}
-code,
-kbd,
-pre,
-samp {
-  font-family: Menlo, Monaco, Consolas, "Courier New", pt_monoregular;
 }
 code {
   padding: 2px 4px;

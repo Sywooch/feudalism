@@ -2,7 +2,11 @@
 
 namespace app\commands;
 
-use yii\console\Controller,
+use Yii,
+    yii\console\Controller,
+    yii\helpers\ArrayHelper,
+    app\components\TileCombiner,
+    app\components\RegionCombiner,
     app\models\titles\Title,
     app\models\Tile;
 
@@ -20,38 +24,59 @@ class MinutlyUpdateController extends Controller {
     
     public function actionCalcClaimedTerritories($debug = false)
     {
+        $baronies = Title::find()
+                ->where(['level' => Title::LEVEL_BARONY])
+                ->orderBy(['captured' => SORT_ASC])
+                ->all();
+        
+        if ($debug) {
+            echo "Start calculate territories for ".count($baronies)." baronies...".PHP_EOL;
+        }
+        
+        /* @var $title Title */
+        foreach ($baronies as $title) {
+            
+            $polygon = TileCombiner::combineList($title->getClaimedTerritory());
+            $filepath = Yii::$app->basePath.'/data/polygons/'.$title->id.'.json';
+            file_put_contents($filepath, json_encode($polygon));
+            
+            $claimedTiles = [];
+            $unclaimedTiles = [];
+            foreach ($title->getClaimedTerritory() as $tile) {
+                $tileId = (int)$tile->id;
+                $claimedTiles[$tileId] = $tileId;
+            }
+            foreach ($title->tiles as $tile) {
+                $tileId = (int)$tile->id;
+                if (isset($claimedTiles[$tileId])) {
+                    unset($claimedTiles[$tileId]);
+                } else {
+                    $unclaimedTiles[$tileId] = $tileId;
+                }
+            }
+            Tile::updateAll(['titleId' => null], ['in', 'id', $unclaimedTiles]);
+            Tile::updateAll(['titleId' => $title->id], ['in', 'id', $claimedTiles]);
+            
+            if ($debug) {
+                echo "Title {$title->fullName} updated.".PHP_EOL;
+            }
+        }
+        
         $titles = Title::find()
+                ->where(['>', 'level', Title::LEVEL_BARONY])
                 ->orderBy(['level' => SORT_ASC, 'captured' => SORT_ASC])
                 ->all();
         
-        Tile::updateAll(['titleId' => null], 'titleId IS NOT NULL');
-        
-        $tilesToSave = [];
-        
-        /* @var $title Title*/
-        foreach ($titles as $title) {
-            $tiles = $title->getClaimedTerritory();
-            foreach ($tiles as $tile) {
-                if (!isset($tilesToSave[$tile->id])) {
-                    $tilesToSave[$tile->id] = $tile;
-                    $tilesToSave[$tile->id]->titleId = $title->id;
-                }
-            }
-        }
-        
         if ($debug) {
-            $count = count($tilesToSave);
-            echo "{$count} tiles will be saved:".PHP_EOL;
+            echo "Start calculate territories for ".count($titles)." titles...".PHP_EOL;
         }
         
-        $i = 0;
-        foreach ($tilesToSave as $id => $tile) {
-            $tile->save();
-            $i++;
-            if ($debug && $i%10) {
-                echo "Saved {$i}/{$count} tiles".PHP_EOL;
-            }
+        foreach ($titles as $title) {
+            $polygon = RegionCombiner::combine($title->getVassals());
+            $filepath = Yii::$app->basePath.'/data/polygons/'.$title->id.'.json';
+            file_put_contents($filepath, json_encode($polygon));
         }
+        
         
         if ($debug) {
             echo "All tiles saved.".PHP_EOL;

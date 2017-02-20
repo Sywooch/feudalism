@@ -8,7 +8,7 @@ use Yii,
     app\models\holdings\HoldingQuery,
     app\models\titles\Title,
     app\models\Position,
-    app\models\Unit,
+    app\models\units\Unit,
     app\models\User,
     app\models\Tile;
 
@@ -38,7 +38,7 @@ use Yii,
  * @property string $fullName
  * @property string $userName
  * @property integer $userLevel
- * @property string $character
+ * @property array $coords
  * 
  * @property boolean $canFortificationIncreases 
  * @property boolean $canQuartersIncreases
@@ -51,10 +51,17 @@ class Holding extends ActiveRecord implements Position
      * Замок
      */
     const PROTOTYPE_CASTLE = 1;
+	
+    /**
+     * Город
+     */
+    const PROTOTYPE_CITY = 2;
     
+    /**
+     * Переопределяется в наследниках
+     */
     const PROTOTYPE = null;
-    const CHARACTER = null;
-
+    
     public function init()
     {
         $this->protoId = static::PROTOTYPE;
@@ -63,7 +70,7 @@ class Holding extends ActiveRecord implements Position
 
     public static function find()
     {
-        return new HoldingQuery(get_called_class(), ['protoId' => static::PROTOTYPE]);
+        return new HoldingQuery(static::className(), ['protoId' => static::PROTOTYPE]);
     }
 
     public function beforeSave($insert)
@@ -83,6 +90,9 @@ class Holding extends ActiveRecord implements Position
             switch (intval($row["protoId"])) {
                 case self::PROTOTYPE_CASTLE:
                     $className .= "Castle";
+                    break;
+                case self::PROTOTYPE_CITY:
+                    $className .= "City";
                     break;
                 default:
                     throw new Exception("Invalid holding prototype ({$row['protoId']}) in model ID{$row['id']}!");
@@ -104,10 +114,11 @@ class Holding extends ActiveRecord implements Position
     public function rules()
     {
         return [
-            [['tileId', 'titleId', 'population', 'fortification', 'quarters', 'quartersUsed', 'builded', 'buildedUserId', 'captured'], 'integer'],
             [['tileId', 'name'], 'required'],
+            [['tileId', 'titleId', 'population', 'fortification', 'quarters', 'quartersUsed', 'builded', 'buildedUserId', 'captured'], 'integer', 'min' => 0],
             [['name'], 'string', 'max' => 255],
-            [['tileId'], 'unique']
+            [['tileId'], 'unique'],
+            [['tileId'], 'exist', 'targetClass' => Tile::className(), 'targetAttribute' => ['tileId' => 'id']],
         ];
     }
 
@@ -135,6 +146,7 @@ class Holding extends ActiveRecord implements Position
     {
         $attributes = [
             'id',
+            'protoId',
             'tileId',
             'titleId',
             'name',
@@ -143,12 +155,19 @@ class Holding extends ActiveRecord implements Position
             'quarters',
             'builded',
             'buildedUserId',
-            'captured'
+            'captured',
+            'coords',
         ];
         if ($owner) {
             $attributes[] = 'quartersUsed';
         }
         return $attributes;
+    }
+    
+    public function getDisplayedAttributes($owner = false, $displayedAttributes = array()) {
+        $ar = parent::getDisplayedAttributes($owner, $displayedAttributes);
+        $ar['isOwner'] = $owner;
+        return $ar;
     }
 
     /**
@@ -156,7 +175,7 @@ class Holding extends ActiveRecord implements Position
      */
     public function getUnits()
     {
-        return $this->hasMany(Unit::className(), ['currentCastleId' => 'id']);
+        return $this->hasMany(Unit::className(), ['currentHoldingId' => 'id']);
     }
 
     /**
@@ -172,7 +191,7 @@ class Holding extends ActiveRecord implements Position
      */
     public function getUsers()
     {
-        return $this->hasMany(User::className(), ['currentCastleId' => 'id']);
+        return $this->hasMany(User::className(), ['currentHoldingId' => 'id']);
     }
     
     /** 
@@ -198,7 +217,7 @@ class Holding extends ActiveRecord implements Position
     
     public function getUserLevel()
     {
-        return $this->title ? $this->title->user->level : null;
+        return $this->title && $this->title->user ? $this->title->user->level : null;
     }
     
     public function getCanFortificationIncreases()
@@ -224,11 +243,6 @@ class Holding extends ActiveRecord implements Position
     {
         return ($this->title && $this->title->userId === $user->id);
     }
-        
-    public function getCharacter()
-    {
-        return static::CHARACTER;
-    }
     
     public function getFullName()
     {
@@ -241,6 +255,11 @@ class Holding extends ActiveRecord implements Position
     public function calcTitleSize()
     {
         throw new Exception("Method ".static::className()."::calcTitleSize() not overrided!");
+    }
+    
+    public function getCoords()
+    {
+        return [$this->tile->centerLat, $this->tile->centerLng];
     }
     
 }
