@@ -3,9 +3,12 @@
 namespace app\controllers;
 
 use Yii,
+    yii\web\HttpException,
+    yii\web\NotFoundHttpException,
     app\controllers\Controller,
     app\models\titles\Title,
-    app\models\Tile;
+    app\models\Tile,
+    app\models\units\UnitGroup;
 
 /**
  * Description of MapController
@@ -28,6 +31,22 @@ class MapController extends Controller {
     public function actionBuildCastle()
     {
         return $this->render('build-castle');
+    }
+    
+    public function actionMoveArmy(int $id)
+    {
+        $army = UnitGroup::findOne($id);
+        if (is_null($army)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Army not found'));
+        }
+        if (!$army->isOwner($this->user)) {
+            throw new HttpException(403, Yii::t('app', 'Action not allowed'));
+        }
+        
+        return $this->render('move-army', [
+            'army' => $army,
+            'user' => $this->user,
+        ]);
     }
     
     public function actionGetPolygons(float $minLat, float $maxLat, float $minLng, float $maxLng)
@@ -57,9 +76,9 @@ class MapController extends Controller {
         $result = ['holdings' => [], 'armies' => []];
         foreach ($tiles as $tile) {
             /* @var $tile Tile */
-            $result['holdings'][] = $tile->holding->displayedAttributes;
+            $result['holdings'][] = $tile->holding->getDisplayedAttributes($tile->holding->isOwner($this->user));
             foreach ($tile->unitGroups as $group) {
-                $result['armies'][] = $group->displayedAttributes;
+                $result['armies'][] = $group->getDisplayedAttributes($group->isOwner($this->user));
             }
         }
         return $this->renderJson($result);

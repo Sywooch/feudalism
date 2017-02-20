@@ -66,6 +66,12 @@ class UnitGroup extends ActiveRecord implements Position
             'coords',
         ];
     }
+    
+    public function getDisplayedAttributes($owner = false, $displayedAttributes = array()) {
+        $ar = parent::getDisplayedAttributes($owner, $displayedAttributes);
+        $ar['isOwner'] = $owner;
+        return $ar;
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -102,6 +108,15 @@ class UnitGroup extends ActiveRecord implements Position
     public function getCoords()
     {
         return [$this->tile->centerLat-0.03, $this->tile->centerLng+0.03];
+    }
+    
+    /**
+     * 
+     * @return boolean
+     */
+    public function isOwner(User &$user)
+    {
+        return ((int)$this->userId === (int)$user->id);
     }
     
 }

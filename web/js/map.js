@@ -36,6 +36,39 @@ var armyIcon = L.icon({
 var currentRequestPolygons = false;
 var currentRequestMarkers = false;
 
+function loadPolygonsForArmies() {
+    $('#map-info-label').text('Loading tiles…').show();
+    var bounds = map.getBounds();
+    if (currentRequestPolygons) {
+        currentRequestPolygons.abort();
+    }
+    currentRequestPolygons = Request.getJson('/map/get-polygons', {
+        minLat: bounds.getSouth()-0.1,
+        maxLat: bounds.getNorth()+0.1,
+        minLng: bounds.getWest()-0.1,
+        maxLng: bounds.getEast()+0.1
+    }, function(data){
+        while (tile = data.result.pop()) {
+            var polygon = L.polygon(tile.coords, {
+                weight: 1,
+                color: 'white',
+                fillColor: tile.occupied ? 'red' : 'white',
+                fillOpacity: 0.2
+            });
+            polygon.id = tile.id;
+            polygon.center = new L.LatLng(tile.centerLat, tile.centerLng);
+            polygon.occupied = tile.occupied;
+            polygon.on("click", function(e){
+                L.polyline([army.coords, e.target.center]).addTo(map);
+            });
+            polygon.addTo(map);
+            polygons.push(polygon);
+        }
+        currentRequestPolygons = false;
+        $('#map-info-label').hide();
+    });
+}
+
 function loadPolygons() {
     $('#map-info-label').text('Loading tiles…').show();
     var bounds = map.getBounds();
@@ -102,7 +135,7 @@ function loadMarkers() {
             });
             marker.id = army.id;
             marker.type = 'army';
-            marker.bindPopup('<h5>'+army.name+'</h5>');
+            marker.bindPopup('<h5>'+army.name+'</h5>'+(army.isOwner ? '<a class="btn btn-primary btn-xs btn-army-move" href="/map/move-army?id='+army.id+'">[m] Relocate</a>' : ''));
             marker.addTo(map);
             markers.push(marker);
         }
@@ -182,6 +215,34 @@ function mapInitBuildingSelect(){
         clearPolygons();
         if (map.getZoom() > 7) {
             loadPolygons();
+        } else {
+            $('#map-info-label').text('Zoom in to see tiles').show();
+        }
+    });
+    
+    $('#map-info-label').text('Zoom in to see tiles').show();
+    
+}
+var army;
+function mapInitMoveArmy(a){
+    army = a;
+    map.on("dragstart", function(e){
+        clearPolygons();
+    });
+    map.on("dragend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygonsForArmies();
+        }
+    });
+    
+    map.on("zoomstart", function(e){
+        clearPolygons();
+    });
+    map.on("zoomend", function(e){
+        clearPolygons();
+        if (map.getZoom() > 7) {
+            loadPolygonsForArmies();
         } else {
             $('#map-info-label').text('Zoom in to see tiles').show();
         }

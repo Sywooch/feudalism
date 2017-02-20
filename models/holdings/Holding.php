@@ -163,6 +163,12 @@ class Holding extends ActiveRecord implements Position
         }
         return $attributes;
     }
+    
+    public function getDisplayedAttributes($owner = false, $displayedAttributes = array()) {
+        $ar = parent::getDisplayedAttributes($owner, $displayedAttributes);
+        $ar['isOwner'] = $owner;
+        return $ar;
+    }
 
     /**
      * @return \yii\db\ActiveQuery
